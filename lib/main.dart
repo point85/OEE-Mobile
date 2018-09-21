@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'ViewController.dart';
 
-void main() => runApp(new MyApp());
+void main() => runApp(new OeeMobileApp());
 
-class MyApp extends StatelessWidget {
+class OeeMobileApp extends StatelessWidget  {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -22,6 +23,13 @@ class MyApp extends StatelessWidget {
       home: new MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
+
+  void handleDocumentRequestResponse(String response) {
+    print(response);
+  }
+  void handleNewsRequestResponse(String response) {
+    print(response);
+  }
 }
 
 class MyHomePage extends StatefulWidget {
@@ -39,11 +47,17 @@ class MyHomePage extends StatefulWidget {
   final String title;
 
   @override
-  _MyHomePageState createState() => new _MyHomePageState();
+  MyHomePageState createState() => new MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+
+  ViewController _viewController;
+
+  MyHomePageState() {
+    _viewController = new ViewController(this);
+  }
 
   void _incrementCounter() {
     setState(() {
@@ -54,6 +68,12 @@ class _MyHomePageState extends State<MyHomePage> {
       // called again, and so nothing would appear to happen.
       _counter++;
     });
+
+    _viewController.sendNewsRequest();
+  }
+
+  void updateUI(String response) {
+    print(response);
   }
 
   @override
