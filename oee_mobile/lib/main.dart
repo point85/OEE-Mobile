@@ -1,13 +1,19 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
-void main() => runApp(MyApp());
+import 'model.dart';
 
-class MyApp extends StatelessWidget {
+void main() => runApp(OeeMobileApp());
+
+class OeeMobileApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Point85 OEE Application',
       theme: new ThemeData(
         // This is the theme of your application.
         //
@@ -19,13 +25,13 @@ class MyApp extends StatelessWidget {
         // counter didn't reset back to zero; the application is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: new MyHomePage(title: 'Point85 OEE Home Page'),
+      home: new OeeHomePage(title: 'Point85 OEE Home Page'),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+class OeeHomePage extends StatefulWidget {
+  OeeHomePage({Key key, this.title}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -39,11 +45,19 @@ class MyHomePage extends StatefulWidget {
   final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _OeeHomePageState createState() => _OeeHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _OeeHomePageState extends State<OeeHomePage> {
   int _counter = 0;
+  Future<Post> post;
+  Future<MaterialList> materialListFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    //post = fetchPost();
+  }
 
   void _incrementCounter() {
     setState(() {
@@ -53,6 +67,10 @@ class _MyHomePageState extends State<MyHomePage> {
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
       _counter++;
+
+      // send the HTTP request
+      //post = fetchPost();
+      materialListFuture = fetchMaterials();
     });
   }
 
@@ -97,6 +115,24 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.display1,
             ),
+
+            FutureBuilder<MaterialList>(
+              future: materialListFuture,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+
+                  MaterialList matList = snapshot.data;
+                  //Map<String, dynamic> map = matList.materialList[0];
+                  MaterialDto dto = matList.materialList[0];
+                  return Text(dto.name);
+                } else if (snapshot.hasError) {
+                  return Text("${snapshot.error}");
+                }
+
+                // By default, show a loading spinner.
+                return CircularProgressIndicator();
+              },
+            ),
           ],
         ),
       ),
@@ -105,6 +141,50 @@ class _MyHomePageState extends State<MyHomePage> {
         tooltip: 'Increment',
         child: Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+}
+
+Future<Post> fetchPost() async {
+  final response =
+  await http.get('https://jsonplaceholder.typicode.com/posts/1');
+
+  if (response.statusCode == 200) {
+    // If the call to the server was successful, parse the JSON.
+    return Post.fromJson(json.decode(response.body));
+  } else {
+    // If that call was not successful, throw an error.
+    throw Exception('Failed to load post');
+  }
+}
+
+Future<MaterialList> fetchMaterials() async {
+  final response =
+  await http.get('http://192.168.0.11:8182/material');
+
+  if (response.statusCode == 200) {
+    // If the call to the server was successful, parse the JSON.
+    return MaterialList.fromJson(json.decode(response.body));
+  } else {
+    // If that call was not successful, throw an error.
+    throw Exception('Failed to load material');
+  }
+}
+
+class Post {
+  final int userId;
+  final int id;
+  final String title;
+  final String body;
+
+  Post({this.userId, this.id, this.title, this.body});
+
+  factory Post.fromJson(Map<String, dynamic> json) {
+    return Post(
+      userId: json['userId'],
+      id: json['id'],
+      title: json['title'],
+      body: json['body'],
     );
   }
 }
