@@ -3,12 +3,19 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
+//import 'package:oee_mobile/TreeViewMain.dart';
+import 'package:dynamic_treeview/dynamic_treeview.dart';
 import 'model.dart';
+import 'EquipmentEvent.dart';
+//import 'lists_expansion_tile_ex.dart';
 
 void main() => runApp(OeeMobileApp());
+//void main() => runApp(ExpansionTileExample());
+//void main() => runApp(TreeViewApp());
 
 class OeeMobileApp extends StatelessWidget {
+  //const OeeMobileApp({Key key}) : super(key: key);
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -108,30 +115,52 @@ class _OeeHomePageState extends State<OeeHomePage> {
           // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+
             Text(
               'You have pushed the button this many times:',
             ),
             Text(
               '$_counter',
-              style: Theme.of(context).textTheme.display1,
+              style: Theme
+                  .of(context)
+                  .textTheme
+                  .display1,
             ),
 
             FutureBuilder<MaterialList>(
               future: materialListFuture,
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
-
                   MaterialList matList = snapshot.data;
                   //Map<String, dynamic> map = matList.materialList[0];
-                  MaterialDto dto = matList.materialList[0];
+                  MaterialDto dto = matList.materialList[_counter];
                   return Text(dto.name);
                 } else if (snapshot.hasError) {
                   return Text("${snapshot.error}");
                 }
-
                 // By default, show a loading spinner.
                 return CircularProgressIndicator();
               },
+            ),
+
+            DynamicTreeView(
+              data: getData(),
+              config: Config(
+                  parentTextStyle:
+                  TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+                  rootId: "1",
+                  parentPaddingEdgeInsets:
+                  EdgeInsets.only(left: 16, top: 0, bottom: 0)),
+              onTap: (m) {
+                print("onChildTap -> $m");
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (ctx) => EquipmentEvent(
+                          data: m,
+                        )));
+              },
+              width: MediaQuery.of(context).size.width,
             ),
           ],
         ),
@@ -142,6 +171,143 @@ class _OeeHomePageState extends State<OeeHomePage> {
         child: Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+
+  List<BaseData> getData() {
+    return [
+      MaterialDataModel(
+        id: 1,
+        name: 'Root',
+        parentId: -1,
+        extras: {'key': 'extradata1'},
+      ),
+      MaterialDataModel(
+        id: 2,
+        name: 'Men',
+        parentId: 1,
+        extras: {'key': 'extradata2'},
+      ),
+      MaterialDataModel(
+        id: 3,
+        name: 'Shorts',
+        parentId: 2,
+        extras: {'key': 'extradata3'},
+      ),
+      MaterialDataModel(
+        id: 4,
+        name: 'Shoes',
+        parentId: 2,
+        extras: {'key': 'extradata4'},
+      ),
+      MaterialDataModel(
+        id: 5,
+        name: 'Women',
+        parentId: 1,
+        extras: {'key': 'extradata5'},
+      ),
+      MaterialDataModel(
+        id: 6,
+        name: 'Shoes',
+        parentId: 5,
+        extras: {'key': 'extradata6'},
+      ),
+      MaterialDataModel(
+        id: 7,
+        name: 'Shorts',
+        parentId: 5,
+        extras: {'key': 'extradata7'},
+      ),
+      MaterialDataModel(
+        id: 8,
+        name: 'Tops',
+        parentId: 5,
+        extras: {'key': 'extradata8'},
+      ),
+      MaterialDataModel(
+        id: 9,
+        name: 'Electronics',
+        parentId: 1,
+        extras: {'key': 'extradata9'},
+      ),
+      MaterialDataModel(
+        id: 10,
+        name: 'Phones',
+        parentId: 9,
+        extras: {'key': 'extradata10'},
+      ),
+      MaterialDataModel(
+        id: 11,
+        name: 'Tvs',
+        parentId: 9,
+        extras: {'key': 'extradata11'},
+      ),
+      MaterialDataModel(
+        id: 12,
+        name: 'Laptops',
+        parentId: 9,
+        extras: {'key': 'extradata12'},
+      ),
+      MaterialDataModel(
+        id: 13,
+        name: 'Nike shooes',
+        parentId: 4,
+        extras: {'key': 'extradata13'},
+      ),
+      MaterialDataModel(
+        id: 14,
+        name: 'puma shoes',
+        parentId: 4,
+        extras: {'key': 'extradata14'},
+      ),
+      MaterialDataModel(
+        id: 15,
+        name: 'puma shoes 1',
+        parentId: 14,
+        extras: {'key': 'extradata15'},
+      ),
+      MaterialDataModel(
+        id: 16,
+        name: 'puma shoes 2',
+        parentId: 14,
+        extras: {'key': 'extradata16'},
+      ),
+      MaterialDataModel(
+        id: 17,
+        name: 'puma shoes 3',
+        parentId: 14,
+        extras: {'key': 'extradata17'},
+      ),
+    ];
+  }
+}
+
+
+class MaterialDataModel implements BaseData {
+  final int id;
+  final int parentId;
+  String name;
+
+  ///Any extra data you want to get when tapped on children
+  Map<String, dynamic> extras;
+  MaterialDataModel({this.id, this.parentId, this.name, this.extras});
+  @override
+  String getId() {
+    return this.id.toString();
+  }
+
+  @override
+  Map<String, dynamic> getExtraData() {
+    return this.extras;
+  }
+
+  @override
+  String getParentId() {
+    return this.parentId.toString();
+  }
+
+  @override
+  String getTitle() {
+    return this.name;
   }
 }
 
