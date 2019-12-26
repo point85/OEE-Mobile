@@ -1,12 +1,14 @@
 import 'dart:async';
-import 'dart:convert';
+//import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+//import 'package:http/http.dart' as http;
 //import 'package:oee_mobile/TreeViewMain.dart';
-import 'package:dynamic_treeview/dynamic_treeview.dart';
+//import 'package:dynamic_treeview/dynamic_treeview.dart';
+import 'dynamic_treeview.dart';
 import 'model.dart';
 import 'EquipmentEvent.dart';
+import 'http_service.dart';
 //import 'lists_expansion_tile_ex.dart';
 
 void main() => runApp(OeeMobileApp());
@@ -57,7 +59,6 @@ class OeeHomePage extends StatefulWidget {
 
 class _OeeHomePageState extends State<OeeHomePage> {
   int _counter = 0;
-  Future<Post> post;
   Future<MaterialList> materialListFuture;
 
   @override
@@ -77,7 +78,7 @@ class _OeeHomePageState extends State<OeeHomePage> {
 
       // send the HTTP request
       //post = fetchPost();
-      materialListFuture = fetchMaterials();
+      materialListFuture = OeeHttpService.fetchMaterials();
     });
   }
 
@@ -115,25 +116,19 @@ class _OeeHomePageState extends State<OeeHomePage> {
           // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-
             Text(
               'You have pushed the button this many times:',
             ),
             Text(
               '$_counter',
-              style: Theme
-                  .of(context)
-                  .textTheme
-                  .display1,
+              style: Theme.of(context).textTheme.display1,
             ),
-
             FutureBuilder<MaterialList>(
               future: materialListFuture,
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   MaterialList matList = snapshot.data;
-                  //Map<String, dynamic> map = matList.materialList[0];
-                  MaterialDto dto = matList.materialList[_counter];
+                  OeeMaterial dto = matList.materialList[_counter];
                   return Text(dto.name);
                 } else if (snapshot.hasError) {
                   return Text("${snapshot.error}");
@@ -142,23 +137,22 @@ class _OeeHomePageState extends State<OeeHomePage> {
                 return CircularProgressIndicator();
               },
             ),
-
             DynamicTreeView(
               data: getData(),
               config: Config(
-                  parentTextStyle:
-                  TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+                  parentTextStyle: TextStyle(
+                      color: Colors.black, fontWeight: FontWeight.w600),
                   rootId: "1",
                   parentPaddingEdgeInsets:
-                  EdgeInsets.only(left: 16, top: 0, bottom: 0)),
+                      EdgeInsets.only(left: 16, top: 0, bottom: 0)),
               onTap: (m) {
                 print("onChildTap -> $m");
                 Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (ctx) => EquipmentEvent(
-                          data: m,
-                        )));
+                              data: m,
+                            )));
               },
               width: MediaQuery.of(context).size.width,
             ),
@@ -174,6 +168,16 @@ class _OeeHomePageState extends State<OeeHomePage> {
   }
 
   List<BaseData> getData() {
+    //if (materialListFuture == null) {
+      materialListFuture = OeeHttpService.fetchMaterials();
+      //this.materialListFuture.whenComplete(() => print("i am done"));
+      materialListFuture.then((value) {
+        print('completed with value $value');
+      }, onError: (error) {
+        print('completed with error $error');
+      });
+    //}
+
     return [
       MaterialDataModel(
         id: 1,
@@ -281,11 +285,12 @@ class _OeeHomePageState extends State<OeeHomePage> {
   }
 }
 
-
 class MaterialDataModel implements BaseData {
   final int id;
   final int parentId;
   String name;
+  String subTitle;
+  Icon icon;
 
   ///Any extra data you want to get when tapped on children
   Map<String, dynamic> extras;
@@ -309,48 +314,15 @@ class MaterialDataModel implements BaseData {
   String getTitle() {
     return this.name;
   }
-}
 
-Future<Post> fetchPost() async {
-  final response =
-  await http.get('https://jsonplaceholder.typicode.com/posts/1');
-
-  if (response.statusCode == 200) {
-    // If the call to the server was successful, parse the JSON.
-    return Post.fromJson(json.decode(response.body));
-  } else {
-    // If that call was not successful, throw an error.
-    throw Exception('Failed to load post');
+  @override
+  String getSubTitle() {
+    return this.subTitle;
   }
-}
 
-Future<MaterialList> fetchMaterials() async {
-  final response =
-  await http.get('http://192.168.0.11:8182/material');
-
-  if (response.statusCode == 200) {
-    // If the call to the server was successful, parse the JSON.
-    return MaterialList.fromJson(json.decode(response.body));
-  } else {
-    // If that call was not successful, throw an error.
-    throw Exception('Failed to load material');
-  }
-}
-
-class Post {
-  final int userId;
-  final int id;
-  final String title;
-  final String body;
-
-  Post({this.userId, this.id, this.title, this.body});
-
-  factory Post.fromJson(Map<String, dynamic> json) {
-    return Post(
-      userId: json['userId'],
-      id: json['id'],
-      title: json['title'],
-      body: json['body'],
-    );
+  @override
+  Icon getIcon() {
+    //return Icon( Icons.audiotrack, color: Colors.green, size: 30.0, );
+    return icon;
   }
 }
