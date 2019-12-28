@@ -59,9 +59,31 @@ class OeeHomePage extends StatefulWidget {
 }
 
 class _OeeHomePageState extends State<OeeHomePage> {
-  int _counter = 0;
   Future<MaterialList> materialListFuture;
   List<BaseData> materialData;
+
+  int _bottomNavBarIndex = 0;
+
+  static const TextStyle optionStyle =
+      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+
+  /*
+  static const List<Widget> _widgetOptions = <Widget>[
+    Text(
+      'Index 0: Home',
+      style: optionStyle,
+    ),
+    Text(
+      'Index 1: Business',
+      style: optionStyle,
+    ),
+    Text(
+      'Index 2: School',
+      style: optionStyle,
+    ),
+  ];
+
+   */
 
   @override
   void initState() {
@@ -74,23 +96,70 @@ class _OeeHomePageState extends State<OeeHomePage> {
     materialListFuture = OeeHttpService.fetchMaterials();
   }
 
+/*
   void _incrementCounter() {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
 
       // send the HTTP request
-      //post = fetchPost();
       materialListFuture = OeeHttpService.fetchMaterials();
     });
   }
-
+*/
   @override
   Widget build(BuildContext context) {
+    final TextStyle textStyle = Theme.of(context).textTheme.body1;
+    final List<Widget> aboutBoxChildren = <Widget>[
+      SizedBox(height: 24),
+      RichText(
+        text: TextSpan(
+          children: <TextSpan>[
+            TextSpan(
+                style: textStyle,
+                text: 'Flutter is Google’s UI toolkit for building beautiful, '
+                    'natively compiled applications for mobile, web, and desktop '
+                    'from a single codebase. Learn more about Flutter at '),
+            TextSpan(
+                style: textStyle.copyWith(color: Theme.of(context).accentColor),
+                text: 'https://flutter.dev'),
+            TextSpan(style: textStyle, text: '.'),
+          ],
+        ),
+      ),
+    ];
+
+    void _showAboutDialog() {
+      showAboutDialog(
+        context: context,
+        applicationIcon: FlutterLogo(),
+        applicationName: 'Show About Example',
+        applicationVersion: 'August 2019',
+        applicationLegalese: '© 2019 The Chromium Authors',
+        children: aboutBoxChildren,
+      );
+    }
+
+    void _showSettings() {
+
+    }
+
+    void _onBottomNavBarItemTapped(int index) {
+      setState(() {
+        _bottomNavBarIndex = index;
+      });
+
+      switch (index) {
+        case 0:
+          _showSettings();
+          break;
+        case 1:
+          fetchMaterials();
+          break;
+        case 2:
+          _showAboutDialog();
+          break;
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -100,9 +169,7 @@ class _OeeHomePageState extends State<OeeHomePage> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             MaterialList matList = snapshot.data;
-            OeeMaterial dto = matList.materialList[0];
-            //return Text(dto.name);
-            Widget widget = this.createMaterialView(matList);
+            Widget widget = createMaterialView(matList);
             //widget = Text(dto.name);
             return widget;
           } else if (snapshot.hasError) {
@@ -112,11 +179,34 @@ class _OeeHomePageState extends State<OeeHomePage> {
           return CircularProgressIndicator();
         },
       ),
+
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            title: Text('Settings'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.refresh),
+            title: Text('Refresh'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.info),
+            title: Text('About'),
+          ),
+        ],
+        currentIndex: _bottomNavBarIndex,
+        selectedItemColor: Colors.amber[800],
+        onTap: _onBottomNavBarItemTapped,
+      ),
+      /*
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
         tooltip: 'Increment',
         child: Icon(Icons.add),
       ),
+
+     */
 
       /*
       body: Center(
@@ -171,7 +261,6 @@ class _OeeHomePageState extends State<OeeHomePage> {
           parentPaddingEdgeInsets:
               EdgeInsets.only(left: 16, top: 0, bottom: 0)),
       onTap: (m) {
-        //print("onChildTap -> $m");
         Navigator.push(
             context,
             MaterialPageRoute(
@@ -243,7 +332,8 @@ class MaterialDataModel implements BaseData {
     this.parentId = material.category;
     this.id = material.name;
     this.name = material.name;
-
+    this.subTitle = material.description;
+    this.icon = Icon( Icons.category, color: Colors.green, size: 30.0, );
     extras = {MAT_KEY: material};
   }
 

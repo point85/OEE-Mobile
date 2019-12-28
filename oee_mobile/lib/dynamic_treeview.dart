@@ -140,11 +140,12 @@ class _DynamicTreeViewOriState extends State<DynamicTreeView> {
           },
           contentPadding: widget.config.childrenPaddingEdgeInsets,
           title: Text(
-            "${k.getTitle()}",
+            '${k.getTitle()}',
             style: widget.config.childrenTextStyle,
           ),
-            subtitle: Text("Description"),
-          leading: Icon( Icons.audiotrack, color: Colors.green, size: 30.0, ),
+            subtitle: Text('${k.getSubTitle()}'),
+          leading: k.getIcon(),
+          //Icon( Icons.audiotrack, color: Colors.green, size: 30.0, ),
         ));
       }
     }
