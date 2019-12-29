@@ -19,20 +19,12 @@ void main() => runApp(OeeMobileApp());
 class OeeMobileApp extends StatelessWidget {
   //const OeeMobileApp({Key key}) : super(key: key);
 
-  // This widget is the root of your application.
+  // root of OEE application
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
       title: 'Point85 OEE Application',
       theme: new ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or press Run > Flutter Hot Reload in IntelliJ). Notice that the
-        // counter didn't reset back to zero; the application is not restarted.
         primarySwatch: Colors.blue,
       ),
       home: new OeeHomePage(title: 'Point85 OEE Home Page'),
@@ -42,15 +34,6 @@ class OeeMobileApp extends StatelessWidget {
 
 class OeeHomePage extends StatefulWidget {
   OeeHomePage({Key key, this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
 
   final String title;
 
@@ -67,28 +50,31 @@ class _OeeHomePageState extends State<OeeHomePage> {
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
-  /*
-  static const List<Widget> _widgetOptions = <Widget>[
-    Text(
-      'Index 0: Home',
-      style: optionStyle,
-    ),
-    Text(
-      'Index 1: Business',
-      style: optionStyle,
-    ),
-    Text(
-      'Index 2: School',
-      style: optionStyle,
-    ),
-  ];
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-   */
+  void _showBottomSheetCallback() {
+    _scaffoldKey.currentState.showBottomSheet<void>((BuildContext context) {
+      return Container(
+        decoration: BoxDecoration(
+            border: Border(top: BorderSide(color: Colors.black)),
+            color: Colors.grey),
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Text(
+            'This is a Material persistent bottom sheet. Drag downwards to dismiss it.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 24.0,
+            ),
+          ),
+        ),
+      );
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-
     fetchMaterials();
   }
 
@@ -96,17 +82,7 @@ class _OeeHomePageState extends State<OeeHomePage> {
     materialListFuture = OeeHttpService.fetchMaterials();
   }
 
-/*
-  void _incrementCounter() {
-    setState(() {
-
-      // send the HTTP request
-      materialListFuture = OeeHttpService.fetchMaterials();
-    });
-  }
-*/
-  @override
-  Widget build(BuildContext context) {
+  void _showAboutDialog() {
     final TextStyle textStyle = Theme.of(context).textTheme.body1;
     final List<Widget> aboutBoxChildren = <Widget>[
       SizedBox(height: 24),
@@ -127,43 +103,53 @@ class _OeeHomePageState extends State<OeeHomePage> {
       ),
     ];
 
-    void _showAboutDialog() {
-      showAboutDialog(
+    showAboutDialog(
+      context: context,
+      applicationIcon: FlutterLogo(),
+      applicationName: 'Show About Example',
+      applicationVersion: 'August 2019',
+      applicationLegalese: '© 2019 The Chromium Authors',
+      children: aboutBoxChildren,
+    );
+  }
+
+  void _showSettings() {
+    //_showBottomSheetCallback();
+
+    showBottomSheet(
         context: context,
-        applicationIcon: FlutterLogo(),
-        applicationName: 'Show About Example',
-        applicationVersion: 'August 2019',
-        applicationLegalese: '© 2019 The Chromium Authors',
-        children: aboutBoxChildren,
-      );
+        builder: (context) => Container(
+              color: Colors.red,
+            ));
+  }
+
+  void _onBottomNavBarItemTapped(int index) {
+    setState(() {
+      _bottomNavBarIndex = index;
+    });
+
+    switch (index) {
+      case 0:
+        _showSettings();
+        break;
+      case 1:
+        fetchMaterials();
+        break;
+      case 2:
+        _showAboutDialog();
+        break;
     }
+  }
 
-    void _showSettings() {
-
-    }
-
-    void _onBottomNavBarItemTapped(int index) {
-      setState(() {
-        _bottomNavBarIndex = index;
-      });
-
-      switch (index) {
-        case 0:
-          _showSettings();
-          break;
-        case 1:
-          fetchMaterials();
-          break;
-        case 2:
-          _showAboutDialog();
-          break;
-      }
-    }
-
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
+      // top app bar
       appBar: AppBar(
         title: Text(widget.title),
       ),
+
+      // body
       body: FutureBuilder<MaterialList>(
         future: materialListFuture,
         builder: (context, snapshot) {
@@ -180,6 +166,7 @@ class _OeeHomePageState extends State<OeeHomePage> {
         },
       ),
 
+      // bottom navigation bar
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -199,55 +186,26 @@ class _OeeHomePageState extends State<OeeHomePage> {
         selectedItemColor: Colors.amber[800],
         onTap: _onBottomNavBarItemTapped,
       ),
-      /*
+
+      // floating button
+      floatingActionButton: MyFloatingActionButton(),
+/*
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed: _showBottomSheetCallback,
+        /*
+        onPressed: () {
+          showBottomSheet(
+              context: context,
+              builder: (context) => Container(
+                color: Colors.red,
+              ));
+        },
+
+         */
         tooltip: 'Increment',
         child: Icon(Icons.add),
       ),
-
-     */
-
-      /*
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
-            ),
-
-            FutureBuilder<MaterialList>(
-              future: materialListFuture,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  MaterialList matList = snapshot.data;
-                  OeeMaterial dto = matList.materialList[0];
-                  //return Text(dto.name);
-                  Widget widget =  this.createMaterialView(matList);
-                  widget = Text(dto.name);
-                  return widget;
-                } else if (snapshot.hasError) {
-                  return Text("${snapshot.error}");
-                }
-                // By default, show a loading spinner.
-                return CircularProgressIndicator();
-              },
-            )
-          ],
-        ),
-      )
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-
-       */
+*/
     );
   }
 
@@ -333,7 +291,11 @@ class MaterialDataModel implements BaseData {
     this.id = material.name;
     this.name = material.name;
     this.subTitle = material.description;
-    this.icon = Icon( Icons.category, color: Colors.green, size: 30.0, );
+    this.icon = Icon(
+      Icons.category,
+      color: Colors.green,
+      size: 30.0,
+    );
     extras = {MAT_KEY: material};
   }
 
@@ -367,5 +329,154 @@ class MaterialDataModel implements BaseData {
   Icon getIcon() {
     //return Icon( Icons.audiotrack, color: Colors.green, size: 30.0, );
     return icon;
+  }
+}
+
+class DecoratedTextField extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        height: 50,
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        decoration: BoxDecoration(
+            color: Colors.grey[300], borderRadius: BorderRadius.circular(10)),
+        child: TextField(
+          decoration: InputDecoration.collapsed(
+            hintText: 'Enter your reference number',
+          ),
+        ));
+  }
+}
+
+class SheetButton extends StatefulWidget {
+  _SheetButtonState createState() => _SheetButtonState();
+}
+
+class _SheetButtonState extends State<SheetButton> {
+  bool checkingFlight = false;
+  bool success = false;
+  @override
+  Widget build(BuildContext context) {
+    return !checkingFlight
+        ? MaterialButton(
+            color: Colors.grey[800],
+            onPressed: () async {
+              setState(() {
+                checkingFlight = true;
+              });
+              await Future.delayed(Duration(seconds: 1));
+              setState(() {
+                success = true;
+              });
+              await Future.delayed(Duration(milliseconds: 500));
+              Navigator.pop(context);
+            },
+            child: Text(
+              'Check Flight',
+              style: TextStyle(color: Colors.white),
+            ),
+          )
+        : !success
+            ? CircularProgressIndicator()
+            : Icon(
+                Icons.check,
+                color: Colors.green,
+              );
+  }
+}
+
+class BottomSheetWidget extends StatefulWidget {
+  @override
+  _BottomSheetWidgetState createState() => _BottomSheetWidgetState();
+}
+
+class _BottomSheetWidgetState extends State<BottomSheetWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(top: 5, left: 15, right: 15),
+      height: 160,
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Container(
+            height: 125,
+            decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.all(Radius.circular(15)),
+                boxShadow: [
+                  BoxShadow(
+                      blurRadius: 10, color: Colors.grey[300], spreadRadius: 5)
+                ]),
+            child: Column(
+              children: <Widget>[
+                DecoratedTextField(),
+                SheetButton(),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class MyFloatingActionButton extends StatefulWidget {
+  @override
+  _MyFloatingActionButtonState createState() => _MyFloatingActionButtonState();
+}
+
+class _MyFloatingActionButtonState extends State<MyFloatingActionButton> {
+  bool showFab = true;
+  @override
+  Widget build(BuildContext context) {
+    return showFab
+        ? FloatingActionButton(
+            onPressed: () {
+              var bottomSheetController = showBottomSheet(
+                  context: context,
+                  builder: (context) => BottomSheetWidget());
+                      /*
+                      Container(
+                        decoration: BoxDecoration(
+                            border:
+                                Border(top: BorderSide(color: Colors.black)),
+                            color: Colors.grey),
+                        child: Padding(
+                          padding: const EdgeInsets.all(32.0),
+                          child: Text(
+                            'This is a Material persistent bottom sheet. Drag downwards to dismiss it.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 24.0,
+                            ),
+                          ),
+                        ),
+                      ));
+
+                       */
+              /*
+                Container(
+              color: Colors.grey[900],
+              height: 250,
+            ));
+
+           */
+              showFloatingActionButton(false);
+              bottomSheetController.closed.then((value) {
+                showFloatingActionButton(true);
+              });
+            },
+          )
+        : Container();
+  }
+
+  void showFloatingActionButton(bool value) {
+    setState(() {
+      showFab = value;
+    });
   }
 }
