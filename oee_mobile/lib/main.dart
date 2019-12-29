@@ -115,35 +115,54 @@ class _OeeHomePageState extends State<OeeHomePage> {
 
   void _showSettings() {
     //_showBottomSheetCallback();
+    //_scaffoldKey.currentState.showBottomSheet<void>((BuildContext context) {
+//return BottomSheetWidget();
 
-    showBottomSheet(
-        context: context,
-        builder: (context) => Container(
-              color: Colors.red,
-            ));
   }
 
-  void _onBottomNavBarItemTapped(int index) {
-    setState(() {
-      _bottomNavBarIndex = index;
-    });
-
-    switch (index) {
-      case 0:
-        _showSettings();
-        break;
-      case 1:
-        fetchMaterials();
-        break;
-      case 2:
-        _showAboutDialog();
-        break;
-    }
-  }
+  PersistentBottomSheetController _sheetController;
 
   @override
   Widget build(BuildContext context) {
+    final _showBottomSheet = () {
+      //var bottomSheetController = showBottomSheet(
+      //    context: context,
+       //   builder: (context) => BottomSheetWidget());
+      _sheetController = _scaffoldKey.currentState.showBottomSheet((context) {
+      return BottomSheetWidget();
+          /*
+          Container(
+            color: Colors.grey[200],
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              RadioListTile(dense: true, title: Text('Test'), groupValue: 'test', onChanged: (value) {}, value: true),
+              RadioListTile(dense: true, title: Text('Test'), groupValue: 'test', onChanged: (value) {}, value: true),
+            ]));
+
+           */
+      });
+    };
+
+    void _onBottomNavBarItemTapped(int index) {
+      setState(() {
+        _bottomNavBarIndex = index;
+      });
+
+      switch (index) {
+        case 0:
+        //_showBottomSheetCallback();
+          _showBottomSheet();
+          break;
+        case 1:
+          fetchMaterials();
+          break;
+        case 2:
+          _showAboutDialog();
+          break;
+      }
+    }
+
     return Scaffold(
+      key: _scaffoldKey,
       // top app bar
       appBar: AppBar(
         title: Text(widget.title),
@@ -184,11 +203,12 @@ class _OeeHomePageState extends State<OeeHomePage> {
         ],
         currentIndex: _bottomNavBarIndex,
         selectedItemColor: Colors.amber[800],
-        onTap: _onBottomNavBarItemTapped,
+        onTap: //_showBottomSheet,
+        _onBottomNavBarItemTapped,
       ),
 
       // floating button
-      floatingActionButton: MyFloatingActionButton(),
+      //floatingActionButton: MyFloatingActionButton(),
 /*
       floatingActionButton: FloatingActionButton(
         onPressed: _showBottomSheetCallback,
