@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'model.dart';
+import 'oee_model.dart';
 
 class OeeHttpService {
   static Future<MaterialList> fetchMaterials() async {

@@ -1,13 +1,11 @@
-//import 'package:flutter/cupertino.dart';
-
-abstract class NamedObject {
+abstract class _NamedObject {
   final String name;
   final String description;
 
-  NamedObject(this.name, this.description);
+  _NamedObject(this.name, this.description);
 }
 
-class OeeMaterial extends NamedObject {
+class OeeMaterial extends _NamedObject {
   final String category;
 
   OeeMaterial(String name, String description, this.category)
@@ -55,7 +53,7 @@ extension EntityLevelExtension on EntityLevel {
     return id;
   }
 
-  EntityLevel fromString(String id) {
+  static EntityLevel fromString(String id) {
     EntityLevel level;
 
     switch (id) {
@@ -84,27 +82,32 @@ extension EntityLevelExtension on EntityLevel {
   }
 }
 
-class OeeEntity extends NamedObject {
+class OeeEntity extends _NamedObject {
   // parent name
   String parent;
 
   // list of children entities
-  List<OeeEntity> children = List();
+  List<OeeEntity> children;
+
+  // level
+  EntityLevel level;
 
   OeeEntity(String name, String description) : super(name, description);
 
   factory OeeEntity.fromJson(Map<String, dynamic> json) {
     OeeEntity entity = OeeEntity(json['name'], json['description']);
 
+    // level
+    entity.level = EntityLevelExtension.fromString(json['level']);
+
     // parent
     entity.parent = json['parent'];
 
     // children
     List<dynamic> listOfChildren = json['children'];
+    List<OeeEntity> children = List();
 
     if (listOfChildren != null) {
-      List<OeeEntity> children = new List();
-
       for (int i = 0; i < listOfChildren.length; i++) {
         Map<String, dynamic> item = listOfChildren[i];
         OeeEntity child = OeeEntity.fromJson(item);
@@ -112,9 +115,6 @@ class OeeEntity extends NamedObject {
       }
       entity.children = children;
     }
-
-    // level
-
     return entity;
   }
 }
@@ -127,7 +127,7 @@ class MaterialList {
   factory MaterialList.fromJson(Map<String, dynamic> json) {
     List<dynamic> listOfMaterials = json['materialList'];
 
-    List<OeeMaterial> materials = new List();
+    List<OeeMaterial> materials = List();
 
     for (int i = 0; i < listOfMaterials.length; i++) {
       Map<String, dynamic> item = listOfMaterials[i];
@@ -146,14 +146,13 @@ class EntityList {
   factory EntityList.fromJson(Map<String, dynamic> json) {
     List<dynamic> listOfEntities = json['entityList'];
 
-    List<OeeEntity> entities = new List();
+    List<OeeEntity> entities = List();
 
     for (int i = 0; i < listOfEntities.length; i++) {
       Map<String, dynamic> item = listOfEntities[i];
       OeeEntity entity = OeeEntity.fromJson(item);
-      listOfEntities.add(entity);
+      entities.add(entity);
     }
-
     return EntityList(entities);
   }
 }
