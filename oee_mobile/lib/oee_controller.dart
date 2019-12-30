@@ -40,7 +40,7 @@ abstract class HierarchicalDataModel implements BaseData {
 
   @override
   Icon getIcon() {
-    return icon;
+    return this.icon;
   }
 }
 

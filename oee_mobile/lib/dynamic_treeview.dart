@@ -129,7 +129,9 @@ class _DynamicTreeViewOriState extends State<DynamicTreeView> {
             .getTitle();
         cW.add(buildWidget(k.getId(), name));
       } else {
+        // leaf node
         cW.add(ListTile(
+          dense: true,
           onTap: () {
             widget?.onTap({
               'id': '${k.getId()}',
@@ -145,7 +147,6 @@ class _DynamicTreeViewOriState extends State<DynamicTreeView> {
           ),
             subtitle: Text('${k.getSubTitle()}'),
           leading: k.getIcon(),
-          //Icon( Icons.audiotrack, color: Colors.green, size: 30.0, ),
         ));
       }
     }
@@ -303,6 +304,7 @@ class _ParentWidgetState extends State<ParentWidget>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         ListTile(
+          dense: true,
           onTap: () {
             var map = Map<String, dynamic>();
             map['id'] = widget.baseData.getId();
@@ -314,6 +316,7 @@ class _ParentWidgetState extends State<ParentWidget>
           title: Text(widget.baseData.getTitle(),
               style: widget.config.parentTextStyle),
           contentPadding: widget.config.parentPaddingEdgeInsets,
+
           trailing: IconButton(
             onPressed: () {
               setState(() {
@@ -330,6 +333,8 @@ class _ParentWidgetState extends State<ParentWidget>
               child: widget.config.arrowIcon,
             ),
           ),
+          subtitle: Text(widget.baseData.getSubTitle()),
+          leading: widget.baseData.getIcon(),
         ),
         ChildWidget(
           children: widget.children,
