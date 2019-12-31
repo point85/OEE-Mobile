@@ -45,7 +45,7 @@ abstract class HierarchicalDataModel implements BaseData {
 }
 
 /* Material */
-class MaterialDataModel extends HierarchicalDataModel  {
+class MaterialDataModel extends HierarchicalDataModel {
   static const String _MAT_KEY = 'material';
 
   MaterialDataModel(OeeMaterial material) {
@@ -55,10 +55,10 @@ class MaterialDataModel extends HierarchicalDataModel  {
     this.subTitle = material.description;
     this.icon = Icon(
       Icons.category,
-      color: Colors.green,
-      size: 30.0,
+      //color: Colors.green,
+      //size: 30.0,
     );
-    extras = {_MAT_KEY: material};
+    this.extras = {_MAT_KEY: material};
   }
 
   OeeMaterial getMaterial() {
@@ -66,44 +66,8 @@ class MaterialDataModel extends HierarchicalDataModel  {
   }
 }
 
-// create the data model from the list of materials
-List<MaterialDataModel> fromMaterialList(MaterialList materialList) {
-  List<MaterialDataModel> materialData = List();
-
-  // root
-  OeeMaterial rootMaterial = OeeMaterial(HierarchicalDataModel.ROOT_ID, HierarchicalDataModel.ROOT_ID, null);
-  MaterialDataModel root = MaterialDataModel(rootMaterial);
-  materialData.add(root);
-
-  List<String> categories = List();
-
-  // materials
-  List<OeeMaterial> materials = materialList.materialList;
-  for (OeeMaterial material in materials) {
-    MaterialDataModel matModel = MaterialDataModel(material);
-
-    if (!categories.contains(material.category)) {
-      categories.add(material.category);
-      matModel.parentId = material.category;
-    }
-    materialData.add(matModel);
-  }
-
-  // add categories
-  for (String category in categories) {
-    OeeMaterial catMaterial = OeeMaterial(category, category, null);
-    MaterialDataModel cat = MaterialDataModel(catMaterial);
-    materialData.add(cat);
-  }
-  return materialData;
-}
-
-Future<MaterialList> fetchMaterials() {
-  return OeeHttpService.fetchMaterials();
-}
-
 /* Plant Entity */
-class EntityDataModel extends HierarchicalDataModel  {
+class EntityDataModel extends HierarchicalDataModel {
   static const String _ENT_KEY = 'entity';
 
   EntityDataModel(OeeEntity entity) {
@@ -139,10 +103,10 @@ class EntityDataModel extends HierarchicalDataModel  {
 
     this.icon = Icon(
       iconData,
-      color: Colors.green,
-      size: 30.0,
+      //color: Colors.green,
+      //size: 30.0,
     );
-    extras = {_ENT_KEY: entity};
+    this.extras = {_ENT_KEY: entity};
   }
 
   OeeEntity getPlantEntity() {
@@ -150,43 +114,172 @@ class EntityDataModel extends HierarchicalDataModel  {
   }
 }
 
-// create the data model from the list of entities
-List<EntityDataModel> fromEntityList(EntityList entityList) {
-  List<EntityDataModel> entityData = List();
+class OeeHomePageController {
+  // create the data model from the list of entities
+  static List<EntityDataModel> fromEntityList(EntityList entityList) {
+    List<EntityDataModel> entityData = List();
 
-  // root
-  OeeEntity rootEntity = OeeEntity(HierarchicalDataModel.ROOT_ID, null);
-  EntityDataModel root = EntityDataModel(rootEntity);
-  entityData.add(root);
+    // root
+    OeeEntity rootEntity = OeeEntity(HierarchicalDataModel.ROOT_ID, null);
+    EntityDataModel root = EntityDataModel(rootEntity);
+    entityData.add(root);
 
-  // entities
-  List<OeeEntity> entities = entityList.entityList;
-  for (OeeEntity entity in entities) {
-    EntityDataModel entModel = EntityDataModel(entity);
+    // entities
+    List<OeeEntity> entities = entityList.entityList;
+    for (OeeEntity entity in entities) {
+      EntityDataModel entModel = EntityDataModel(entity);
 
-    if (entity.parent == null) {
-      entModel.parentId = HierarchicalDataModel.ROOT_ID;
-    } else {
-      entModel.parentId = entity.parent;
+      if (entity.parent == null) {
+        entModel.parentId = HierarchicalDataModel.ROOT_ID;
+      } else {
+        entModel.parentId = entity.parent;
+      }
+      entityData.add(entModel);
+
+      // children
+      addChildren(entityData, entity);
     }
-    entityData.add(entModel);
-
-    // children
-    addChildren(entityData, entity);
+    return entityData;
   }
-  return entityData;
+
+  static void addChildren(List<EntityDataModel> entityData, OeeEntity entity) {
+    for (OeeEntity child in entity.children) {
+      EntityDataModel childModel = EntityDataModel(child);
+      entityData.add(childModel);
+
+      // descendants
+      addChildren(entityData, child);
+    }
+  }
+
+  static Future<EntityList> fetchEntities() {
+    return OeeHttpService.fetchEntities();
+  }
+/*
+  static EntityLevel entityLevelFromString(String id) {
+    EntityLevel level;
+
+    switch (id) {
+      case 'ENTERPRISE':
+        level = EntityLevel.ENTERPRISE;
+        break;
+      case 'SITE':
+        level = EntityLevel.SITE;
+        break;
+      case 'AREA':
+        level = EntityLevel.AREA;
+        break;
+      case 'PRODUCTION_LINE':
+        level = EntityLevel.PRODUCTION_LINE;
+        break;
+      case 'WORK_CELL':
+        level = EntityLevel.WORK_CELL;
+        break;
+      case 'EQUIPMENT':
+        level = EntityLevel.EQUIPMENT;
+        break;
+      default:
+        break;
+    }
+    return level;
+  }
+
+ */
 }
 
-void addChildren(List<EntityDataModel> entityData, OeeEntity entity) {
-  for (OeeEntity child in entity.children) {
-    EntityDataModel childModel = EntityDataModel(child);
-    entityData.add(childModel);
+class EquipmentPageController {
+  // create the data model from the list of materials
+  static List<MaterialDataModel> fromMaterialList(MaterialList materialList) {
+    List<MaterialDataModel> materialData = List();
 
-    // descendants
-    addChildren(entityData, child);
+    // root
+    OeeMaterial rootMaterial = OeeMaterial(
+        HierarchicalDataModel.ROOT_ID, HierarchicalDataModel.ROOT_ID, null);
+    MaterialDataModel root = MaterialDataModel(rootMaterial);
+    materialData.add(root);
+
+    List<String> categories = List();
+
+    // materials
+    List<OeeMaterial> materials = materialList.materialList;
+    for (OeeMaterial material in materials) {
+      MaterialDataModel matModel = MaterialDataModel(material);
+
+      if (!categories.contains(material.category)) {
+        categories.add(material.category);
+        matModel.parentId = material.category;
+      }
+      materialData.add(matModel);
+    }
+
+    // add categories
+    for (String category in categories) {
+      OeeMaterial catMaterial = OeeMaterial(category, category, null);
+      MaterialDataModel cat = MaterialDataModel(catMaterial);
+      materialData.add(cat);
+    }
+    return materialData;
+  }
+
+  static Future<MaterialList> fetchMaterials() {
+    return OeeHttpService.fetchMaterials();
+  }
+
+  // create the data model from the list of reasons
+  static List<ReasonDataModel> fromReasonList(ReasonList reasonList) {
+    List<ReasonDataModel> reasonData = List();
+
+    // root
+    OeeReason rootReason = OeeReason(HierarchicalDataModel.ROOT_ID, null);
+    ReasonDataModel root = ReasonDataModel(rootReason);
+    reasonData.add(root);
+
+    // reasons
+    List<OeeReason> reasons = reasonList.reasonList;
+    for (OeeReason reason in reasons) {
+      ReasonDataModel reasonModel = ReasonDataModel(reason);
+
+      if (reason.parent == null) {
+        reasonModel.parentId = HierarchicalDataModel.ROOT_ID;
+      } else {
+        reasonModel.parentId = reason.parent;
+      }
+      reasonData.add(reasonModel);
+
+      // children
+      addChildrenReasons(reasonData, reason);
+    }
+    return reasonData;
+  }
+
+  static void addChildrenReasons(List<ReasonDataModel> reasonData, OeeReason reason) {
+    for (OeeReason child in reason.children) {
+      ReasonDataModel childModel = ReasonDataModel(child);
+      reasonData.add(childModel);
+
+      // descendants
+      addChildrenReasons(reasonData, child);
+    }
+  }
+
+  static Future<ReasonList> fetchReasons() {
+    return OeeHttpService.fetchReasons();
   }
 }
 
-Future<EntityList> fetchEntities() {
-  return OeeHttpService.fetchEntities();
+/* OEE reason */
+class ReasonDataModel extends HierarchicalDataModel {
+  static const String _REASON_KEY = 'reason';
+
+  ReasonDataModel(OeeReason reason) {
+    this.parentId = reason.parent;
+    this.id = reason.name;
+    this.name = reason.name;
+    this.subTitle = reason.description;
+    this.extras = {_REASON_KEY: reason};
+  }
+
+  OeeReason getReason() {
+    return extras[_REASON_KEY];
+  }
 }

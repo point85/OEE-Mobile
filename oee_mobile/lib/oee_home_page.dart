@@ -34,8 +34,10 @@ class _OeeHomePageState extends State<OeeHomePage> {
   // list of entities
   //Future<MaterialList> materialListFuture;
   //List<BaseData> materialData;
-  Future<EntityList> entityListFuture;
-  List<EntityDataModel> entityData;
+  //Future<EntityList> entityListFuture;
+  //List<EntityDataModel> entityData;
+  Future<ReasonList> reasonListFuture;
+  List<ReasonDataModel> reasonData;
 
   int _bottomNavBarIndex = 0;
 
@@ -43,34 +45,13 @@ class _OeeHomePageState extends State<OeeHomePage> {
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-/*
-  void _showBottomSheetCallback() {
-    _scaffoldKey.currentState.showBottomSheet<void>((BuildContext context) {
-      return Container(
-        decoration: BoxDecoration(
-            border: Border(top: BorderSide(color: Colors.black)),
-            color: Colors.grey),
-        child: Padding(
-          padding: const EdgeInsets.all(32.0),
-          child: Text(
-            'This is a Material persistent bottom sheet. Drag downwards to dismiss it.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 24.0,
-            ),
-          ),
-        ),
-      );
-    });
-  }
-
- */
 
   @override
   void initState() {
     super.initState();
-    //materialListFuture = fetchMaterials();
-    entityListFuture = fetchEntities();
+    //materialListFuture = EquipmentPageController.fetchMaterials();
+    //entityListFuture = OeeHomePageController.fetchEntities();
+    reasonListFuture = EquipmentPageController.fetchReasons();
   }
 
   void _showAboutDialog() {
@@ -118,8 +99,8 @@ class _OeeHomePageState extends State<OeeHomePage> {
           _showBottomSheet();
           break;
         case 1:
-          //materialListFuture = fetchMaterials();
-          entityListFuture = fetchEntities();
+          reasonListFuture = EquipmentPageController.fetchReasons();
+          //entityListFuture = OeeHomePageController.fetchEntities();
           break;
         case 2:
           _showAboutDialog();
@@ -135,13 +116,12 @@ class _OeeHomePageState extends State<OeeHomePage> {
       ),
 
       // body
-      body: FutureBuilder<EntityList>(
-        future: entityListFuture,
+      body: FutureBuilder<ReasonList>(
+        future: reasonListFuture,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            EntityList entList = snapshot.data;
-            Widget widget = createEntityView(entList);
-            return widget;
+            ReasonList reasonList = snapshot.data;
+            return createReasonView(reasonList);
           } else if (snapshot.hasError) {
             return Text("${snapshot.error}");
           }
@@ -175,7 +155,7 @@ class _OeeHomePageState extends State<OeeHomePage> {
 
   DynamicTreeView createMaterialView(MaterialList materialList) {
     return DynamicTreeView(
-      data: fromMaterialList(materialList),
+      data: EquipmentPageController.fromMaterialList(materialList),
       config: Config(
           parentTextStyle:
               TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
@@ -196,7 +176,28 @@ class _OeeHomePageState extends State<OeeHomePage> {
 
   DynamicTreeView createEntityView(EntityList entityList) {
     return DynamicTreeView(
-      data: fromEntityList(entityList),
+      data: OeeHomePageController.fromEntityList(entityList),
+      config: Config(
+          parentTextStyle:
+          TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+          rootId: HierarchicalDataModel.ROOT_ID,
+          parentPaddingEdgeInsets:
+          EdgeInsets.only(left: 16, top: 0, bottom: 0)),
+      onTap: (m) {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (ctx) => EquipmentEvent(
+                  data: m,
+                )));
+      },
+      width: MediaQuery.of(context).size.width,
+    );
+  }
+
+  DynamicTreeView createReasonView(ReasonList reasonList) {
+    return DynamicTreeView(
+      data: EquipmentPageController.fromReasonList(reasonList),
       config: Config(
           parentTextStyle:
           TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
