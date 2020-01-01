@@ -85,7 +85,7 @@ class _OeeHomePageState extends State<OeeHomePage> {
     final _showBottomSheet = () {
       //PersistentBottomSheetController _sheetController =
       _scaffoldKey.currentState.showBottomSheet((context) {
-        return BottomSheetWidget();
+        return SettingsWidget();
       });
     };
 
@@ -179,17 +179,17 @@ class _OeeHomePageState extends State<OeeHomePage> {
       data: OeeHomePageController.fromEntityList(entityList),
       config: Config(
           parentTextStyle:
-          TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+              TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
           rootId: HierarchicalDataModel.ROOT_ID,
           parentPaddingEdgeInsets:
-          EdgeInsets.only(left: 16, top: 0, bottom: 0)),
+              EdgeInsets.only(left: 16, top: 0, bottom: 0)),
       onTap: (m) {
         Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (ctx) => EquipmentEvent(
-                  data: m,
-                )));
+                      data: m,
+                    )));
       },
       width: MediaQuery.of(context).size.width,
     );
@@ -200,17 +200,17 @@ class _OeeHomePageState extends State<OeeHomePage> {
       data: EquipmentPageController.fromReasonList(reasonList),
       config: Config(
           parentTextStyle:
-          TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+              TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
           rootId: HierarchicalDataModel.ROOT_ID,
           parentPaddingEdgeInsets:
-          EdgeInsets.only(left: 16, top: 0, bottom: 0)),
+              EdgeInsets.only(left: 16, top: 0, bottom: 0)),
       onTap: (m) {
         Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (ctx) => EquipmentEvent(
-                  data: m,
-                )));
+                      data: m,
+                    )));
       },
       width: MediaQuery.of(context).size.width,
     );
@@ -272,17 +272,100 @@ class _SheetButtonState extends State<SheetButton> {
   }
 }
 
-class BottomSheetWidget extends StatefulWidget {
+class SettingsWidget extends StatefulWidget {
   @override
-  _BottomSheetWidgetState createState() => _BottomSheetWidgetState();
+  _SettingsWidgetState createState() => _SettingsWidgetState();
 }
 
-class _BottomSheetWidgetState extends State<BottomSheetWidget> {
+class _SettingsWidgetState extends State<SettingsWidget> {
+  String serverName;
+  String serverPort;
+
+  String _validateName(String value) {
+    if (value.isEmpty) return 'Server name is required.';
+    final RegExp nameExp = new RegExp(r'^[A-Za-z ]+$');
+    if (!nameExp.hasMatch(value))
+      return 'Please enter only alphabetical characters.';
+    return null;
+  }
+
+  String _validatePort(String value) {
+    if (value.isEmpty) return 'Server port is required.';
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final _onSave = () {
+      print('Saved');
+    };
+
     return Container(
-      margin: const EdgeInsets.only(top: 5, left: 15, right: 15),
-      height: 160,
+        margin: const EdgeInsets.only(top: 5, left: 15, right: 15),
+        height: 250,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            //SizedBox(height: 24.0),
+            TextFormField(
+              decoration: const InputDecoration(
+                border: UnderlineInputBorder(),
+                filled: true,
+                icon: Icon(Icons.computer),
+                hintText: 'HTTP server name or IP address',
+                labelText: 'Server *',
+              ),
+              keyboardType: TextInputType.text,
+              onSaved: (String value) {
+                this.serverName = value;
+              },
+              validator: _validateName,
+            ),
+            //SizedBox(height: 24.0),
+            // port
+            TextFormField(
+              textCapitalization: TextCapitalization.words,
+              decoration: InputDecoration(
+                border: UnderlineInputBorder(),
+                filled: true,
+                icon: Icon(Icons.panorama_fish_eye),
+                hintText: 'HTTP server port',
+                labelText: 'Port *',
+              ),
+              keyboardType: TextInputType.number,
+              onSaved: (String value) {
+                this.serverPort = value;
+              },
+              validator: _validatePort,
+            ),
+            ButtonBar(
+              alignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                RaisedButton.icon(
+                  //child: Text('Save'),
+                  onPressed: _onSave,
+                  icon: Icon(Icons.save), //`Icon` to display
+                  label: Text('Save'), //`Text` to display
+                ),
+              ],
+            ),
+            /*
+            Container(
+              height: 32,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  SheetButton(),
+                ],
+              ),
+            )
+
+             */
+          ],
+        )
+        /*
       child: Column(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -305,6 +388,8 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
           )
         ],
       ),
-    );
+
+       */
+        );
   }
 }
