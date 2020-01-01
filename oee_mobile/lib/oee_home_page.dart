@@ -297,7 +297,16 @@ class _SettingsWidgetState extends State<SettingsWidget> {
   @override
   Widget build(BuildContext context) {
     final _onSave = () {
-      print('Saved');
+      /*
+      Scaffold.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Saved'),
+          duration: Duration(milliseconds: 500),
+        ),
+      );
+
+       */
+      PersistentStorage.getInstance.saveServerInfo(serverName, serverPort);
     };
 
     return Container(

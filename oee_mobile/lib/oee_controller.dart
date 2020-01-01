@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dynamic_treeview.dart';
 import 'oee_model.dart';
 import 'oee_http_service.dart';
@@ -103,7 +104,7 @@ class EntityDataModel extends HierarchicalDataModel {
 
     this.icon = Icon(
       iconData,
-      //color: Colors.green,
+      color: Colors.cyan,
       //size: 30.0,
     );
     this.extras = {_ENT_KEY: entity};
@@ -252,7 +253,8 @@ class EquipmentPageController {
     return reasonData;
   }
 
-  static void addChildrenReasons(List<ReasonDataModel> reasonData, OeeReason reason) {
+  static void addChildrenReasons(
+      List<ReasonDataModel> reasonData, OeeReason reason) {
     for (OeeReason child in reason.children) {
       ReasonDataModel childModel = ReasonDataModel(child);
       reasonData.add(childModel);
@@ -281,5 +283,78 @@ class ReasonDataModel extends HierarchicalDataModel {
 
   OeeReason getReason() {
     return extras[_REASON_KEY];
+  }
+}
+
+class PersistentStorage {
+  //final String _serverNameKey = "server_name";
+  //final String _serverPortKey = "server_port";
+  final String _serverInfoKey = "server_info";
+
+  static PersistentStorage _instance;
+
+  PersistentStorage._() ;
+
+  static PersistentStorage get getInstance => _instance = _instance ?? PersistentStorage._();
+
+  void saveServerInfo(String serverName, String port) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_serverInfoKey, [serverName, port]);
+
+    //await prefs.setString(_serverNameKey, serverName);
+    //await prefs.setString(_serverPortKey, port);
+  }
+
+  Future<List<String>>  getServerInfo() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    //String name =     prefs.getString(_serverNameKey) ?? '';
+    //String port =     prefs.getString(_serverPortKey) ?? '';
+
+    return prefs.getStringList(_serverInfoKey);
+  }
+}
+
+class SharedPreferencesTest {
+  ///
+  /// Instantiation of the SharedPreferences library
+  ///
+  final String _kNotificationsPrefs = "allowNotifications";
+  final String _kSortingOrderPrefs = "sortOrder";
+
+  /// ------------------------------------------------------------
+  /// Method that returns the user decision to allow notifications
+  /// ------------------------------------------------------------
+  Future<bool> getAllowsNotifications() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    return prefs.getBool(_kNotificationsPrefs) ?? false;
+  }
+
+  /// ----------------------------------------------------------
+  /// Method that saves the user decision to allow notifications
+  /// ----------------------------------------------------------
+  Future<bool> setAllowsNotifications(bool value) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    return prefs.setBool(_kNotificationsPrefs, value);
+  }
+
+  /// ------------------------------------------------------------
+  /// Method that returns the user decision on sorting order
+  /// ------------------------------------------------------------
+  Future<String> getSortingOrder() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    return prefs.getString(_kSortingOrderPrefs) ?? 'name';
+  }
+
+  /// ----------------------------------------------------------
+  /// Method that saves the user decision on sorting order
+  /// ----------------------------------------------------------
+  Future<bool> setSortingOrder(String value) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    return prefs.setString(_kSortingOrderPrefs, value);
   }
 }
