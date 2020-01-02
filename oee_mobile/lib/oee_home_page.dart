@@ -4,6 +4,7 @@ import 'dynamic_treeview.dart';
 import 'oee_model.dart';
 import 'oee_equipment_page.dart';
 import 'oee_controller.dart';
+import 'oee_http_service.dart';
 
 void main() => runApp(OeeMobileApp());
 
@@ -46,9 +47,15 @@ class _OeeHomePageState extends State<OeeHomePage> {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  Future setUrl() async {
+    var value = await PersistentStorage.getInstance.getServerInfo();
+    OeeHttpService.getInstance.setUrl(value[0], value[1]);
+  }
+
   @override
   void initState() {
     super.initState();
+    setUrl();
     //materialListFuture = EquipmentPageController.fetchMaterials();
     //entityListFuture = OeeHomePageController.fetchEntities();
     reasonListFuture = EquipmentPageController.fetchReasons();
@@ -281,6 +288,28 @@ class _SettingsWidgetState extends State<SettingsWidget> {
   String serverName;
   String serverPort;
 
+  final nameController = TextEditingController();
+  final portController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    PersistentStorage.getInstance.getServerInfo().then((value) {
+      String name = value[0];
+      String port = value[1];
+      nameController.text = name;
+      portController.text = port;
+    });
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    portController.dispose();
+    super.dispose();
+  }
+
   String _validateName(String value) {
     if (value.isEmpty) return 'Server name is required.';
     final RegExp nameExp = new RegExp(r'^[A-Za-z ]+$');
@@ -297,15 +326,9 @@ class _SettingsWidgetState extends State<SettingsWidget> {
   @override
   Widget build(BuildContext context) {
     final _onSave = () {
-      /*
-      Scaffold.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Saved'),
-          duration: Duration(milliseconds: 500),
-        ),
-      );
+      serverName = nameController.text;
+      serverPort = portController.text;
 
-       */
       PersistentStorage.getInstance.saveServerInfo(serverName, serverPort);
     };
 
@@ -316,8 +339,8 @@ class _SettingsWidgetState extends State<SettingsWidget> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            //SizedBox(height: 24.0),
             TextFormField(
+              controller: nameController,
               decoration: const InputDecoration(
                 border: UnderlineInputBorder(),
                 filled: true,
@@ -331,9 +354,9 @@ class _SettingsWidgetState extends State<SettingsWidget> {
               },
               validator: _validateName,
             ),
-            //SizedBox(height: 24.0),
             // port
             TextFormField(
+              controller: portController,
               textCapitalization: TextCapitalization.words,
               decoration: InputDecoration(
                 border: UnderlineInputBorder(),
@@ -359,46 +382,8 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                 ),
               ],
             ),
-            /*
-            Container(
-              height: 32,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  SheetButton(),
-                ],
-              ),
-            )
-
-             */
           ],
         )
-        /*
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Container(
-            height: 125,
-            decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.all(Radius.circular(15)),
-                boxShadow: [
-                  BoxShadow(
-                      blurRadius: 10, color: Colors.grey[300], spreadRadius: 5)
-                ]),
-            child: Column(
-              children: <Widget>[
-                DecoratedTextField(),
-                SheetButton(),
-              ],
-            ),
-          )
-        ],
-      ),
-
-       */
         );
   }
 }

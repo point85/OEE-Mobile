@@ -3,9 +3,21 @@ import 'package:http/http.dart' as http;
 import 'oee_model.dart';
 
 class OeeHttpService {
-  static Future<MaterialList> fetchMaterials() async {
-    // send request
-    final response = await http.get('http://192.168.0.11:8182/material');
+  static OeeHttpService _instance;
+
+  OeeHttpService._();
+
+  static OeeHttpService get getInstance =>
+      _instance = _instance ?? OeeHttpService._();
+
+  String url;
+
+  void setUrl(String server, String port) {
+    url = 'http://' + server + ':' + port + '/';
+  }
+
+  Future<MaterialList> fetchMaterials() async {
+    final response = await http.get(url + 'material');
 
     if (response.statusCode == 200) {
       return MaterialList.fromJson(json.decode(response.body));
@@ -14,8 +26,8 @@ class OeeHttpService {
     }
   }
 
-  static Future<EntityList> fetchEntities() async {
-    final response = await http.get('http://192.168.0.11:8182/entity');
+  Future<EntityList> fetchEntities() async {
+    final response = await http.get(url + 'entity');
 
     if (response.statusCode == 200) {
       return EntityList.fromJson(json.decode(response.body));
@@ -24,8 +36,8 @@ class OeeHttpService {
     }
   }
 
-  static Future<ReasonList> fetchReasons() async {
-    final response = await http.get('http://192.168.0.11:8182/reason');
+  Future<ReasonList> fetchReasons() async {
+    final response = await http.get(url + 'reason');
 
     if (response.statusCode == 200) {
       return ReasonList.fromJson(json.decode(response.body));

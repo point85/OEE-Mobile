@@ -153,39 +153,9 @@ class OeeHomePageController {
     }
   }
 
-  static Future<EntityList> fetchEntities() {
-    return OeeHttpService.fetchEntities();
+  Future<EntityList> fetchEntities() {
+    return OeeHttpService.getInstance.fetchEntities();
   }
-/*
-  static EntityLevel entityLevelFromString(String id) {
-    EntityLevel level;
-
-    switch (id) {
-      case 'ENTERPRISE':
-        level = EntityLevel.ENTERPRISE;
-        break;
-      case 'SITE':
-        level = EntityLevel.SITE;
-        break;
-      case 'AREA':
-        level = EntityLevel.AREA;
-        break;
-      case 'PRODUCTION_LINE':
-        level = EntityLevel.PRODUCTION_LINE;
-        break;
-      case 'WORK_CELL':
-        level = EntityLevel.WORK_CELL;
-        break;
-      case 'EQUIPMENT':
-        level = EntityLevel.EQUIPMENT;
-        break;
-      default:
-        break;
-    }
-    return level;
-  }
-
- */
 }
 
 class EquipmentPageController {
@@ -223,7 +193,7 @@ class EquipmentPageController {
   }
 
   static Future<MaterialList> fetchMaterials() {
-    return OeeHttpService.fetchMaterials();
+    return OeeHttpService.getInstance.fetchMaterials();
   }
 
   // create the data model from the list of reasons
@@ -265,7 +235,7 @@ class EquipmentPageController {
   }
 
   static Future<ReasonList> fetchReasons() {
-    return OeeHttpService.fetchReasons();
+    return OeeHttpService.getInstance.fetchReasons();
   }
 }
 
@@ -287,74 +257,23 @@ class ReasonDataModel extends HierarchicalDataModel {
 }
 
 class PersistentStorage {
-  //final String _serverNameKey = "server_name";
-  //final String _serverPortKey = "server_port";
   final String _serverInfoKey = "server_info";
 
   static PersistentStorage _instance;
 
-  PersistentStorage._() ;
+  PersistentStorage._();
 
-  static PersistentStorage get getInstance => _instance = _instance ?? PersistentStorage._();
+  static PersistentStorage get getInstance =>
+      _instance = _instance ?? PersistentStorage._();
 
   void saveServerInfo(String serverName, String port) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(_serverInfoKey, [serverName, port]);
-
-    //await prefs.setString(_serverNameKey, serverName);
-    //await prefs.setString(_serverPortKey, port);
   }
 
-  Future<List<String>>  getServerInfo() async {
+  Future<List<String>> getServerInfo() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    //String name =     prefs.getString(_serverNameKey) ?? '';
-    //String port =     prefs.getString(_serverPortKey) ?? '';
 
     return prefs.getStringList(_serverInfoKey);
-  }
-}
-
-class SharedPreferencesTest {
-  ///
-  /// Instantiation of the SharedPreferences library
-  ///
-  final String _kNotificationsPrefs = "allowNotifications";
-  final String _kSortingOrderPrefs = "sortOrder";
-
-  /// ------------------------------------------------------------
-  /// Method that returns the user decision to allow notifications
-  /// ------------------------------------------------------------
-  Future<bool> getAllowsNotifications() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    return prefs.getBool(_kNotificationsPrefs) ?? false;
-  }
-
-  /// ----------------------------------------------------------
-  /// Method that saves the user decision to allow notifications
-  /// ----------------------------------------------------------
-  Future<bool> setAllowsNotifications(bool value) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    return prefs.setBool(_kNotificationsPrefs, value);
-  }
-
-  /// ------------------------------------------------------------
-  /// Method that returns the user decision on sorting order
-  /// ------------------------------------------------------------
-  Future<String> getSortingOrder() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    return prefs.getString(_kSortingOrderPrefs) ?? 'name';
-  }
-
-  /// ----------------------------------------------------------
-  /// Method that saves the user decision on sorting order
-  /// ----------------------------------------------------------
-  Future<bool> setSortingOrder(String value) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    return prefs.setString(_kSortingOrderPrefs, value);
   }
 }

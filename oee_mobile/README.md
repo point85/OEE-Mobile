@@ -1,6 +1,6 @@
 # oee_mobile
 
-Point85 OEE mobile application
+OEE Mobile Application
 
 ## Getting Started
 
