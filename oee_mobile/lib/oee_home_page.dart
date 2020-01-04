@@ -5,6 +5,7 @@ import 'oee_model.dart';
 import 'oee_equipment_page.dart';
 import 'oee_controller.dart';
 import 'oee_http_service.dart';
+import 'oee_persistence_service.dart';
 
 void main() => runApp(OeeMobileApp());
 
@@ -35,10 +36,10 @@ class _OeeHomePageState extends State<OeeHomePage> {
   // list of entities
   //Future<MaterialList> materialListFuture;
   //List<BaseData> materialData;
-  //Future<EntityList> entityListFuture;
-  //List<EntityDataModel> entityData;
-  Future<ReasonList> reasonListFuture;
-  List<ReasonDataModel> reasonData;
+  Future<EntityList> entityListFuture;
+  List<EntityDataModel> entityData;
+  //Future<ReasonList> reasonListFuture;
+  //List<ReasonDataModel> reasonData;
 
   int _bottomNavBarIndex = 0;
 
@@ -48,7 +49,7 @@ class _OeeHomePageState extends State<OeeHomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   Future setUrl() async {
-    var value = await PersistentStorage.getInstance.getServerInfo();
+    var value = await PersistenceService.getInstance.getServerInfo();
     OeeHttpService.getInstance.setUrl(value[0], value[1]);
   }
 
@@ -57,8 +58,8 @@ class _OeeHomePageState extends State<OeeHomePage> {
     super.initState();
     setUrl();
     //materialListFuture = EquipmentPageController.fetchMaterials();
-    //entityListFuture = OeeHomePageController.fetchEntities();
-    reasonListFuture = EquipmentPageController.fetchReasons();
+    entityListFuture = OeeHomePageController.fetchEntities();
+    //reasonListFuture = EquipmentPageController.fetchReasons();
   }
 
   void _showAboutDialog() {
@@ -102,14 +103,18 @@ class _OeeHomePageState extends State<OeeHomePage> {
       });
 
       switch (index) {
+        // settings
         case 0:
           _showBottomSheet();
           break;
         case 1:
-          reasonListFuture = EquipmentPageController.fetchReasons();
-          //entityListFuture = OeeHomePageController.fetchEntities();
+          // refresh
+          //reasonListFuture = EquipmentPageController.fetchReasons();
+          setUrl();
+          entityListFuture = OeeHomePageController.fetchEntities();
           break;
         case 2:
+          // about dialog
           _showAboutDialog();
           break;
       }
@@ -123,12 +128,12 @@ class _OeeHomePageState extends State<OeeHomePage> {
       ),
 
       // body
-      body: FutureBuilder<ReasonList>(
-        future: reasonListFuture,
+      body: FutureBuilder<EntityList>(
+        future: entityListFuture,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            ReasonList reasonList = snapshot.data;
-            return createReasonView(reasonList);
+            EntityList entityList = snapshot.data;
+            return createEntityView(entityList);
           } else if (snapshot.hasError) {
             return Text("${snapshot.error}");
           }
@@ -295,7 +300,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
   void initState() {
     super.initState();
 
-    PersistentStorage.getInstance.getServerInfo().then((value) {
+    PersistenceService.getInstance.getServerInfo().then((value) {
       String name = value[0];
       String port = value[1];
       nameController.text = name;
@@ -329,7 +334,12 @@ class _SettingsWidgetState extends State<SettingsWidget> {
       serverName = nameController.text;
       serverPort = portController.text;
 
-      PersistentStorage.getInstance.saveServerInfo(serverName, serverPort);
+      PersistenceService.getInstance.saveServerInfo(serverName, serverPort);
+
+      final snackBar = SnackBar(
+          content: Text('Settings saved'), behavior: SnackBarBehavior.floating);
+
+      Scaffold.of(context).showSnackBar(snackBar);
     };
 
     return Container(
@@ -383,7 +393,6 @@ class _SettingsWidgetState extends State<SettingsWidget> {
               ],
             ),
           ],
-        )
-        );
+        ));
   }
 }

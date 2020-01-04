@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dynamic_treeview.dart';
 import 'oee_model.dart';
 import 'oee_http_service.dart';
@@ -153,7 +152,7 @@ class OeeHomePageController {
     }
   }
 
-  Future<EntityList> fetchEntities() {
+  static Future<EntityList> fetchEntities() {
     return OeeHttpService.getInstance.fetchEntities();
   }
 }
@@ -253,27 +252,5 @@ class ReasonDataModel extends HierarchicalDataModel {
 
   OeeReason getReason() {
     return extras[_REASON_KEY];
-  }
-}
-
-class PersistentStorage {
-  final String _serverInfoKey = "server_info";
-
-  static PersistentStorage _instance;
-
-  PersistentStorage._();
-
-  static PersistentStorage get getInstance =>
-      _instance = _instance ?? PersistentStorage._();
-
-  void saveServerInfo(String serverName, String port) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(_serverInfoKey, [serverName, port]);
-  }
-
-  Future<List<String>> getServerInfo() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    return prefs.getStringList(_serverInfoKey);
   }
 }

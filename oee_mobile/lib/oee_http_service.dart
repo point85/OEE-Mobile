@@ -27,7 +27,8 @@ class OeeHttpService {
   }
 
   Future<EntityList> fetchEntities() async {
-    final response = await http.get(url + 'entity');
+    String entityURL = url + 'entity';
+    final response = await http.get(entityURL);
 
     if (response.statusCode == 200) {
       return EntityList.fromJson(json.decode(response.body));
