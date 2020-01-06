@@ -13,7 +13,9 @@ class OeeHttpService {
   String url;
 
   void setUrl(String server, String port) {
-    url = 'http://' + server + ':' + port + '/';
+    if (server != null && port != null) {
+      url = 'http://' + server + ':' + port + '/';
+    }
   }
 
   Future<MaterialList> fetchMaterials() async {

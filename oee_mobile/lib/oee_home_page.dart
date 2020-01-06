@@ -40,6 +40,7 @@ class _OeeHomePageState extends State<OeeHomePage> {
   List<EntityDataModel> entityData;
   //Future<ReasonList> reasonListFuture;
   //List<ReasonDataModel> reasonData;
+  EntityList entityList;
 
   int _bottomNavBarIndex = 0;
 
@@ -48,17 +49,20 @@ class _OeeHomePageState extends State<OeeHomePage> {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  Future setUrl() async {
+  Future<EntityList> refreshEntities() async {
     var value = await PersistenceService.getInstance.getServerInfo();
     OeeHttpService.getInstance.setUrl(value[0], value[1]);
+    //entityList = await OeeHomePageController.fetchEntities();
+    //entityListFuture = OeeHomePageController.fetchEntities();
+    return OeeHomePageController.fetchEntities();
   }
 
   @override
   void initState() {
     super.initState();
-    setUrl();
+    //refreshEntities();
     //materialListFuture = EquipmentPageController.fetchMaterials();
-    entityListFuture = OeeHomePageController.fetchEntities();
+    //entityListFuture = OeeHomePageController.fetchEntities();
     //reasonListFuture = EquipmentPageController.fetchReasons();
   }
 
@@ -110,8 +114,8 @@ class _OeeHomePageState extends State<OeeHomePage> {
         case 1:
           // refresh
           //reasonListFuture = EquipmentPageController.fetchReasons();
-          setUrl();
-          entityListFuture = OeeHomePageController.fetchEntities();
+          refreshEntities();
+          //entityListFuture = OeeHomePageController.fetchEntities();
           break;
         case 2:
           // about dialog
@@ -128,8 +132,11 @@ class _OeeHomePageState extends State<OeeHomePage> {
       ),
 
       // body
+      //body: entityList == null ? CircularProgressIndicator() : createEntityView(entityList),
+
       body: FutureBuilder<EntityList>(
-        future: entityListFuture,
+        //future: entityListFuture,
+        future: refreshEntities(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             EntityList entityList = snapshot.data;
@@ -141,6 +148,8 @@ class _OeeHomePageState extends State<OeeHomePage> {
           return CircularProgressIndicator();
         },
       ),
+
+
 
       // bottom navigation bar
       bottomNavigationBar: BottomNavigationBar(
@@ -178,13 +187,15 @@ class _OeeHomePageState extends State<OeeHomePage> {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (ctx) => EquipmentEvent(
-                      data: m,
+                builder: (ctx) => EquipmentEventWidget(
+                      entityData: m,
                     )));
       },
       width: MediaQuery.of(context).size.width,
     );
   }
+
+  //T cast<T>(x) => x is T ? x : null;
 
   DynamicTreeView createEntityView(EntityList entityList) {
     return DynamicTreeView(
@@ -195,13 +206,17 @@ class _OeeHomePageState extends State<OeeHomePage> {
           rootId: HierarchicalDataModel.ROOT_ID,
           parentPaddingEdgeInsets:
               EdgeInsets.only(left: 16, top: 0, bottom: 0)),
-      onTap: (m) {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (ctx) => EquipmentEvent(
-                      data: m,
-                    )));
+      onTap: (dataMap) {
+        OeeEntity entity = dataMap['extra'][EntityDataModel.ENT_KEY];
+
+        if (entity.level == EntityLevel.EQUIPMENT) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (ctx) => EquipmentEventWidget(
+                        entityData: dataMap,
+                      )));
+        }
       },
       width: MediaQuery.of(context).size.width,
     );
@@ -220,8 +235,8 @@ class _OeeHomePageState extends State<OeeHomePage> {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (ctx) => EquipmentEvent(
-                      data: m,
+                builder: (ctx) => EquipmentEventWidget(
+                      entityData: m,
                     )));
       },
       width: MediaQuery.of(context).size.width,
@@ -337,7 +352,10 @@ class _SettingsWidgetState extends State<SettingsWidget> {
       PersistenceService.getInstance.saveServerInfo(serverName, serverPort);
 
       final snackBar = SnackBar(
-          content: Text('Settings saved'), behavior: SnackBarBehavior.floating);
+        content: Text('Settings saved'),
+        behavior: SnackBarBehavior.floating,
+        duration: Duration(seconds: 2),
+      );
 
       Scaffold.of(context).showSnackBar(snackBar);
     };

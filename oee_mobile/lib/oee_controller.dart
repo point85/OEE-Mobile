@@ -68,7 +68,7 @@ class MaterialDataModel extends HierarchicalDataModel {
 
 /* Plant Entity */
 class EntityDataModel extends HierarchicalDataModel {
-  static const String _ENT_KEY = 'entity';
+  static const String ENT_KEY = 'entity';
 
   EntityDataModel(OeeEntity entity) {
     this.parentId = entity.parent;
@@ -106,11 +106,11 @@ class EntityDataModel extends HierarchicalDataModel {
       color: Colors.cyan,
       //size: 30.0,
     );
-    this.extras = {_ENT_KEY: entity};
+    this.extras = {ENT_KEY: entity};
   }
 
   OeeEntity getPlantEntity() {
-    return extras[_ENT_KEY];
+    return extras[ENT_KEY];
   }
 }
 
