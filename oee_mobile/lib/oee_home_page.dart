@@ -6,8 +6,10 @@ import 'oee_equipment_page.dart';
 import 'oee_controller.dart';
 import 'oee_http_service.dart';
 import 'oee_persistence_service.dart';
+import 'main.dart';
 
 void main() => runApp(OeeMobileApp());
+//void main() => runApp(MyApp());
 
 class OeeMobileApp extends StatelessWidget {
   // root of OEE application
@@ -51,6 +53,11 @@ class _OeeHomePageState extends State<OeeHomePage> {
 
   Future<EntityList> refreshEntities() async {
     var value = await PersistenceService.getInstance.getServerInfo();
+
+    if (value == null || value[0] == null || value[1] == null) {
+      _ackAlert();
+      return null;
+    }
     OeeHttpService.getInstance.setUrl(value[0], value[1]);
     //entityList = await OeeHomePageController.fetchEntities();
     //entityListFuture = OeeHomePageController.fetchEntities();
@@ -89,6 +96,49 @@ class _OeeHomePageState extends State<OeeHomePage> {
       applicationName: 'Point OEE',
       applicationVersion: '3.0.0',
       children: aboutBoxChildren,
+    );
+  }
+
+  void _showDialog() {
+    // flutter defined function
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Alert Dialog title"),
+          content: new Text("Alert Dialog body"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _ackAlert() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Server Not Defined'),
+          content: const Text('The HTTP server name and port must be defined under Settings.'),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Ok'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -187,7 +237,7 @@ class _OeeHomePageState extends State<OeeHomePage> {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (ctx) => EquipmentEventWidget(
+                builder: (ctx) => EquipmentEventPage(
                       entityData: m,
                     )));
       },
@@ -213,7 +263,7 @@ class _OeeHomePageState extends State<OeeHomePage> {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (ctx) => EquipmentEventWidget(
+                  builder: (ctx) => EquipmentEventPage(
                         entityData: dataMap,
                       )));
         }
@@ -235,7 +285,7 @@ class _OeeHomePageState extends State<OeeHomePage> {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (ctx) => EquipmentEventWidget(
+                builder: (ctx) => EquipmentEventPage(
                       entityData: m,
                     )));
       },
