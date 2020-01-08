@@ -1,21 +1,35 @@
+/// Base class for an object with a name and a description
 abstract class _NamedObject {
   final String name;
   final String description;
 
   _NamedObject(this.name, this.description);
+
+  @override
+  String toString() {
+    String value = name;
+
+    if (description != null) {
+      value += ' (' + description + ')';
+    }
+    return value;
+  }
 }
 
+// Material
 class OeeMaterial extends _NamedObject {
   final String category;
 
   OeeMaterial(String name, String description, this.category)
       : super(name, description);
 
+  // create material from HTTP response
   factory OeeMaterial.fromJson(Map<String, dynamic> json) {
     return OeeMaterial(json['name'], json['description'], json['category']);
   }
 }
 
+/// Plant entity level in the S95 hierarchy
 enum EntityLevel {
   ENTERPRISE,
   SITE,
@@ -25,6 +39,7 @@ enum EntityLevel {
   EQUIPMENT
 }
 
+/// OEE time loss category
 enum LossCategory {
   NOT_SCHEDULED,
   UNSCHEDULED,
@@ -38,11 +53,12 @@ enum LossCategory {
   NO_LOSS
 }
 
+// Plant entity
 class OeeEntity extends _NamedObject {
   // parent name
   String parent;
 
-  // list of children entities
+  // list of children
   List<OeeEntity> children;
 
   // level
@@ -50,6 +66,7 @@ class OeeEntity extends _NamedObject {
 
   OeeEntity(String name, String description) : super(name, description);
 
+  // create plant entity from HTTP response
   factory OeeEntity.fromJson(Map<String, dynamic> json) {
     OeeEntity entity = OeeEntity(json['name'], json['description']);
 
@@ -103,6 +120,7 @@ class OeeEntity extends _NamedObject {
   }
 }
 
+// list of materials
 class MaterialList {
   List<OeeMaterial> materialList;
 
@@ -122,6 +140,7 @@ class MaterialList {
   }
 }
 
+/// list of entities
 class EntityList {
   List<OeeEntity> entityList;
 
@@ -141,6 +160,7 @@ class EntityList {
   }
 }
 
+// OEE reason
 class OeeReason extends _NamedObject {
   // parent name
   String parent;
@@ -153,6 +173,7 @@ class OeeReason extends _NamedObject {
 
   OeeReason(String name, String description) : super(name, description);
 
+  // create reason from HTTP response
   factory OeeReason.fromJson(Map<String, dynamic> json) {
     OeeReason reason = OeeReason(json['name'], json['description']);
 
@@ -217,20 +238,9 @@ class OeeReason extends _NamedObject {
     }
     return category;
   }
-
-  @override
-  String toString() {
-    //return 'the reason';
-    String value = '';
-
-    if (name != null && description != null) {
-      value = name + ' (' + description + ')';
-    }
-    return value;
-  }
-
 }
 
+/// list of OEE reasons
 class ReasonList {
   List<OeeReason> reasonList;
 

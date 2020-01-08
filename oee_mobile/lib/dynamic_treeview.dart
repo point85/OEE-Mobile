@@ -133,13 +133,18 @@ class _DynamicTreeViewOriState extends State<DynamicTreeView> {
         cW.add(ListTile(
           dense: true,
           onTap: () {
-            Map<String, dynamic> treeMap = k.getExtraData();
-            widget?.onTap({
-              'id': '${k.getId()}',
-              'parent_id': '${k.getParentId()}',
-              'title': '${k.getTitle()}',
-              'extra': treeMap,
-            });
+            String id = '${k.getId()}';
+            String parent_id = '${k.getParentId()}';
+            String title = '${k.getTitle()}';
+            var extraMap = k.getExtraData();
+
+            Map<String, dynamic> tapMap = {
+              'id': id,
+              'parent_id': parent_id,
+              'title': title,
+              'extra': extraMap,
+            };
+            widget?.onTap(tapMap);
           },
           contentPadding: widget.config.childrenPaddingEdgeInsets,
           title: Text(

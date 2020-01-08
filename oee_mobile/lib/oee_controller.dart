@@ -11,11 +11,13 @@ abstract class HierarchicalDataModel implements BaseData {
   String name;
   String subTitle;
   Icon icon;
+
+  // holds the material, entity or reason object
   Map<String, dynamic> extras;
 
   @override
   String getId() {
-    return this.id.toString();
+    return this.id;
   }
 
   @override
@@ -25,7 +27,7 @@ abstract class HierarchicalDataModel implements BaseData {
 
   @override
   String getParentId() {
-    return this.parentId.toString();
+    return this.parentId;
   }
 
   @override
@@ -53,22 +55,22 @@ class MaterialDataModel extends HierarchicalDataModel {
     this.id = material.name;
     this.name = material.name;
     this.subTitle = material.description;
-    this.icon = Icon(
-      Icons.category,
-      //color: Colors.green,
-      //size: 30.0,
-    );
+    this.icon = Icon(Icons.category);
     this.extras = {_MAT_KEY: material};
   }
 
-  OeeMaterial getMaterial() {
-    return extras[_MAT_KEY];
+  //OeeMaterial getMaterial() {
+    //return extras[_MAT_KEY];
+  //}
+
+  static OeeMaterial getMaterial(Map<String, dynamic> dataMap) {
+    return dataMap['extra'][_MAT_KEY];
   }
 }
 
 /* Plant Entity */
 class EntityDataModel extends HierarchicalDataModel {
-  static const String ENT_KEY = 'entity';
+  static const String _ENT_KEY = 'entity';
 
   EntityDataModel(OeeEntity entity) {
     this.parentId = entity.parent;
@@ -106,11 +108,15 @@ class EntityDataModel extends HierarchicalDataModel {
       color: Colors.cyan,
       //size: 30.0,
     );
-    this.extras = {ENT_KEY: entity};
+    this.extras = {_ENT_KEY: entity};
   }
 
   OeeEntity getPlantEntity() {
-    return extras[ENT_KEY];
+    return extras[_ENT_KEY];
+  }
+
+  static OeeEntity getEntity(Map<String, dynamic> dataMap) {
+    return dataMap['extra'][_ENT_KEY];
   }
 }
 
@@ -248,9 +254,20 @@ class ReasonDataModel extends HierarchicalDataModel {
     this.name = reason.name;
     this.subTitle = reason.description;
     this.extras = {_REASON_KEY: reason};
+    this.icon = Icon(
+      Icons.build,
+      color: Colors.cyan,
+      //size: 30.0,
+    );
   }
-
+/*
   OeeReason getReason() {
     return extras[_REASON_KEY];
+  }
+
+ */
+
+  static OeeReason getReason(Map<String, dynamic> dataMap) {
+    return dataMap['extra'][_REASON_KEY];
   }
 }

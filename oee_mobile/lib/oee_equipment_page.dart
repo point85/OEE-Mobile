@@ -10,25 +10,19 @@ import 'contact.dart';
 import 'contact_service.dart';
 
 class EquipmentEventPage extends StatefulWidget {
-  final Map entityData;
-  EquipmentEventPage({this.entityData});
+  //final Map entityData;
+  final OeeEntity equipment;
 
-  //EquipmentEventPage({Key key, this.title}) : super(key: key);
-  //final String title;
+  //EquipmentEventPage({this.entityData});
+  EquipmentEventPage({this.equipment});
 
   @override
-  _EquipmentEventPageState createState() =>
-      _EquipmentEventPageState(this.entityData);
+  _EquipmentEventPageState createState() => _EquipmentEventPageState();
 }
 
 class _EquipmentEventPageState extends State<EquipmentEventPage> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  Map entityData;
-  _EquipmentEventPageState(this.entityData);
+  //Map entityData;
+  _EquipmentEventPageState();
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -37,9 +31,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
   Contact newContact = Contact();
   final TextEditingController _controller = TextEditingController();
 
-  ReasonPage reasonPage;
-
-  OeeReason selectedReason = OeeReason(null, null);
+  OeeReason selectedReason;
 
   Future<Null> _chooseDate(
       BuildContext context, String initialDateString) async {
@@ -142,7 +134,6 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     ),
     inputFormatters: [LengthLimitingTextInputFormatter(30)],
     validator: (val) => val.isEmpty ? 'Name is required' : null,
-    //onSaved: (val) => newContact.name = val,
   );
 
   @override
@@ -152,7 +143,8 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
         length: 3,
         child: Scaffold(
           appBar: AppBar(
-              title: Text('${entityData['title']}"'),
+              title: Text(widget.equipment
+                  .toString()), //Text('${entityData['title']}"'),
               bottom: TabBar(
                 tabs: [
                   Tab(text: 'Availability', icon: Icon(Icons.query_builder)),
@@ -164,7 +156,6 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
               )),
           body: TabBarView(
             children: [
-              //Icon(Icons.directions_car),
               _buildAvailabilityView(context),
               Icon(Icons.directions_transit),
               Icon(Icons.directions_bike),
@@ -176,15 +167,9 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
   }
 
   _showReasons(BuildContext context) async {
-    if (reasonPage == null) {
-      reasonPage = ReasonPage();
-    }
-
     await Navigator.push(
-        context, MaterialPageRoute(builder: (ctx) => reasonPage));
-    this.selectedReason = OeeExecutionService.getInstance.reason;
-    String value = selectedReason?.toString();
-    print(value);
+        context, MaterialPageRoute(builder: (ctx) => ReasonPage()));
+    selectedReason = OeeExecutionService.getInstance.reason;
   }
 
   Widget _buildAvailabilityView(BuildContext context) {
@@ -218,8 +203,8 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                 },
                 icon: const Icon(Icons.category),
               ),
-              Text(selectedReason?.toString()  ?? ''),
-              //Text('reason here'),
+              SizedBox(width: 20),
+              Text(selectedReason?.toString() ?? ''),
             ]),
             Visibility(child: myName, visible: showName),
             TextFormField(

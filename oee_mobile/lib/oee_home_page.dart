@@ -1,16 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:oee_mobile/back_pressed.dart';
 import 'dynamic_treeview.dart';
 import 'oee_model.dart';
 import 'oee_equipment_page.dart';
 import 'oee_controller.dart';
 import 'oee_services.dart';
 import 'oee_persistence_service.dart';
-import 'main.dart';
+import 'oee_ui_utils.dart';
 
 void main() => runApp(OeeMobileApp());
-//void main() => runApp(BackPressedApp());
 
 class OeeMobileApp extends StatelessWidget {
   @override
@@ -35,41 +33,31 @@ class OeeHomePage extends StatefulWidget {
 }
 
 class _OeeHomePageState extends State<OeeHomePage> {
-  // list of entities
-  //Future<MaterialList> materialListFuture;
-  //List<BaseData> materialData;
-  Future<EntityList> entityListFuture;
-  List<EntityDataModel> entityData;
+  // list of plant entities
+  //Future<EntityList> entityListFuture;
+  //List<EntityDataModel> entityData;
 
-  EntityList entityList;
+  //EntityList entityList;
 
+  // nav bar index
   int _bottomNavBarIndex = 0;
 
-  static const TextStyle optionStyle =
-      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+  //static const TextStyle optionStyle =
+  //    TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  // fetch the entities from the database
   Future<EntityList> refreshEntities() async {
     var value = await PersistenceService.getInstance.getServerInfo();
 
     if (value == null || value[0] == null || value[1] == null) {
-      _ackAlert();
+      UIUtils.showAlert(context, 'Server Not Defined',
+          'The HTTP server name and port must be defined under Settings.');
       return null;
     }
     OeeHttpService.getInstance.setUrl(value[0], value[1]);
-    //entityList = await OeeHomePageController.fetchEntities();
-    //entityListFuture = OeeHomePageController.fetchEntities();
     return OeeHomePageController.fetchEntities();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    //refreshEntities();
-    //materialListFuture = EquipmentPageController.fetchMaterials();
-    //entityListFuture = OeeHomePageController.fetchEntities();
-    //reasonListFuture = EquipmentPageController.fetchReasons();
   }
 
   void _showAboutDialog() {
@@ -98,53 +86,9 @@ class _OeeHomePageState extends State<OeeHomePage> {
     );
   }
 
-  void _showDialog() {
-    // flutter defined function
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        // return object of type Dialog
-        return AlertDialog(
-          title: new Text("Alert Dialog title"),
-          content: new Text("Alert Dialog body"),
-          actions: <Widget>[
-            // usually buttons at the bottom of the dialog
-            new FlatButton(
-              child: new Text("Close"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _ackAlert() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Server Not Defined'),
-          content: const Text('The HTTP server name and port must be defined under Settings.'),
-          actions: <Widget>[
-            FlatButton(
-              child: Text('Ok'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final _showBottomSheet = () {
-      //PersistentBottomSheetController _sheetController =
+    final _showSettings = () {
       _scaffoldKey.currentState.showBottomSheet((context) {
         return SettingsWidget();
       });
@@ -156,15 +100,13 @@ class _OeeHomePageState extends State<OeeHomePage> {
       });
 
       switch (index) {
-        // settings
         case 0:
-          _showBottomSheet();
+          // settings
+          _showSettings();
           break;
         case 1:
           // refresh
-          //reasonListFuture = EquipmentPageController.fetchReasons();
           refreshEntities();
-          //entityListFuture = OeeHomePageController.fetchEntities();
           break;
         case 2:
           // about dialog
@@ -181,19 +123,14 @@ class _OeeHomePageState extends State<OeeHomePage> {
       ),
 
       // body
-      //body: entityList == null ? CircularProgressIndicator() : createEntityView(entityList),
-
       body: FutureBuilder<EntityList>(
-        //future: entityListFuture,
         future: refreshEntities(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            EntityList entityList = snapshot.data;
-            return createEntityView(entityList);
+            return createEntityView(snapshot.data);
           } else if (snapshot.hasError) {
-            return Text("${snapshot.error}");
+            return Text('${snapshot.error}');
           }
-          // By default, show a loading spinner.
           return CircularProgressIndicator();
         },
       ),
@@ -221,29 +158,6 @@ class _OeeHomePageState extends State<OeeHomePage> {
     );
   }
 
-  DynamicTreeView createMaterialView(MaterialList materialList) {
-    return DynamicTreeView(
-      data: EquipmentPageController.fromMaterialList(materialList),
-      config: Config(
-          parentTextStyle:
-              TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
-          rootId: HierarchicalDataModel.ROOT_ID,
-          parentPaddingEdgeInsets:
-              EdgeInsets.only(left: 16, top: 0, bottom: 0)),
-      onTap: (m) {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (ctx) => EquipmentEventPage(
-                      entityData: m,
-                    )));
-      },
-      width: MediaQuery.of(context).size.width,
-    );
-  }
-
-  //T cast<T>(x) => x is T ? x : null;
-
   DynamicTreeView createEntityView(EntityList entityList) {
     return DynamicTreeView(
       data: OeeHomePageController.fromEntityList(entityList),
@@ -254,77 +168,19 @@ class _OeeHomePageState extends State<OeeHomePage> {
           parentPaddingEdgeInsets:
               EdgeInsets.only(left: 16, top: 0, bottom: 0)),
       onTap: (dataMap) {
-        Map<String, dynamic> extrasMap = dataMap['extra'];
-        OeeEntity entity = extrasMap[EntityDataModel.ENT_KEY];
+        OeeEntity entity = EntityDataModel.getEntity(dataMap);
 
         if (entity.level == EntityLevel.EQUIPMENT) {
           Navigator.push(
               context,
               MaterialPageRoute(
                   builder: (ctx) => EquipmentEventPage(
-                        entityData: dataMap,
+                        equipment: entity,
                       )));
         }
       },
       width: MediaQuery.of(context).size.width,
     );
-  }
-
-
-}
-
-class DecoratedTextField extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-        height: 50,
-        alignment: Alignment.center,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-        decoration: BoxDecoration(
-            color: Colors.grey[300], borderRadius: BorderRadius.circular(10)),
-        child: TextField(
-          decoration: InputDecoration.collapsed(
-            hintText: 'Enter your reference number',
-          ),
-        ));
-  }
-}
-
-class SheetButton extends StatefulWidget {
-  _SheetButtonState createState() => _SheetButtonState();
-}
-
-class _SheetButtonState extends State<SheetButton> {
-  bool checkingFlight = false;
-  bool success = false;
-  @override
-  Widget build(BuildContext context) {
-    return !checkingFlight
-        ? MaterialButton(
-            color: Colors.grey[800],
-            onPressed: () async {
-              setState(() {
-                checkingFlight = true;
-              });
-              await Future.delayed(Duration(seconds: 1));
-              setState(() {
-                success = true;
-              });
-              await Future.delayed(Duration(milliseconds: 500));
-              Navigator.pop(context);
-            },
-            child: Text(
-              'Check Flight',
-              style: TextStyle(color: Colors.white),
-            ),
-          )
-        : !success
-            ? CircularProgressIndicator()
-            : Icon(
-                Icons.check,
-                color: Colors.green,
-              );
   }
 }
 
@@ -361,9 +217,6 @@ class _SettingsWidgetState extends State<SettingsWidget> {
 
   String _validateName(String value) {
     if (value.isEmpty) return 'Server name is required.';
-    final RegExp nameExp = new RegExp(r'^[A-Za-z ]+$');
-    if (!nameExp.hasMatch(value))
-      return 'Please enter only alphabetical characters.';
     return null;
   }
 
@@ -432,10 +285,9 @@ class _SettingsWidgetState extends State<SettingsWidget> {
               alignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
                 RaisedButton.icon(
-                  //child: Text('Save'),
                   onPressed: _onSave,
-                  icon: Icon(Icons.save), //`Icon` to display
-                  label: Text('Save'), //`Text` to display
+                  icon: Icon(Icons.save),
+                  label: Text('Save'),
                 ),
               ],
             ),
