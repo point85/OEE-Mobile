@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
+import 'package:oee_mobile/oee_services.dart';
+import 'oee_reason_page.dart';
+import 'oee_model.dart';
 
 import 'contact.dart';
 import 'contact_service.dart';
@@ -14,10 +17,16 @@ class EquipmentEventPage extends StatefulWidget {
   //final String title;
 
   @override
-  _EquipmentEventPageState createState() => _EquipmentEventPageState(this.entityData);
+  _EquipmentEventPageState createState() =>
+      _EquipmentEventPageState(this.entityData);
 }
 
 class _EquipmentEventPageState extends State<EquipmentEventPage> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
   Map entityData;
   _EquipmentEventPageState(this.entityData);
 
@@ -27,6 +36,10 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
   String _color = '';
   Contact newContact = Contact();
   final TextEditingController _controller = TextEditingController();
+
+  ReasonPage reasonPage;
+
+  OeeReason selectedReason = OeeReason(null, null);
 
   Future<Null> _chooseDate(
       BuildContext context, String initialDateString) async {
@@ -76,8 +89,8 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
   }
 
   void showMessage(String message, [MaterialColor color = Colors.red]) {
-    _scaffoldKey.currentState.showSnackBar(
-        SnackBar(backgroundColor: color, content: Text(message)));
+    _scaffoldKey.currentState
+        .showSnackBar(SnackBar(backgroundColor: color, content: Text(message)));
   }
 
   void _submitForm() {
@@ -121,7 +134,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     });
   }
 
-  TextFormField myName = new             TextFormField(
+  TextFormField myName = new TextFormField(
     decoration: const InputDecoration(
       icon: const Icon(Icons.person),
       hintText: 'Enter your first and last name',
@@ -139,19 +152,20 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
         length: 3,
         child: Scaffold(
           appBar: AppBar(
-            title: Text('${entityData['title']}"'),
-            bottom: TabBar(
-              tabs: [
-                Tab(text: 'Availability', icon: Icon(Icons.query_builder)),
-                Tab(text: 'Production', icon: Icon(Icons.data_usage)),
-                Tab(text: 'Setup/Job', icon: Icon(Icons.settings_applications)),
-              ],
-            )
-          ),
+              title: Text('${entityData['title']}"'),
+              bottom: TabBar(
+                tabs: [
+                  Tab(text: 'Availability', icon: Icon(Icons.query_builder)),
+                  Tab(text: 'Production', icon: Icon(Icons.data_usage)),
+                  Tab(
+                      text: 'Setup/Job',
+                      icon: Icon(Icons.settings_applications)),
+                ],
+              )),
           body: TabBarView(
             children: [
               //Icon(Icons.directions_car),
-              _buildAvailabilityView(),
+              _buildAvailabilityView(context),
               Icon(Icons.directions_transit),
               Icon(Icons.directions_bike),
             ],
@@ -161,32 +175,53 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     );
   }
 
-  Widget _buildAvailabilityView() {
+  _showReasons(BuildContext context) async {
+    if (reasonPage == null) {
+      reasonPage = ReasonPage();
+    }
+
+    await Navigator.push(
+        context, MaterialPageRoute(builder: (ctx) => reasonPage));
+    this.selectedReason = OeeExecutionService.getInstance.reason;
+    String value = selectedReason?.toString();
+    print(value);
+  }
+
+  Widget _buildAvailabilityView(BuildContext context) {
     return Form(
         key: _formKey,
         autovalidate: true,
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           children: <Widget>[
-        Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Radio(
-              value: 0,
-              groupValue: _radioValue,
-              onChanged: _handleRadioValueChange,
-            ),
-            Text('By Time Period'),
-            Radio(
-              value: 1,
-              groupValue: _radioValue,
-              onChanged: _handleRadioValueChange,
-            ),
-            Text('By Event'),
+            // radio buttons
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+              Radio(
+                value: 0,
+                groupValue: _radioValue,
+                onChanged: _handleRadioValueChange,
+              ),
+              Text('By Time Period'),
+              Radio(
+                value: 1,
+                groupValue: _radioValue,
+                onChanged: _handleRadioValueChange,
+              ),
+              Text('By Event'),
             ]),
-
+            // reason selection
+            Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
+              RaisedButton.icon(
+                label: Text('Reason'),
+                onPressed: () {
+                  _showReasons(context);
+                },
+                icon: const Icon(Icons.category),
+              ),
+              Text(selectedReason?.toString()  ?? ''),
+              //Text('reason here'),
+            ]),
             Visibility(child: myName, visible: showName),
-
             TextFormField(
               decoration: const InputDecoration(
                 icon: const Icon(Icons.person),
@@ -200,17 +235,16 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
             Row(children: <Widget>[
               Expanded(
                   child: TextFormField(
-                    decoration: InputDecoration(
-                      icon: const Icon(Icons.calendar_today),
-                      hintText: 'Enter your date of birth',
-                      labelText: 'Dob',
-                    ),
-                    controller: _controller,
-                    keyboardType: TextInputType.datetime,
-                    validator: (val) =>
-                    isValidDob(val) ? null : 'Not a valid date',
-                    onSaved: (val) => newContact.dob = convertToDate(val),
-                  )),
+                decoration: InputDecoration(
+                  icon: const Icon(Icons.calendar_today),
+                  hintText: 'Enter your date of birth',
+                  labelText: 'Dob',
+                ),
+                controller: _controller,
+                keyboardType: TextInputType.datetime,
+                validator: (val) => isValidDob(val) ? null : 'Not a valid date',
+                onSaved: (val) => newContact.dob = convertToDate(val),
+              )),
               IconButton(
                 icon: Icon(Icons.more_horiz),
                 tooltip: 'Choose date',
@@ -227,8 +261,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
               ),
               keyboardType: TextInputType.phone,
               inputFormatters: [
-                WhitelistingTextInputFormatter(
-                    RegExp(r'^[()\d -]{1,15}$')),
+                WhitelistingTextInputFormatter(RegExp(r'^[()\d -]{1,15}$')),
               ],
               validator: (value) => isValidPhoneNumber(value)
                   ? null

@@ -49,3 +49,16 @@ class OeeHttpService {
     }
   }
 }
+
+
+class OeeExecutionService {
+  static OeeExecutionService _instance;
+
+  OeeExecutionService._();
+
+  static OeeExecutionService get getInstance =>
+      _instance = _instance ?? OeeExecutionService._();
+
+  OeeReason reason;
+
+}

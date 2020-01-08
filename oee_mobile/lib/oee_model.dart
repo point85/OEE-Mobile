@@ -38,67 +38,6 @@ enum LossCategory {
   NO_LOSS
 }
 
-//extension EntityLevelExtension on EntityLevel {
-/*
-  String get name {
-    String id;
-    switch (this) {
-      case EntityLevel.ENTERPRISE:
-        id = 'ENTERPRISE';
-        break;
-      case EntityLevel.SITE:
-        id = 'SITE';
-        break;
-      case EntityLevel.AREA:
-        id = 'AREA';
-        break;
-      case EntityLevel.PRODUCTION_LINE:
-        id = 'PRODUCTION_LINE';
-        break;
-      case EntityLevel.WORK_CELL:
-        id = 'WORK_CELL';
-        break;
-      case EntityLevel.EQUIPMENT:
-        id = 'EQUIPMENT';
-        break;
-      default:
-        break;
-    }
-    return id;
-  }
-
-   */
-/*
-  static EntityLevel fromString(String id) {
-    EntityLevel level;
-
-    switch (id) {
-      case 'ENTERPRISE':
-        level = EntityLevel.ENTERPRISE;
-        break;
-      case 'SITE':
-        level = EntityLevel.SITE;
-        break;
-      case 'AREA':
-        level = EntityLevel.AREA;
-        break;
-      case 'PRODUCTION_LINE':
-        level = EntityLevel.PRODUCTION_LINE;
-        break;
-      case 'WORK_CELL':
-        level = EntityLevel.WORK_CELL;
-        break;
-      case 'EQUIPMENT':
-        level = EntityLevel.EQUIPMENT;
-        break;
-      default:
-        break;
-    }
-    return level;
-  }
-  */
-//}
-
 class OeeEntity extends _NamedObject {
   // parent name
   String parent;
@@ -278,6 +217,18 @@ class OeeReason extends _NamedObject {
     }
     return category;
   }
+
+  @override
+  String toString() {
+    //return 'the reason';
+    String value = '';
+
+    if (name != null && description != null) {
+      value = name + ' (' + description + ')';
+    }
+    return value;
+  }
+
 }
 
 class ReasonList {

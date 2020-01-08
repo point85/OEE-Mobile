@@ -1,18 +1,18 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:oee_mobile/back_pressed.dart';
 import 'dynamic_treeview.dart';
 import 'oee_model.dart';
 import 'oee_equipment_page.dart';
 import 'oee_controller.dart';
-import 'oee_http_service.dart';
+import 'oee_services.dart';
 import 'oee_persistence_service.dart';
 import 'main.dart';
 
 void main() => runApp(OeeMobileApp());
-//void main() => runApp(MyApp());
+//void main() => runApp(BackPressedApp());
 
 class OeeMobileApp extends StatelessWidget {
-  // root of OEE application
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
@@ -40,8 +40,7 @@ class _OeeHomePageState extends State<OeeHomePage> {
   //List<BaseData> materialData;
   Future<EntityList> entityListFuture;
   List<EntityDataModel> entityData;
-  //Future<ReasonList> reasonListFuture;
-  //List<ReasonDataModel> reasonData;
+
   EntityList entityList;
 
   int _bottomNavBarIndex = 0;
@@ -199,8 +198,6 @@ class _OeeHomePageState extends State<OeeHomePage> {
         },
       ),
 
-
-
       // bottom navigation bar
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
@@ -257,7 +254,8 @@ class _OeeHomePageState extends State<OeeHomePage> {
           parentPaddingEdgeInsets:
               EdgeInsets.only(left: 16, top: 0, bottom: 0)),
       onTap: (dataMap) {
-        OeeEntity entity = dataMap['extra'][EntityDataModel.ENT_KEY];
+        Map<String, dynamic> extrasMap = dataMap['extra'];
+        OeeEntity entity = extrasMap[EntityDataModel.ENT_KEY];
 
         if (entity.level == EntityLevel.EQUIPMENT) {
           Navigator.push(
@@ -272,26 +270,7 @@ class _OeeHomePageState extends State<OeeHomePage> {
     );
   }
 
-  DynamicTreeView createReasonView(ReasonList reasonList) {
-    return DynamicTreeView(
-      data: EquipmentPageController.fromReasonList(reasonList),
-      config: Config(
-          parentTextStyle:
-              TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
-          rootId: HierarchicalDataModel.ROOT_ID,
-          parentPaddingEdgeInsets:
-              EdgeInsets.only(left: 16, top: 0, bottom: 0)),
-      onTap: (m) {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (ctx) => EquipmentEventPage(
-                      entityData: m,
-                    )));
-      },
-      width: MediaQuery.of(context).size.width,
-    );
-  }
+
 }
 
 class DecoratedTextField extends StatelessWidget {
