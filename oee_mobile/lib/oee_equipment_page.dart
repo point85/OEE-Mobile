@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:oee_mobile/oee_services.dart';
 import 'oee_reason_page.dart';
 import 'oee_model.dart';
+import 'oee_ui_utils.dart';
 
 import 'contact.dart';
 import 'contact_service.dart';
@@ -23,6 +24,8 @@ class EquipmentEventPage extends StatefulWidget {
 class _EquipmentEventPageState extends State<EquipmentEventPage> {
   //Map entityData;
   _EquipmentEventPageState();
+
+  DateAndTimePickerDemo dtpd = DateAndTimePickerDemo();
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -206,6 +209,8 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
               SizedBox(width: 20),
               Text(selectedReason?.toString() ?? ''),
             ]),
+
+            // event start
             Visibility(child: myName, visible: showName),
             TextFormField(
               decoration: const InputDecoration(

@@ -134,13 +134,13 @@ class _DynamicTreeViewOriState extends State<DynamicTreeView> {
           dense: true,
           onTap: () {
             String id = '${k.getId()}';
-            String parent_id = '${k.getParentId()}';
+            String parentId = '${k.getParentId()}';
             String title = '${k.getTitle()}';
             var extraMap = k.getExtraData();
 
             Map<String, dynamic> tapMap = {
               'id': id,
-              'parent_id': parent_id,
+              'parent_id': parentId,
               'title': title,
               'extra': extraMap,
             };
