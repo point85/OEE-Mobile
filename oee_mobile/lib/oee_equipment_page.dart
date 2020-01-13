@@ -5,10 +5,9 @@ import 'package:intl/intl.dart';
 import 'package:oee_mobile/oee_services.dart';
 import 'oee_reason_page.dart';
 import 'oee_model.dart';
-import 'oee_ui_utils.dart';
+import 'oee_ui_shared.dart';
 
 import 'contact.dart';
-import 'contact_service.dart';
 
 class EquipmentEventPage extends StatefulWidget {
   //final Map entityData;
@@ -28,7 +27,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
   DateAndTimePickerDemo dtpd = DateAndTimePickerDemo();
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _availabilityFormKey = GlobalKey<FormState>();
   List<String> _colors = <String>['', 'red', 'green', 'blue', 'orange'];
   String _color = '';
   Contact newContact = Contact();
@@ -89,25 +88,24 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
   }
 
   void _submitForm() {
-    final FormState form = _formKey.currentState;
+    final FormState form = _availabilityFormKey.currentState;
+    form.save(); //This invokes each onSaved event
 
+    /*
     if (!form.validate()) {
       showMessage('Form is not valid!  Please review and correct.');
     } else {
       form.save(); //This invokes each onSaved event
-
-      print('Form save called, newContact is now up to date...');
-      print('Name: ${newContact.name}');
-      print('Dob: ${newContact.dob}');
-      print('Phone: ${newContact.phone}');
-      print('Email: ${newContact.email}');
-      print('Favorite Color: ${newContact.favoriteColor}');
-      print('========================================');
-      print('Submitting to back end...');
-      var contactService = ContactService();
-      contactService.createContact(newContact).then((value) =>
-          showMessage('contact created for ${value.name}!', Colors.blue));
     }
+    */
+
+    DateTime dt = dtKey.currentState.dateTimeValue;
+    print(dt.toIso8601String());
+    //DateTime dt = this.dtKey.currentState.dateTime;
+    //this.startTimeWidget.getDateTime();
+      //DateTime startTime = this.widget.startTimeWidget.value;
+
+      //    showMessage('Start time is ${startTime}!', Colors.blue);
   }
 
   bool showName = true;
@@ -138,6 +136,8 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     inputFormatters: [LengthLimitingTextInputFormatter(30)],
     validator: (val) => val.isEmpty ? 'Name is required' : null,
   );
+
+  DateTimeWidget startTimeWidget;
 
   @override
   Widget build(BuildContext context) {
@@ -175,9 +175,11 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     selectedReason = OeeExecutionService.getInstance.reason;
   }
 
+  final dtKey = new GlobalKey<DateTimeWidgetState>();
+
   Widget _buildAvailabilityView(BuildContext context) {
     return Form(
-        key: _formKey,
+        key: _availabilityFormKey,
         autovalidate: true,
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -211,6 +213,8 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
             ]),
 
             // event start
+            DateTimeWidget(key: dtKey),
+
             Visibility(child: myName, visible: showName),
             TextFormField(
               decoration: const InputDecoration(
@@ -307,7 +311,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
             Container(
                 padding: const EdgeInsets.only(left: 40.0, top: 20.0),
                 child: RaisedButton.icon(
-                  label: const Text('Record'),
+                  label: const Text('Submit'),
                   onPressed: _submitForm,
                   icon: const Icon(Icons.check_circle_outline),
                 )),

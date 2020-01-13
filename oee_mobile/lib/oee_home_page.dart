@@ -6,7 +6,7 @@ import 'oee_equipment_page.dart';
 import 'oee_controller.dart';
 import 'oee_services.dart';
 import 'oee_persistence_service.dart';
-import 'oee_ui_utils.dart';
+import 'oee_ui_shared.dart';
 
 void main() => runApp(OeeMobileApp());
 

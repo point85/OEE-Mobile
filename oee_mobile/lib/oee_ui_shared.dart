@@ -350,3 +350,223 @@ class _DateAndTimePickerDemoState extends State<DateAndTimePickerDemo> {
     );
   }
 }
+
+class DateTimeWidget extends StatefulWidget {
+  //_DateTimeWidgetState state;
+  //final GlobalKey<_DateTimeWidgetState> _dtKey = new GlobalKey<_DateTimeWidgetState>();  MyStatefulWidget1({ Key key }) : super(key: key);
+  //  State createState() => new MyStatefulWidget1State();
+  DateTimeWidget({ Key key }) : super(key: key);
+  State createState() => DateTimeWidgetState();
+
+  /*
+  @override
+  _DateTimeWidgetState createState() {
+    return _DateTimeWidgetState();
+    //return state;
+  }
+
+   */
+
+  /*
+  DateTime getDateTime() {
+    DateTime dt = _dtKey.currentState.value;
+    return dt;
+  }
+
+  DateTime get value => _dtKey.currentState.value;
+
+   */
+}
+
+class DateTimeWidgetState extends State<DateTimeWidget> {
+  final format = DateFormat("yyyy-MM-dd HH:mm");
+  final initialValue = DateTime.now();
+
+  bool autoValidate = false;
+  bool readOnly = true;
+  bool showResetIcon = true;
+  DateTime dateTimeValue = DateTime.now();
+  int changedCount = 0;
+  int savedCount = 0;
+
+  DateTime get dateTime => dateTimeValue;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(children: <Widget>[
+      Text('Complex date & time field (${format.pattern})'),
+      DateTimeField(
+        format: format,
+        onShowPicker: (context, currentValue) async {
+          final date = await showDatePicker(
+              context: context,
+              firstDate: DateTime(1900),
+              initialDate: currentValue ?? DateTime.now(),
+              lastDate: DateTime(2100));
+          if (date != null) {
+            final time = await showTimePicker(
+              context: context,
+              initialTime:
+              TimeOfDay.fromDateTime(currentValue ?? DateTime.now()),
+            );
+            return DateTimeField.combine(date, time);
+          } else {
+            return currentValue;
+          }
+        },
+        autovalidate: autoValidate,
+        validator: (date) => date == null ? 'Invalid date' : null,
+        initialValue: initialValue,
+        onChanged: (date) => setState(() {
+          dateTimeValue = date;
+          changedCount++;
+        }),
+        onSaved: (date) => setState(() {
+          dateTimeValue = date;
+          savedCount++;
+        }),
+        resetIcon: showResetIcon ? Icon(Icons.delete) : null,
+        readOnly: readOnly,
+        decoration: InputDecoration(
+            helperText: 'Changed: $changedCount, Saved: $savedCount, $dateTimeValue'),
+      ),
+      CheckboxListTile(
+        title: Text('autoValidate'),
+        value: autoValidate,
+        onChanged: (value) => setState(() => autoValidate = value),
+      ),
+      CheckboxListTile(
+        title: Text('readOnly'),
+        value: readOnly,
+        onChanged: (value) => setState(() => readOnly = value),
+      ),
+      CheckboxListTile(
+        title: Text('showResetIcon'),
+        value: showResetIcon,
+        onChanged: (value) => setState(() => showResetIcon = value),
+      ),
+    ]);
+  }
+}
+
+class Item {
+  String reference;
+
+  Item(this.reference);
+}
+
+class _MyInherited extends InheritedWidget {
+  _MyInherited({
+    Key key,
+    @required Widget child,
+    @required this.data,
+  }) : super(key: key, child: child);
+
+  final MyInheritedWidgetState data;
+
+  @override
+  bool updateShouldNotify(_MyInherited oldWidget) {
+    return true;
+  }
+}
+
+class MyInheritedWidget extends StatefulWidget {
+  MyInheritedWidget({
+    Key key,
+    this.child,
+  }): super(key: key);
+
+  final Widget child;
+
+  @override
+  MyInheritedWidgetState createState() => new MyInheritedWidgetState();
+
+  static MyInheritedWidgetState of(BuildContext context){
+    return (context.inheritFromWidgetOfExactType(_MyInherited) as _MyInherited).data;
+  }
+}
+
+class MyInheritedWidgetState extends State<MyInheritedWidget>{
+  /// List of Items
+  List<Item> _items = <Item>[];
+
+  /// Getter (number of items)
+  int get itemsCount => _items.length;
+
+  /// Helper method to add an Item
+  void addItem(String reference){
+    setState((){
+      _items.add(new Item(reference));
+    });
+  }
+
+  @override
+  Widget build(BuildContext context){
+    return new _MyInherited(
+      data: this,
+      child: widget.child,
+    );
+  }
+}
+
+class MyTree extends StatefulWidget {
+  @override
+  _MyTreeState createState() => new _MyTreeState();
+}
+
+class _MyTreeState extends State<MyTree> {
+  @override
+  Widget build(BuildContext context) {
+    return new MyInheritedWidget(
+      child: new Scaffold(
+        appBar: new AppBar(
+          title: new Text('Title'),
+        ),
+        body: new Column(
+          children: <Widget>[
+            new WidgetA(),
+            new Container(
+              child: new Row(
+                children: <Widget>[
+                  new Icon(Icons.shopping_cart),
+                  new WidgetB(),
+                  new WidgetC(),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class WidgetA extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final MyInheritedWidgetState state = MyInheritedWidget.of(context);
+    return new Container(
+      child: new RaisedButton(
+        child: new Text('Add Item'),
+        onPressed: () {
+          state.addItem('new item');
+        },
+      ),
+    );
+  }
+}
+
+class WidgetB extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final MyInheritedWidgetState state = MyInheritedWidget.of(context);
+    return new Text('${state.itemsCount}');
+  }
+}
+
+class WidgetC extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return new Text('I am Widget C');
+  }
+}
