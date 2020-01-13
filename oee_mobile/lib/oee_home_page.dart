@@ -33,19 +33,10 @@ class OeeHomePage extends StatefulWidget {
 }
 
 class _OeeHomePageState extends State<OeeHomePage> {
-  // list of plant entities
-  //Future<EntityList> entityListFuture;
-  //List<EntityDataModel> entityData;
-
-  //EntityList entityList;
-
   // nav bar index
   int _bottomNavBarIndex = 0;
 
-  //static const TextStyle optionStyle =
-  //    TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   // fetch the entities from the database
   Future<EntityList> refreshEntities() async {
