@@ -102,9 +102,6 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
       ),
     );
 
-    startTimeKey.currentState.setHelperText('Enter the event start time.');
-    endTimeKey.currentState.setHelperText('Enter the event end time.');
-
     return app;
   }
 
@@ -150,7 +147,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
             ]),
 
             Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
-              //SizedBox(child: Text('Start Time'), width: 100),
+              SizedBox(child: Text('Start Time'), width: 100),
               Expanded(child: DateTimeWidget(key: startTimeKey)),
             ]),
 
@@ -159,8 +156,26 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                 child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
-                      //SizedBox(child: Text('End Time'), width: 100),
+                      SizedBox(child: Text('End Time'), width: 100),
                       Expanded(child: DateTimeWidget(key: endTimeKey)),
+                      SizedBox(child: Text('Duration'), width: 75),
+
+                      SizedBox(
+                          child: TextFormField(
+                            decoration: InputDecoration(
+                                //border: InputBorder.none,
+                                //hintText: 'Duration',
+                                labelText: 'HH'),
+                          ),
+                          width: 50),
+                      SizedBox(
+                          child: TextFormField(
+                            decoration: InputDecoration(
+                              //border: InputBorder.none,
+                              //hintText: 'Duration',
+                                labelText: 'MM'),
+                          ),
+                          width: 50),
                     ]),
                 visible: showEndTime),
 /*
