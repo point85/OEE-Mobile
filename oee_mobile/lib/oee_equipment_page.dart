@@ -17,7 +17,7 @@ class EquipmentEventPage extends StatefulWidget {
 }
 
 class _EquipmentEventPageState extends State<EquipmentEventPage> {
-  _EquipmentEventPageState();
+  //_EquipmentEventPageState();
 
   OeeReason selectedReason;
 
@@ -28,10 +28,15 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
   final GlobalKey<FormState> _availabilityFormKey = GlobalKey<FormState>();
 
   bool showEndTime = true;
-  int _availabilityValue = -1;
+
   static const int BY_PERIOD = 0;
   static const int BY_EVENT = 1;
+  int _availabilityValue = BY_PERIOD;
 
+  @override
+  void initState() {
+    super.initState();
+  }
 
   void _submitForm() {
     final FormState form = _availabilityFormKey.currentState;
@@ -71,7 +76,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    MaterialApp app = MaterialApp(
       home: DefaultTabController(
         length: 3,
         child: Scaffold(
@@ -96,6 +101,11 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
         ),
       ),
     );
+
+    startTimeKey.currentState.setHelperText('Enter the event start time.');
+    endTimeKey.currentState.setHelperText('Enter the event end time.');
+
+    return app;
   }
 
   _showReasons(BuildContext context) async {
@@ -105,7 +115,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
   }
 
   Widget _buildAvailabilityView(BuildContext context) {
-    return Form(
+    Form form = Form(
         key: _availabilityFormKey,
         autovalidate: true,
         child: ListView(
@@ -139,11 +149,8 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
               Text(selectedReason?.toString() ?? ''),
             ]),
 
-            // event start
-            //DateTimeWidget(key: startTimeKey),
-
             Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
-              SizedBox(child: Text('Start Time'), width: 100),
+              //SizedBox(child: Text('Start Time'), width: 100),
               Expanded(child: DateTimeWidget(key: startTimeKey)),
             ]),
 
@@ -152,7 +159,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                 child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
-                      SizedBox(child: Text('End Time'), width: 100),
+                      //SizedBox(child: Text('End Time'), width: 100),
                       Expanded(child: DateTimeWidget(key: endTimeKey)),
                     ]),
                 visible: showEndTime),
@@ -179,5 +186,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                 )),
           ],
         ));
+
+    return form;
   }
 }

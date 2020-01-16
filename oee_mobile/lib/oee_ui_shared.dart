@@ -42,6 +42,12 @@ class DateTimeWidgetState extends State<DateTimeWidget> {
 
   DateTime get dateTime => _dateTimeValue;
 
+  String helperText = 'Enter date and time of day';
+
+  void setHelperText (String value) {
+    setState(() => helperText = value);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(children: <Widget>[
@@ -77,7 +83,7 @@ class DateTimeWidgetState extends State<DateTimeWidget> {
         resetIcon:Icon(Icons.delete),
         readOnly: true,
         decoration: InputDecoration(
-           helperText: 'Enter date and time of day'),
+           helperText: helperText),
         //inputFormatters: [LengthLimitingTextInputFormatter(30)],
       ),
     ]);
