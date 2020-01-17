@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 /// Base class for an object with a name and a description
 abstract class _NamedObject {
   final String name;
@@ -258,4 +260,78 @@ class ReasonList {
     }
     return ReasonList(reasons);
   }
+}
+
+class OeeEvent {
+  final OeeEntity equipment;
+  final DateTime startTime;
+  DateTime endTime;
+  OeeReason reason;
+  Duration duration;
+
+  OeeEvent(this.equipment, this.startTime);
+
+  /*
+  OeeEntity get entity {
+    return equipment;
+  }
+
+  DateTime get startTime {
+    return _startTime;
+  }
+
+  void set endTime(DateTime dateTime) {
+    _endTime = dateTime;
+  }
+
+  OeeReason get reason {
+    return _reason;
+  }
+
+  void set reason(OeeReason reason) {
+    _reason = reason;
+  }
+
+  Duration get duration {
+    return _duration;
+  }
+
+  void set duration(Duration duration) {
+    _duration = duration;
+  }
+
+   */
+}
+
+class EquipmentEventRequestDto {
+  String equipmentName;
+  String startTime;
+  String endTime;
+  String reasonName;
+  String durationSeconds;
+
+  EquipmentEventRequestDto(OeeEvent event) {
+    equipmentName = event.equipment.name;
+    startTime = event.startTime.toIso8601String();
+    endTime = event.endTime?.toIso8601String();
+    reasonName = event.reason.name;
+    if (event.duration != null) {
+      durationSeconds = event.duration.inSeconds.toStringAsFixed(0);
+    }
+
+  }
+
+  Map<String, dynamic> toJson() => {
+        'messageType': 'EQUIPMENT_EVENT',
+        'equipmentName': equipmentName,
+        'value': reasonName,
+        'timestamp': startTime,
+        'endTime': endTime,
+        'duration': durationSeconds,
+      };
+
+  String toJsonString() {
+    return jsonEncode(toJson());
+  }
+
 }

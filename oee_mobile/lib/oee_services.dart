@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'oee_model.dart';
+//import 'dart:html';
 
 ///
 /// This singleton class makes HTTP requests to the Point85 collector to obtain materials, plant entities and reasons
@@ -65,6 +66,51 @@ class OeeHttpService {
       }
     }
     return Future.value(reasonList);
+  }
+
+  Future<void> postEquipmentEvent(OeeEvent availabilityEvent) async {
+    EquipmentEventRequestDto dto = EquipmentEventRequestDto(availabilityEvent);
+    //String json = dto.toJsonString();
+    //print(json);
+
+    Map<String, dynamic> data = dto.toJson();
+
+      final response = await http.post(url + 'event', body:data);
+
+      if (response.statusCode == 200) {
+        //materialList = MaterialList.fromJson(json.decode(response.body));
+      } else {
+        throw Exception('Failed to post event.  Status code is ' + response.statusCode.toString());
+      }
+    return Future.value(materialList);
+  }
+
+  void postEquipmentEvent2(OeeEvent availabilityEvent) {
+    EquipmentEventRequestDto dto = EquipmentEventRequestDto(availabilityEvent);
+    //String json = dto.toJsonString();
+    //print(json);
+
+    Map<String, dynamic> data = dto.toJson();
+
+    /*
+    HttpRequest.request(url,
+        method: 'POST',
+        sendData: json.encode(data),
+        requestHeaders: {
+          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        }).then((resp) {
+      print(resp.responseUrl);
+      print(resp.responseText);
+    });
+
+     */
+/*
+    HttpRequest.postFormData(url + '/event', data).then((HttpRequest resp) {
+      print(resp.responseUrl);
+      print(resp.responseText);
+    });
+
+ */
   }
 }
 

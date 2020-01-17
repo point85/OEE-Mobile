@@ -42,11 +42,14 @@ class DateTimeWidgetState extends State<DateTimeWidget> {
 
   DateTime get dateTime => _dateTimeValue;
 
-  String _helperText = 'Enter date and time of day';
+  //String _helperText = 'Enter date and time of day';
 
+  /*
   void setHelperText (String value) {
     setState(() => _helperText = value);
   }
+
+   */
 
   @override
   Widget build(BuildContext context) {

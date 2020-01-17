@@ -17,9 +17,13 @@ class EquipmentEventPage extends StatefulWidget {
 }
 
 class _EquipmentEventPageState extends State<EquipmentEventPage> {
-  //_EquipmentEventPageState();
 
+  // event reason
   OeeReason selectedReason;
+
+  // event duration
+  String eventHours;
+  String eventMinutes;
 
   // keys to get the DateTime
   final startTimeKey = new GlobalKey<DateTimeWidgetState>();
@@ -33,17 +37,39 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
   static const int BY_EVENT = 1;
   int _availabilityValue = BY_PERIOD;
 
+  // event duration hours and minutes
+  //final hoursController = TextEditingController();
+  //final minutesController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
   }
 
-  void _submitForm() {
+  @override
+  void dispose() {
+    //hoursController.dispose();
+    //minutesController.dispose();
+    super.dispose();
+  }
+
+  void _onSubmit() {
     final FormState form = _availabilityFormKey.currentState;
     form.save(); //This invokes each onSaved event
 
-    DateTime dt = startTimeKey.currentState.dateTime;
-    print(dt.toIso8601String());
+    DateTime startTime = startTimeKey.currentState.dateTime;
+    DateTime endTime = endTimeKey.currentState.dateTime;
+
+    int intHours = int.parse(this.eventHours);
+    int intMinutes = int.parse(this.eventMinutes);
+    Duration eventDuration = Duration(hours: intHours, minutes: intMinutes);
+
+    OeeEvent availabilityEvent = OeeEvent(widget.equipment, startTime);
+    availabilityEvent.duration = eventDuration;
+    availabilityEvent.endTime = endTime;
+    availabilityEvent.reason = selectedReason;
+
+    OeeHttpService.getInstance.postEquipmentEvent(availabilityEvent);
   }
 
   void _handleAvailabilityChange(int value) {
@@ -116,9 +142,22 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
         key: _availabilityFormKey,
         autovalidate: true,
         child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           children: <Widget>[
-            // radio buttons
+            // reason selection
+            Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
+              RaisedButton.icon(
+                label: Text('Reason'),
+                onPressed: () {
+                  _showReasons(context);
+                },
+                icon: const Icon(Icons.category),
+              ),
+              SizedBox(width: 20),
+              Text(selectedReason?.toString() ?? ''),
+            ]),
+
+            // by event or by time period
             Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
               Radio(
                 value: BY_PERIOD,
@@ -133,25 +172,15 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
               ),
               Text('By Event'),
             ]),
-            // reason selection
-            Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
-              RaisedButton.icon(
-                label: Text('Reason'),
-                onPressed: () {
-                  _showReasons(context);
-                },
-                icon: const Icon(Icons.category),
-              ),
-              SizedBox(width: 20),
-              Text(selectedReason?.toString() ?? ''),
-            ]),
 
+            // event start date and time
             Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
               SizedBox(child: Text('Start Time'), width: 100),
               Expanded(child: DateTimeWidget(key: startTimeKey)),
+              SizedBox(width: 195),
             ]),
 
-            // event end
+            // event end date and time
             Visibility(
                 child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -159,21 +188,31 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                       SizedBox(child: Text('End Time'), width: 100),
                       Expanded(child: DateTimeWidget(key: endTimeKey)),
                       SizedBox(child: Text('Duration'), width: 75),
-
                       SizedBox(
                           child: TextFormField(
+                            //controller: hoursController,
                             decoration: InputDecoration(
                                 //border: InputBorder.none,
                                 //hintText: 'Duration',
-                                labelText: 'HH'),
+                                labelText: 'Hrs'),
+                            keyboardType: TextInputType.number,
+                            onSaved: (String value) {
+                              eventHours = value;
+                            },
                           ),
                           width: 50),
+                      SizedBox(width: 20),
                       SizedBox(
                           child: TextFormField(
+                            //controller: minutesController,
                             decoration: InputDecoration(
                               //border: InputBorder.none,
                               //hintText: 'Duration',
-                                labelText: 'MM'),
+                                labelText: 'Mins'),
+                            keyboardType: TextInputType.number,
+                            onSaved: (String value) {
+                              eventMinutes = value;
+                            },
                           ),
                           width: 50),
                     ]),
@@ -196,7 +235,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                 padding: const EdgeInsets.only(left: 40.0, top: 20.0),
                 child: RaisedButton.icon(
                   label: const Text('Submit'),
-                  onPressed: _submitForm,
+                  onPressed: _onSubmit,
                   icon: const Icon(Icons.check_circle_outline),
                 )),
           ],
