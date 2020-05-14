@@ -59,10 +59,6 @@ class MaterialDataModel extends HierarchicalDataModel {
     this.extras = {_MAT_KEY: material};
   }
 
-  //OeeMaterial getMaterial() {
-    //return extras[_MAT_KEY];
-  //}
-
   static OeeMaterial getMaterial(Map<String, dynamic> dataMap) {
     return dataMap['extra'][_MAT_KEY];
   }
@@ -260,12 +256,6 @@ class ReasonDataModel extends HierarchicalDataModel {
       //size: 30.0,
     );
   }
-/*
-  OeeReason getReason() {
-    return extras[_REASON_KEY];
-  }
-
- */
 
   static OeeReason getReason(Map<String, dynamic> dataMap) {
     return dataMap['extra'][_REASON_KEY];

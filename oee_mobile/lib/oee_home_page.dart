@@ -38,7 +38,7 @@ class _OeeHomePageState extends State<OeeHomePage> {
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  // fetch the entities from the database
+  // fetch the HTTP server info
   Future<EntityList> refreshEntities() async {
     var value = await PersistenceService.getInstance.getServerInfo();
 

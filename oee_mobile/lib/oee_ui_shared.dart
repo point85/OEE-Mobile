@@ -35,21 +35,13 @@ class DateTimeWidget extends StatefulWidget {
 }
 
 class DateTimeWidgetState extends State<DateTimeWidget> {
+  // choose hour and minute of day
   final format = DateFormat("yyyy-MM-dd HH:mm");
 
   // value selected by user
   DateTime _dateTimeValue;
 
   DateTime get dateTime => _dateTimeValue;
-
-  //String _helperText = 'Enter date and time of day';
-
-  /*
-  void setHelperText (String value) {
-    setState(() => _helperText = value);
-  }
-
-   */
 
   @override
   Widget build(BuildContext context) {
@@ -64,12 +56,12 @@ class DateTimeWidgetState extends State<DateTimeWidget> {
               initialDate: currentValue ?? DateTime.now(),
               lastDate: DateTime(2100));
           if (date != null) {
-            final time = await showTimePicker(
+            TimeOfDay time = await showTimePicker(
               context: context,
               initialTime:
               TimeOfDay.fromDateTime(currentValue ?? DateTime.now()),
             );
-            return DateTimeField.combine(date, time);
+            return  DateTimeField.combine(date, time);
           } else {
             return currentValue;
           }

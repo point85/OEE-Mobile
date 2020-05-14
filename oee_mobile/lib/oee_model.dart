@@ -25,7 +25,7 @@ class OeeMaterial extends _NamedObject {
   OeeMaterial(String name, String description, this.category)
       : super(name, description);
 
-  // create material from HTTP response
+  // create material from HTTP Json response
   factory OeeMaterial.fromJson(Map<String, dynamic> json) {
     return OeeMaterial(json['name'], json['description'], json['category']);
   }
@@ -53,6 +53,16 @@ enum LossCategory {
   REDUCED_SPEED,
   SETUP,
   NO_LOSS
+}
+
+enum OeeEventType {
+  AVAILABILITY,
+  PROD_GOOD,
+  PROD_REJECT,
+  PROD_STARTUP,
+  MATL_CHANGE,
+  JOB_CHANGE,
+  CUSTOM
 }
 
 // Plant entity
@@ -268,39 +278,9 @@ class OeeEvent {
   DateTime endTime;
   OeeReason reason;
   Duration duration;
+  OeeEventType eventType;
 
   OeeEvent(this.equipment, this.startTime);
-
-  /*
-  OeeEntity get entity {
-    return equipment;
-  }
-
-  DateTime get startTime {
-    return _startTime;
-  }
-
-  void set endTime(DateTime dateTime) {
-    _endTime = dateTime;
-  }
-
-  OeeReason get reason {
-    return _reason;
-  }
-
-  void set reason(OeeReason reason) {
-    _reason = reason;
-  }
-
-  Duration get duration {
-    return _duration;
-  }
-
-  void set duration(Duration duration) {
-    _duration = duration;
-  }
-
-   */
 }
 
 class EquipmentEventRequestDto {
@@ -309,9 +289,11 @@ class EquipmentEventRequestDto {
   String endTime;
   String reasonName;
   String durationSeconds;
+  String eventType;
 
   EquipmentEventRequestDto(OeeEvent event) {
     equipmentName = event.equipment.name;
+
     startTime = event.startTime.toIso8601String();
     endTime = event.endTime?.toIso8601String();
     reasonName = event.reason.name;
@@ -319,6 +301,8 @@ class EquipmentEventRequestDto {
       durationSeconds = event.duration.inSeconds.toStringAsFixed(0);
     }
 
+    eventType = event.eventType.toString().split('.').last;
+    print('Values');
   }
 
   Map<String, dynamic> toJson() => {
@@ -326,12 +310,12 @@ class EquipmentEventRequestDto {
         'equipmentName': equipmentName,
         'value': reasonName,
         'timestamp': startTime,
-        'endTime': endTime,
+        'endTimestamp': endTime,
         'duration': durationSeconds,
+        'eventType': eventType,
       };
 
   String toJsonString() {
     return jsonEncode(toJson());
   }
-
 }

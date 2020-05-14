@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
-//import 'package:flutter/services.dart';
 import 'package:oee_mobile/oee_services.dart';
 import 'oee_reason_page.dart';
 import 'oee_model.dart';
 import 'oee_ui_shared.dart';
 
 class EquipmentEventPage extends StatefulWidget {
-  //final Map entityData;
   final OeeEntity equipment;
 
-  //EquipmentEventPage({this.entityData});
   EquipmentEventPage({this.equipment});
 
   @override
@@ -17,7 +14,6 @@ class EquipmentEventPage extends StatefulWidget {
 }
 
 class _EquipmentEventPageState extends State<EquipmentEventPage> {
-
   // event reason
   OeeReason selectedReason;
 
@@ -41,6 +37,8 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
   //final hoursController = TextEditingController();
   //final minutesController = TextEditingController();
 
+  final GlobalKey<ScaffoldState> _scaffoldkey = new GlobalKey<ScaffoldState>();
+
   @override
   void initState() {
     super.initState();
@@ -57,19 +55,42 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     final FormState form = _availabilityFormKey.currentState;
     form.save(); //This invokes each onSaved event
 
-    DateTime startTime = startTimeKey.currentState.dateTime;
-    DateTime endTime = endTimeKey.currentState.dateTime;
+    DateTime startTime = startTimeKey.currentState != null
+        ? startTimeKey.currentState.dateTime
+        : null;
+    // no seconds
+    DateTime start = startTime != null
+        ? DateTime(startTime.year, startTime.month, startTime.day,
+            startTime.hour, startTime.minute)
+        : null;
 
-    int intHours = int.parse(this.eventHours);
-    int intMinutes = int.parse(this.eventMinutes);
-    Duration eventDuration = Duration(hours: intHours, minutes: intMinutes);
+    DateTime end;
+    Duration eventDuration;
 
-    OeeEvent availabilityEvent = OeeEvent(widget.equipment, startTime);
+    if (_availabilityValue == BY_PERIOD) {
+      DateTime endTime = endTimeKey.currentState != null
+          ? endTimeKey.currentState.dateTime
+          : null;
+      // no seconds
+      end = endTime != null
+          ? DateTime(endTime.year, endTime.month, endTime.day, endTime.hour,
+              endTime.minute)
+          : null;
+
+      int intHours = (eventHours != null && eventHours.length > 0) ? int.parse(eventHours) : 0;
+      int intMinutes = (eventMinutes != null && eventMinutes.length > 0)? int.parse(eventMinutes) : 0;
+      eventDuration = Duration(hours: intHours, minutes: intMinutes);
+    }
+
+    OeeEvent availabilityEvent = OeeEvent(widget.equipment, start);
     availabilityEvent.duration = eventDuration;
-    availabilityEvent.endTime = endTime;
+    availabilityEvent.endTime = end;
     availabilityEvent.reason = selectedReason;
+    availabilityEvent.eventType = OeeEventType.AVAILABILITY;
 
     OeeHttpService.getInstance.postEquipmentEvent(availabilityEvent);
+
+    _showSnackBar("Event recorded.");
   }
 
   void _handleAvailabilityChange(int value) {
@@ -106,6 +127,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
       home: DefaultTabController(
         length: 3,
         child: Scaffold(
+          key: _scaffoldkey,
           appBar: AppBar(
               title: Text(widget.equipment.toString()),
               bottom: TabBar(
@@ -131,10 +153,23 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     return app;
   }
 
+  void _showSnackBar(String text) {
+    final snackBarContent = SnackBar(
+      content: Text(text),
+      action: SnackBarAction(
+          label: 'Close', onPressed: _scaffoldkey.currentState.hideCurrentSnackBar),
+    );
+    _scaffoldkey.currentState.showSnackBar(snackBarContent);
+  }
+
   _showReasons(BuildContext context) async {
     await Navigator.push(
         context, MaterialPageRoute(builder: (ctx) => ReasonPage()));
     selectedReason = OeeExecutionService.getInstance.reason;
+  }
+
+  String _getSelectedReason() {
+    return selectedReason?.toString() ?? 'no reason selected';
   }
 
   Widget _buildAvailabilityView(BuildContext context) {
@@ -154,7 +189,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                 icon: const Icon(Icons.category),
               ),
               SizedBox(width: 20),
-              Text(selectedReason?.toString() ?? ''),
+              Text(_getSelectedReason()),
             ]),
 
             // by event or by time period
@@ -206,8 +241,8 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                           child: TextFormField(
                             //controller: minutesController,
                             decoration: InputDecoration(
-                              //border: InputBorder.none,
-                              //hintText: 'Duration',
+                                //border: InputBorder.none,
+                                //hintText: 'Duration',
                                 labelText: 'Mins'),
                             keyboardType: TextInputType.number,
                             onSaved: (String value) {
