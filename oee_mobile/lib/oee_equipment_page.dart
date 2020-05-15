@@ -81,8 +81,12 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
               endTime.minute)
           : null;
 
-      int intHours = (eventHours != null && eventHours.length > 0) ? int.parse(eventHours) : 0;
-      int intMinutes = (eventMinutes != null && eventMinutes.length > 0)? int.parse(eventMinutes) : 0;
+      int intHours = (eventHours != null && eventHours.length > 0)
+          ? int.parse(eventHours)
+          : 0;
+      int intMinutes = (eventMinutes != null && eventMinutes.length > 0)
+          ? int.parse(eventMinutes)
+          : 0;
       eventDuration = Duration(hours: intHours, minutes: intMinutes);
     }
 
@@ -125,6 +129,44 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
 
    */
 
+  Icon _getAvailabilityIcon(OeeReason reason) {
+    Icon icon;
+
+    switch (reason.lossCategory) {
+      case LossCategory.MINOR_STOPPAGES:
+        icon = Icon(Icons.block);
+        break;
+      case LossCategory.NO_LOSS:
+        icon = Icon(Icons.check_circle_outline);
+        break;
+      case LossCategory.NOT_SCHEDULED:
+        icon = Icon(Icons.clear_all);
+        break;
+      case LossCategory.PLANNED_DOWNTIME:
+        icon = Icon(Icons.all_out);
+        break;
+      case LossCategory.REDUCED_SPEED:
+        icon = Icon(Icons.change_history);
+        break;
+      case LossCategory.REJECT_REWORK:
+        icon = Icon(Icons.highlight_off);
+        break;
+      case LossCategory.SETUP:
+        icon = Icon(Icons.mode_edit);
+        break;
+      case LossCategory.STARTUP_YIELD:
+        icon = Icon(Icons.arrow_drop_down_circle);
+        break;
+      case LossCategory.UNPLANNED_DOWNTIME:
+        icon = Icon(Icons.flash_on);
+        break;
+      case LossCategory.UNSCHEDULED:
+        icon = Icon(Icons.do_not_disturb_on);
+        break;
+    }
+    return icon;
+  }
+
   @override
   Widget build(BuildContext context) {
     MaterialApp app = MaterialApp(
@@ -133,7 +175,10 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
         child: Scaffold(
           key: _scaffoldKey,
           appBar: AppBar(
-              title: Text(widget.equipment.toString() + "\n" + widget.equipmentStatus.toString()),
+              title: Text(widget.equipment.toString() +
+                  "\n" +
+                  widget.equipmentStatus.toString()),
+              leading: _getAvailabilityIcon(widget.equipmentStatus.reason),
               bottom: TabBar(
                 tabs: [
                   Tab(text: 'Availability', icon: Icon(Icons.query_builder)),
@@ -161,7 +206,8 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     final snackBarContent = SnackBar(
       content: Text(text),
       action: SnackBarAction(
-          label: 'Close', onPressed: _scaffoldKey.currentState.hideCurrentSnackBar),
+          label: 'Close',
+          onPressed: _scaffoldKey.currentState.hideCurrentSnackBar),
     );
     _scaffoldKey.currentState.showSnackBar(snackBarContent);
   }

@@ -36,18 +36,18 @@ class OeeEquipmentEvent {
 class OeeEquipmentStatus {
   final OeeMaterial material;
   final String job;
-  final OeeEquipmentEvent lastSetup;
+  final OeeReason reason;
+  final String timestamp;
 
-  OeeEquipmentStatus(this.material, this.job, this.lastSetup);
+  OeeEquipmentStatus(this.material, this.job, this.reason, this.timestamp);
 
   // create material from HTTP Json response
   factory OeeEquipmentStatus.fromJson(Map<String, dynamic> json) {
     OeeMaterial material = OeeMaterial.fromJson(json['material']);
     String job = json['job'];
-    OeeEquipmentEvent lastSetup =
-        OeeEquipmentEvent.fromJson(json['equipmentEvent']);
-
-    return OeeEquipmentStatus(material, job, lastSetup);
+    OeeReason reason = OeeReason.fromJson(json['reason']);
+    String timestamp = json['timestamp'];
+    return OeeEquipmentStatus(material, job, reason, timestamp);
   }
 
   @override
