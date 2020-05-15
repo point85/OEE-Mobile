@@ -5,9 +5,13 @@ import 'oee_model.dart';
 import 'oee_ui_shared.dart';
 
 class EquipmentEventPage extends StatefulWidget {
+  // equipment
   final OeeEntity equipment;
 
-  EquipmentEventPage({this.equipment});
+  // equipment status
+  final OeeEquipmentStatus equipmentStatus;
+
+  EquipmentEventPage({this.equipment, this.equipmentStatus});
 
   @override
   _EquipmentEventPageState createState() => _EquipmentEventPageState();
@@ -37,7 +41,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
   //final hoursController = TextEditingController();
   //final minutesController = TextEditingController();
 
-  final GlobalKey<ScaffoldState> _scaffoldkey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -90,7 +94,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
 
     OeeHttpService.getInstance.postEquipmentEvent(availabilityEvent);
 
-    _showSnackBar("Event recorded.");
+    _showSnackBar("Availability event recorded.");
   }
 
   void _handleAvailabilityChange(int value) {
@@ -127,9 +131,9 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
       home: DefaultTabController(
         length: 3,
         child: Scaffold(
-          key: _scaffoldkey,
+          key: _scaffoldKey,
           appBar: AppBar(
-              title: Text(widget.equipment.toString()),
+              title: Text(widget.equipment.toString() + "\n" + widget.equipmentStatus.toString()),
               bottom: TabBar(
                 tabs: [
                   Tab(text: 'Availability', icon: Icon(Icons.query_builder)),
@@ -157,9 +161,9 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     final snackBarContent = SnackBar(
       content: Text(text),
       action: SnackBarAction(
-          label: 'Close', onPressed: _scaffoldkey.currentState.hideCurrentSnackBar),
+          label: 'Close', onPressed: _scaffoldKey.currentState.hideCurrentSnackBar),
     );
-    _scaffoldkey.currentState.showSnackBar(snackBarContent);
+    _scaffoldKey.currentState.showSnackBar(snackBarContent);
   }
 
   _showReasons(BuildContext context) async {

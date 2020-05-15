@@ -23,7 +23,7 @@ class OeeHttpService {
   MaterialList materialList;
 
   bool statusOk(int code) {
-    return (code/100 == 4 || code/100 == 5) ? false : true;
+    return (code / 100 == 4 || code / 100 == 5) ? false : true;
   }
 
   void setUrl(String server, String port) {
@@ -62,7 +62,7 @@ class OeeHttpService {
     if (reasonList == null) {
       final response = await http.get(url + 'reason');
 
-      if (response.statusCode/100 == 4 || response.statusCode/100 == 5) {
+      if (statusOk(response.statusCode)) {
         reasonList = ReasonList.fromJson(json.decode(response.body));
       } else {
         throw Exception('Failed to load reasons.');
@@ -71,17 +71,28 @@ class OeeHttpService {
     return Future.value(reasonList);
   }
 
+  Future<OeeEquipmentStatus> fetchEquipmentStatus(OeeEntity equipment) async {
+    final response = await http.get(url + 'status?equipment=' + equipment.name);
+
+    if (statusOk(response.statusCode)) {
+      return OeeEquipmentStatus.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Failed to get status for equipment' + equipment.name);
+    }
+  }
+
   Future<void> postEquipmentEvent(OeeEvent availabilityEvent) async {
     EquipmentEventRequestDto dto = EquipmentEventRequestDto(availabilityEvent);
 
     String data = dto.toJsonString();
-    var response = await http.post(url + 'event', body:data);
+    var response = await http.post(url + 'event', body: data);
 
-    if (statusOk(response.statusCode)) {
-        // TODO show information dialog
-      } else {
-        throw Exception('Failed to post event, status: ' + response.statusCode.toString() + ', response: '+ '${response.body}');
-      }
+    if (!statusOk(response.statusCode)) {
+      throw Exception('Failed to post event, status: ' +
+          response.statusCode.toString() +
+          ', response: ' +
+          '${response.body}');
+    }
     return Future.value("");
   }
 }

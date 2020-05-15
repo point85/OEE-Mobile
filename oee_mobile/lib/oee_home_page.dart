@@ -52,7 +52,7 @@ class _OeeHomePageState extends State<OeeHomePage> {
   }
 
   void _showAboutDialog() {
-    final TextStyle textStyle = Theme.of(context).textTheme.body1;
+    final TextStyle textStyle = Theme.of(context).textTheme.bodyText2;
     final List<Widget> aboutBoxChildren = <Widget>[
       SizedBox(height: 24),
       RichText(
@@ -162,12 +162,19 @@ class _OeeHomePageState extends State<OeeHomePage> {
         OeeEntity entity = EntityDataModel.getEntity(dataMap);
 
         if (entity.level == EntityLevel.EQUIPMENT) {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (ctx) => EquipmentEventPage(
-                        equipment: entity,
-                      )));
+          // get current status
+          Future<OeeEquipmentStatus> future = OeeHttpService.getInstance.fetchEquipmentStatus(entity);
+
+          future.then((status) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (ctx) => EquipmentEventPage(
+                      equipment: entity, equipmentStatus: status
+                    )));
+          }, onError: (error) {
+            print('completed with error $error');
+          });
         }
       },
       width: MediaQuery.of(context).size.width,

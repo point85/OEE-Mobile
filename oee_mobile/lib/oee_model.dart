@@ -18,6 +18,49 @@ abstract class _NamedObject {
   }
 }
 
+class OeeEquipmentEvent {
+  final String eventType;
+  final String equipmentName;
+  final String timestamp;
+
+  OeeEquipmentEvent(this.eventType, this.equipmentName, this.timestamp);
+
+  // create event from HTTP Json response
+  factory OeeEquipmentEvent.fromJson(Map<String, dynamic> json) {
+    return OeeEquipmentEvent(
+        json['eventType'], json['equipmentName'], json['timestamp']);
+  }
+}
+
+// equipment status
+class OeeEquipmentStatus {
+  final OeeMaterial material;
+  final String job;
+  final OeeEquipmentEvent lastSetup;
+
+  OeeEquipmentStatus(this.material, this.job, this.lastSetup);
+
+  // create material from HTTP Json response
+  factory OeeEquipmentStatus.fromJson(Map<String, dynamic> json) {
+    OeeMaterial material = OeeMaterial.fromJson(json['material']);
+    String job = json['job'];
+    OeeEquipmentEvent lastSetup =
+        OeeEquipmentEvent.fromJson(json['equipmentEvent']);
+
+    return OeeEquipmentStatus(material, job, lastSetup);
+  }
+
+  @override
+  String toString() {
+    String value = material.toString();
+
+    if (job != null) {
+      value += ', ' + job;
+    }
+    return value;
+  }
+}
+
 // Material
 class OeeMaterial extends _NamedObject {
   final String category;
