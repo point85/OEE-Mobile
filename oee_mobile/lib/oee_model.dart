@@ -43,16 +43,32 @@ class OeeEquipmentStatus {
 
   // create material from HTTP Json response
   factory OeeEquipmentStatus.fromJson(Map<String, dynamic> json) {
-    OeeMaterial material = OeeMaterial.fromJson(json['material']);
-    String job = json['job'];
-    OeeReason reason = OeeReason.fromJson(json['reason']);
-    String timestamp = json['timestamp'];
+    OeeMaterial material;
+    String job;
+    OeeReason reason;
+    String timestamp;
+
+    if (json.containsKey('material')) {
+      material = OeeMaterial.fromJson(json['material']);
+    }
+
+    if (json.containsKey('job')) {
+      job = json['job'];
+    }
+
+    if (json.containsKey('reason')) {
+      reason = OeeReason.fromJson(json['reason']);
+    }
+
+    if (json.containsKey('timestamp')) {
+      timestamp = json['timestamp'];
+    }
     return OeeEquipmentStatus(material, job, reason, timestamp);
   }
 
   @override
   String toString() {
-    String value = material.toString();
+    String value = material != null ? material.toString() : 'No material setup';
 
     if (job != null) {
       value += ', ' + job;

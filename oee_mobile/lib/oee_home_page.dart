@@ -163,17 +163,17 @@ class _OeeHomePageState extends State<OeeHomePage> {
 
         if (entity.level == EntityLevel.EQUIPMENT) {
           // get current status
-          Future<OeeEquipmentStatus> future = OeeHttpService.getInstance.fetchEquipmentStatus(entity);
+          Future<OeeEquipmentStatus> future =
+              OeeHttpService.getInstance.fetchEquipmentStatus(entity);
 
           future.then((status) {
             Navigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (ctx) => EquipmentEventPage(
-                      equipment: entity, equipmentStatus: status
-                    )));
+                        equipment: entity, equipmentStatus: status)));
           }, onError: (error) {
-            print('completed with error $error');
+            UIUtils.showAlert(context, 'Equipment Status Error', '$error');
           });
         }
       },
