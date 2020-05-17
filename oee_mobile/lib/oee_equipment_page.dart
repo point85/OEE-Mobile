@@ -444,6 +444,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     });
   }
 
+  // material setup view
   Widget _buildSetupView(BuildContext context) {
     return Icon(Icons.do_not_disturb);
   }
