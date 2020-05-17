@@ -29,17 +29,27 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
   final startTimeKey = new GlobalKey<DateTimeWidgetState>();
   final endTimeKey = new GlobalKey<DateTimeWidgetState>();
 
+  // form keys
   final GlobalKey<FormState> _availabilityFormKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _productionFormKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _setupFormKey = GlobalKey<FormState>();
 
+  // time period setttings
   bool showEndTime = true;
 
   static const int BY_PERIOD = 0;
   static const int BY_EVENT = 1;
-  int _availabilityValue = BY_PERIOD;
 
-  // event duration hours and minutes
-  //final hoursController = TextEditingController();
-  //final minutesController = TextEditingController();
+  // default event time period
+  int _eventTimeValue = BY_PERIOD;
+
+  // production count settings
+  static const int GOOD = 0;
+  static const int REJECT = 1;
+  static const int STARTUP = 2;
+
+  // default production type
+  int _productionValue = GOOD;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
@@ -50,8 +60,6 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
 
   @override
   void dispose() {
-    //hoursController.dispose();
-    //minutesController.dispose();
     super.dispose();
   }
 
@@ -71,7 +79,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     DateTime end;
     Duration eventDuration;
 
-    if (_availabilityValue == BY_PERIOD) {
+    if (_eventTimeValue == BY_PERIOD) {
       DateTime endTime = endTimeKey.currentState != null
           ? endTimeKey.currentState.dateTime
           : null;
@@ -101,11 +109,11 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     _showSnackBar("Availability event recorded.");
   }
 
-  void _handleAvailabilityChange(int value) {
+  void _handleEventTimeChange(int value) {
     setState(() {
-      _availabilityValue = value;
+      _eventTimeValue = value;
 
-      switch (_availabilityValue) {
+      switch (_eventTimeValue) {
         case BY_PERIOD:
           showEndTime = true;
           break;
@@ -115,19 +123,6 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
       }
     });
   }
-
-  /*
-  TextFormField myName = new TextFormField(
-    decoration: const InputDecoration(
-      icon: const Icon(Icons.person),
-      hintText: 'Enter your first and last name',
-      labelText: 'My Name',
-    ),
-    inputFormatters: [LengthLimitingTextInputFormatter(30)],
-    validator: (val) => val.isEmpty ? 'Name is required' : null,
-  );
-
-   */
 
   Icon _getAvailabilityIcon(OeeReason reason) {
     Icon icon;
@@ -174,32 +169,35 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
         length: 3,
         child: Scaffold(
           key: _scaffoldKey,
-          appBar: AppBar(
-              title: Text(widget.equipment.toString() +
-                  "\n" +
-                  widget.equipmentStatus.toString()),
-              leading: _getAvailabilityIcon(widget.equipmentStatus.reason),
-              bottom: TabBar(
-                tabs: [
-                  Tab(text: 'Availability', icon: Icon(Icons.query_builder)),
-                  Tab(text: 'Production', icon: Icon(Icons.data_usage)),
-                  Tab(
-                      text: 'Setup/Job',
-                      icon: Icon(Icons.settings_applications)),
-                ],
-              )),
-          body: TabBarView(
-            children: [
-              _buildAvailabilityView(context),
-              Icon(Icons.directions_transit),
-              Icon(Icons.directions_bike),
-            ],
-          ),
+          appBar: _buildAppBar(),
+          body: _buildBody(),
         ),
       ),
     );
-
     return app;
+  }
+
+  Widget _buildAppBar() {
+    return AppBar(
+        title: Text(widget.equipment.toString() +
+            "\n" +
+            widget.equipmentStatus.toString()),
+        leading: _getAvailabilityIcon(widget.equipmentStatus.reason),
+        bottom: TabBar(
+          tabs: [
+            Tab(text: 'Availability', icon: Icon(Icons.query_builder)),
+            Tab(text: 'Production', icon: Icon(Icons.data_usage)),
+            Tab(text: 'Setup/Job', icon: Icon(Icons.settings_applications)),
+          ],
+        ));
+  }
+
+  Widget _buildBody() {
+    return TabBarView(children: [
+      _buildAvailabilityView(context),
+      _buildProductionView(context),
+      _buildSetupView(context),
+    ]);
   }
 
   void _showSnackBar(String text) {
@@ -246,14 +244,14 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
             Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
               Radio(
                 value: BY_PERIOD,
-                groupValue: _availabilityValue,
-                onChanged: _handleAvailabilityChange,
+                groupValue: _eventTimeValue,
+                onChanged: _handleEventTimeChange,
               ),
               Text('By Time Period'),
               Radio(
                 value: BY_EVENT,
-                groupValue: _availabilityValue,
-                onChanged: _handleAvailabilityChange,
+                groupValue: _eventTimeValue,
+                onChanged: _handleEventTimeChange,
               ),
               Text('By Event'),
             ]),
@@ -302,20 +300,6 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                           width: 50),
                     ]),
                 visible: showEndTime),
-/*
-            Visibility(child: myName, visible: showName),
-            TextFormField(
-              decoration: const InputDecoration(
-                icon: const Icon(Icons.person),
-                hintText: 'Enter your first and last name',
-                labelText: 'Name',
-              ),
-              inputFormatters: [LengthLimitingTextInputFormatter(30)],
-              validator: (val) => val.isEmpty ? 'Name is required' : null,
-              onSaved: (val) => testData = val,
-            ),
-
- */
             Container(
                 padding: const EdgeInsets.only(left: 40.0, top: 20.0),
                 child: RaisedButton.icon(
@@ -325,7 +309,142 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                 )),
           ],
         ));
-
     return form;
+  }
+
+  Widget _buildProductionView(BuildContext context) {
+    Form form = Form(
+        key: _productionFormKey,
+        autovalidate: true,
+        child: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          children: <Widget>[
+            // reason selection button
+            Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
+              RaisedButton.icon(
+                label: Text('Reason'),
+                onPressed: () {
+                  _showReasons(context);
+                },
+                icon: const Icon(Icons.category),
+              ),
+              SizedBox(width: 20),
+              Text(_getSelectedReason()),
+            ]),
+
+            // by event or by time period radio buttons
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+              Radio(
+                value: BY_PERIOD,
+                groupValue: _eventTimeValue,
+                onChanged: _handleEventTimeChange,
+              ),
+              Text('By Time Period'),
+              Radio(
+                value: BY_EVENT,
+                groupValue: _eventTimeValue,
+                onChanged: _handleEventTimeChange,
+              ),
+              Text('By Event'),
+            ]),
+
+            // production type radio buttons
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+              Radio(
+                value: GOOD,
+                groupValue: _productionValue,
+                onChanged: _handleProductionChange,
+              ),
+              Text('Good'),
+              Radio(
+                value: REJECT,
+                groupValue: _productionValue,
+                onChanged: _handleProductionChange,
+              ),
+              Text('Reject/Rework'),
+              Radio(
+                value: STARTUP,
+                groupValue: _productionValue,
+                onChanged: _handleProductionChange,
+              ),
+              Text('Reject/Rework'),
+            ]),
+
+            // event start date and time
+            Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
+              SizedBox(child: Text('Start Time'), width: 100),
+              Expanded(child: DateTimeWidget(key: startTimeKey)),
+              SizedBox(width: 195),
+            ]),
+
+            // event end date and time
+            Visibility(
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      SizedBox(child: Text('End Time'), width: 100),
+                      Expanded(child: DateTimeWidget(key: endTimeKey)),
+                      SizedBox(child: Text('Duration'), width: 75),
+                      SizedBox(
+                          child: TextFormField(
+                            //controller: hoursController,
+                            decoration: InputDecoration(
+                                //border: InputBorder.none,
+                                //hintText: 'Duration',
+                                labelText: 'Hrs'),
+                            keyboardType: TextInputType.number,
+                            onSaved: (String value) {
+                              eventHours = value;
+                            },
+                          ),
+                          width: 50),
+                      SizedBox(width: 20),
+                      SizedBox(
+                          child: TextFormField(
+                            //controller: minutesController,
+                            decoration: InputDecoration(
+                                //border: InputBorder.none,
+                                //hintText: 'Duration',
+                                labelText: 'Mins'),
+                            keyboardType: TextInputType.number,
+                            onSaved: (String value) {
+                              eventMinutes = value;
+                            },
+                          ),
+                          width: 50),
+                    ]),
+                visible: showEndTime),
+            Container(
+                padding: const EdgeInsets.only(left: 40.0, top: 20.0),
+                child: RaisedButton.icon(
+                  label: const Text('Submit'),
+                  onPressed: _onSubmit,
+                  icon: const Icon(Icons.check_circle_outline),
+                )),
+          ],
+        ));
+    return form;
+  }
+
+  void _handleProductionChange(int value) {
+    setState(() {
+      _productionValue = value;
+
+      switch (_productionValue) {
+        case GOOD:
+          // good
+          break;
+        case REJECT:
+          // reject and rework
+          break;
+        case STARTUP:
+          // startup and yield
+          break;
+      }
+    });
+  }
+
+  Widget _buildSetupView(BuildContext context) {
+    return Icon(Icons.do_not_disturb);
   }
 }

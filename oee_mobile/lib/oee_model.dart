@@ -35,40 +35,43 @@ class OeeEquipmentEvent {
 // equipment status
 class OeeEquipmentStatus {
   final OeeMaterial material;
-  final String job;
-  final OeeReason reason;
-  final String timestamp;
+  String job;
+  OeeReason reason;
+  String runRateUOM;
+  String rejectUOM;
 
-  OeeEquipmentStatus(this.material, this.job, this.reason, this.timestamp);
+  OeeEquipmentStatus(this.material);
 
   // create material from HTTP Json response
   factory OeeEquipmentStatus.fromJson(Map<String, dynamic> json) {
     OeeMaterial material;
-    String job;
-    OeeReason reason;
-    String timestamp;
 
     if (json.containsKey('material')) {
       material = OeeMaterial.fromJson(json['material']);
     }
+    OeeEquipmentStatus status = OeeEquipmentStatus(material);
 
     if (json.containsKey('job')) {
-      job = json['job'];
+      status.job = json['job'];
     }
 
     if (json.containsKey('reason')) {
-      reason = OeeReason.fromJson(json['reason']);
+      status.reason = OeeReason.fromJson(json['reason']);
     }
 
-    if (json.containsKey('timestamp')) {
-      timestamp = json['timestamp'];
+    if (json.containsKey('runRateUOM')) {
+      status.runRateUOM = json['runRateUOM'];
     }
-    return OeeEquipmentStatus(material, job, reason, timestamp);
+
+    if (json.containsKey('rejectUOM')) {
+      status.runRateUOM = json['rejectUOM'];
+    }
+    return status;
   }
 
   @override
   String toString() {
-    String value = material != null ? material.toString() : 'No material setup';
+    String value = material?.toString() ?? 'No material has been set up';
 
     if (job != null) {
       value += ', ' + job;

@@ -15,23 +15,10 @@ class ReasonPage extends StatefulWidget {
 
 class _ReasonPageState extends State<ReasonPage> {
   OeeReason reason;
-  //Map _reasonData;
-  //Future<ReasonList> reasonListFuture;
-  //List<ReasonDataModel> reasonData;
-  //final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   Future<ReasonList> refreshReasons() async {
     return EquipmentPageController.fetchReasons();
   }
-
-  /*
-  void _handleReason(Map value) {
-    setState(() {
-      _reasonData = value;
-    });
-  }
-
-   */
 
   DynamicTreeView createReasonView(ReasonList reasonList) {
     return DynamicTreeView(
