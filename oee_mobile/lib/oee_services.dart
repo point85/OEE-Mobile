@@ -77,7 +77,7 @@ class OeeHttpService {
     if (statusOk(response.statusCode)) {
       return OeeEquipmentStatus.fromJson(json.decode(response.body));
     } else {
-      throw Exception('Failed to get status for equipment' + equipment.name);
+      throw Exception('Failed to get status for equipment ' + equipment.name);
     }
   }
 

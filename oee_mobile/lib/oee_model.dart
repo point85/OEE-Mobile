@@ -64,7 +64,7 @@ class OeeEquipmentStatus {
     }
 
     if (json.containsKey('rejectUOM')) {
-      status.runRateUOM = json['rejectUOM'];
+      status.rejectUOM = json['rejectUOM'];
     }
     return status;
   }
