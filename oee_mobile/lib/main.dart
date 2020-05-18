@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+/*
 import 'package:flutter/services.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
@@ -6,8 +7,12 @@ import 'package:intl/intl.dart';
 import 'contact.dart';
 import 'contact_service.dart';
 
-//void main() => runApp(new MyApp());
+ */
+//import 'oee_home_page.dart';
 
+//void main() => runApp(OeeMobileApp());
+
+/*
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -232,3 +237,5 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+
+ */
