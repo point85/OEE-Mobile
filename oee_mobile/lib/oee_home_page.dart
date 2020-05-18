@@ -7,6 +7,7 @@ import 'oee_controller.dart';
 import 'oee_services.dart';
 import 'oee_persistence_service.dart';
 import 'oee_ui_shared.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 
 void main() => runApp(OeeMobileApp());
 
@@ -33,6 +34,7 @@ class OeeHomePage extends StatefulWidget {
 }
 
 class _OeeHomePageState extends State<OeeHomePage> {
+  ProgressDialog progressDialog;
   // nav bar index
   int _bottomNavBarIndex = 0;
 
@@ -79,6 +81,9 @@ class _OeeHomePageState extends State<OeeHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    progressDialog = new ProgressDialog(context);
+    progressDialog.style(message: 'Requesting equipment status ...');
+
     final _showSettings = () {
       _scaffoldKey.currentState.showBottomSheet((context) {
         return SettingsWidget();
@@ -122,7 +127,7 @@ class _OeeHomePageState extends State<OeeHomePage> {
           } else if (snapshot.hasError) {
             return Text('${snapshot.error}');
           }
-          return CircularProgressIndicator();
+          return Center(child: CircularProgressIndicator());
         },
       ),
 
@@ -162,16 +167,23 @@ class _OeeHomePageState extends State<OeeHomePage> {
         OeeEntity entity = EntityDataModel.getEntity(dataMap);
 
         if (entity.level == EntityLevel.EQUIPMENT) {
+          progressDialog.show();
+
           // get current status
           Future<OeeEquipmentStatus> future =
               OeeHttpService.getInstance.fetchEquipmentStatus(entity);
 
           future.then((status) {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (ctx) => EquipmentEventPage(
-                        equipment: entity, equipmentStatus: status)));
+            // hide progress dialog
+            progressDialog.hide().whenComplete(() {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (ctx) => EquipmentEventPage(
+                            equipment: entity,
+                            equipmentStatus: status,
+                          )));
+            });
           }, onError: (error) {
             UIUtils.showAlert(context, 'Equipment Status Error', '$error');
           });

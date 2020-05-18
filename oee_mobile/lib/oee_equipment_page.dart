@@ -179,9 +179,14 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
 
   Widget _buildAppBar() {
     return AppBar(
-        title: Text(widget.equipment.toString() +
-            "\n" +
-            widget.equipmentStatus.toString()),
+        title: Center(
+          child: Column(
+            children: [
+              Text(widget.equipment.toString()),
+              Text(widget.equipmentStatus.toString()),
+            ],
+          ),
+        ),
         leading: _getAvailabilityIcon(widget.equipmentStatus.reason),
         bottom: TabBar(
           tabs: [
