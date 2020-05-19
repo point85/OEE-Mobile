@@ -18,8 +18,11 @@ class EquipmentEventPage extends StatefulWidget {
 }
 
 class _EquipmentEventPageState extends State<EquipmentEventPage> {
-  // event reason
-  OeeReason selectedReason;
+  // availability event reason
+  OeeReason availabilityReason;
+
+  // production reason
+  OeeReason productionReason;
 
   // event duration
   String eventHours;
@@ -50,6 +53,10 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
 
   // default production type
   int _productionValue = GOOD;
+  String _productionUnit = '';
+
+  final quantityController = TextEditingController();
+  double productionAmount;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
@@ -101,7 +108,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     OeeEvent availabilityEvent = OeeEvent(widget.equipment, start);
     availabilityEvent.duration = eventDuration;
     availabilityEvent.endTime = end;
-    availabilityEvent.reason = selectedReason;
+    availabilityEvent.reason = availabilityReason;
     availabilityEvent.eventType = OeeEventType.AVAILABILITY;
 
     OeeHttpService.getInstance.postEquipmentEvent(availabilityEvent);
@@ -215,17 +222,30 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     _scaffoldKey.currentState.showSnackBar(snackBarContent);
   }
 
-  _showReasons(BuildContext context) async {
+  _showAvailabilityReasons(BuildContext context) async {
     await Navigator.push(
-        context, MaterialPageRoute(builder: (ctx) => ReasonPage()));
-    selectedReason = OeeExecutionService.getInstance.reason;
+        context, MaterialPageRoute(builder: (ctx) => ReasonPage(true)));
+    availabilityReason = OeeExecutionService.getInstance.availabilityReason;
 
     // update state
     setState(() {});
   }
 
-  String _getSelectedReason() {
-    return selectedReason?.toString() ?? 'no reason selected';
+  _showProductionReasons(BuildContext context) async {
+    await Navigator.push(
+        context, MaterialPageRoute(builder: (ctx) => ReasonPage(false)));
+    productionReason = OeeExecutionService.getInstance.productionReason;
+
+    // update state
+    setState(() {});
+  }
+
+  String _getAvailabilityReason() {
+    return availabilityReason?.toString() ?? 'no reason selected';
+  }
+
+  String _getProductionReason() {
+    return productionReason?.toString() ?? 'no reason selected';
   }
 
   Widget _buildAvailabilityView(BuildContext context) {
@@ -240,12 +260,12 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
               RaisedButton.icon(
                 label: Text('Reason'),
                 onPressed: () {
-                  _showReasons(context);
+                  _showAvailabilityReasons(context);
                 },
                 icon: const Icon(Icons.category),
               ),
               SizedBox(width: 20),
-              Text(_getSelectedReason()),
+              Text(_getAvailabilityReason()),
             ]),
 
             // by event or by time period
@@ -332,12 +352,12 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
               RaisedButton.icon(
                 label: Text('Reason'),
                 onPressed: () {
-                  _showReasons(context);
+                  _showProductionReasons(context);
                 },
                 icon: const Icon(Icons.category),
               ),
               SizedBox(width: 20),
-              Text(_getSelectedReason()),
+              Text(_getProductionReason()),
             ]),
 
             // by event or by time period radio buttons
@@ -376,6 +396,30 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                 onChanged: _handleProductionChange,
               ),
               Text('Reject/Rework'),
+            ]),
+
+            // amount of production
+            Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
+              SizedBox(
+                  child: TextFormField(
+                    controller: quantityController,
+                    decoration: const InputDecoration(
+                      border: UnderlineInputBorder(),
+                      filled: true,
+                      icon: Icon(Icons.confirmation_number),
+                      hintText: 'Enter amount',
+                      labelText: 'Amount *',
+                    ),
+                    keyboardType: TextInputType.number,
+                    onSaved: (String value) {
+                      this.productionAmount = double.parse(value);
+                    },
+                    validator: _validateAmount,
+                  ),
+                  width: 150),
+              SizedBox(width: 20),
+              Text(_productionUnit),
+              //
             ]),
 
             // event start date and time
@@ -434,6 +478,11 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     return form;
   }
 
+  String _validateAmount(String value) {
+    if (value.isEmpty) return 'Production amount is required.';
+    return null;
+  }
+
   void _handleProductionChange(int value) {
     setState(() {
       _productionValue = value;
@@ -441,12 +490,15 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
       switch (_productionValue) {
         case GOOD:
           // good
+          _productionUnit = widget.equipmentStatus.runRateUOM ?? '';
           break;
         case REJECT:
           // reject and rework
+          _productionUnit = widget.equipmentStatus.rejectUOM ?? '';
           break;
         case STARTUP:
           // startup and yield
+          _productionUnit = widget.equipmentStatus.rejectUOM ?? '';
           break;
       }
     });

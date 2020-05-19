@@ -106,6 +106,7 @@ class OeeExecutionService {
       _instance = _instance ?? OeeExecutionService._();
 
   // cached objects
-  OeeReason reason;
-  OeeMaterial material;
+  OeeReason availabilityReason;
+  OeeReason productionReason;
+  OeeMaterial setupMaterial;
 }

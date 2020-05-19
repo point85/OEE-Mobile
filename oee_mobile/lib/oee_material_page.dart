@@ -37,7 +37,7 @@ class _MaterialPageState extends State<MaterialPage> {
   }
 
   Future<bool> _onBackPressed() {
-    OeeExecutionService.getInstance.material = this.material;
+    OeeExecutionService.getInstance.setupMaterial = this.material;
     return Future.value(true);
   }
 

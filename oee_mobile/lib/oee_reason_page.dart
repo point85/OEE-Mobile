@@ -6,8 +6,9 @@ import 'oee_services.dart';
 
 class ReasonPage extends StatefulWidget {
   final String title = 'Choose a Reason';
+  final bool isAvailability;
 
-  ReasonPage();
+  ReasonPage(this.isAvailability);
 
   @override
   _ReasonPageState createState() => _ReasonPageState();
@@ -38,7 +39,11 @@ class _ReasonPageState extends State<ReasonPage> {
 
   Future<bool> _onBackPressed() {
     // cache reason in execution service
-    OeeExecutionService.getInstance.reason = this.reason;
+    if (widget.isAvailability) {
+      OeeExecutionService.getInstance.availabilityReason = this.reason;
+    } else {
+      OeeExecutionService.getInstance.productionReason = this.reason;
+    }
     return Future.value(true);
   }
 
