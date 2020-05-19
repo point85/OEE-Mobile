@@ -58,7 +58,7 @@ class _MaterialPageState extends State<MaterialPage> {
                 } else if (snapshot.hasError) {
                   return Text("${snapshot.error}");
                 }
-                return CircularProgressIndicator();
+                return Center(child: CircularProgressIndicator());
               }),
         ));
   }

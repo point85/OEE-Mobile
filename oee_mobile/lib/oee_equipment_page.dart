@@ -219,6 +219,9 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     await Navigator.push(
         context, MaterialPageRoute(builder: (ctx) => ReasonPage()));
     selectedReason = OeeExecutionService.getInstance.reason;
+
+    // update state
+    setState(() {});
   }
 
   String _getSelectedReason() {

@@ -37,6 +37,7 @@ class _ReasonPageState extends State<ReasonPage> {
   }
 
   Future<bool> _onBackPressed() {
+    // cache reason in execution service
     OeeExecutionService.getInstance.reason = this.reason;
     return Future.value(true);
   }
@@ -46,12 +47,9 @@ class _ReasonPageState extends State<ReasonPage> {
     return WillPopScope(
         onWillPop: _onBackPressed,
         child: Scaffold(
-          //key: _scaffoldKey,
-          // top app bar
           appBar: AppBar(
             title: Text(widget.title),
           ),
-
           body: FutureBuilder<ReasonList>(
               future: refreshReasons(),
               builder: (context, snapshot) {
@@ -60,7 +58,7 @@ class _ReasonPageState extends State<ReasonPage> {
                 } else if (snapshot.hasError) {
                   return Text("${snapshot.error}");
                 }
-                return CircularProgressIndicator();
+                return Center(child: CircularProgressIndicator());
               }),
         ));
   }
