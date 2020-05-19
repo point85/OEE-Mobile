@@ -341,6 +341,9 @@ class OeeEvent {
   OeeReason reason;
   Duration duration;
   OeeEventType eventType;
+  OeeMaterial material;
+  double amount;
+  String job;
 
   OeeEvent(this.equipment, this.startTime);
 }
@@ -352,19 +355,48 @@ class EquipmentEventRequestDto {
   String reasonName;
   String durationSeconds;
   String eventType;
+  String value;
+  String job;
+  bool immediate = true;
 
   EquipmentEventRequestDto(OeeEvent event) {
     equipmentName = event.equipment.name;
 
     startTime = event.startTime.toIso8601String();
     endTime = event.endTime?.toIso8601String();
-    reasonName = event.reason.name;
+
     if (event.duration != null) {
       durationSeconds = event.duration.inSeconds.toStringAsFixed(0);
     }
 
     eventType = event.eventType.toString().split('.').last;
-    print('Values');
+
+    switch (event.eventType) {
+      case OeeEventType.AVAILABILITY:
+        value = event.reason.name;
+        break;
+
+      case OeeEventType.PROD_GOOD:
+      case OeeEventType.PROD_REJECT:
+      case OeeEventType.PROD_STARTUP:
+        value = event.amount.toString();
+        reasonName = event.reason.name;
+        break;
+
+      case OeeEventType.MATL_CHANGE:
+        value = event.material.name;
+        job = event.job;
+        break;
+
+      case OeeEventType.JOB_CHANGE:
+        value = event.material?.name;
+        job = event.job;
+        break;
+
+      case OeeEventType.CUSTOM:
+      default:
+        break;
+    }
   }
 
   Map<String, dynamic> toJson() => {

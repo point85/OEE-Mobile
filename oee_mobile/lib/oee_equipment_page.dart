@@ -3,6 +3,7 @@ import 'package:oee_mobile/oee_services.dart';
 import 'oee_reason_page.dart';
 import 'oee_model.dart';
 import 'oee_ui_shared.dart';
+import 'oee_material_page.dart';
 
 class EquipmentEventPage extends StatefulWidget {
   // equipment
@@ -19,32 +20,49 @@ class EquipmentEventPage extends StatefulWidget {
 
 class _EquipmentEventPageState extends State<EquipmentEventPage> {
   // availability event reason
-  OeeReason availabilityReason;
+  OeeReason _availabilityReason;
 
   // production reason
-  OeeReason productionReason;
+  OeeReason _productionReason;
 
-  // event duration
-  String eventHours;
-  String eventMinutes;
+  // setup material
+  OeeMaterial _selectedMaterial;
 
-  // keys to get the DateTime
-  final startTimeKey = new GlobalKey<DateTimeWidgetState>();
-  final endTimeKey = new GlobalKey<DateTimeWidgetState>();
+  // availability event duration
+  String availabilityEventHours;
+  String availabilityEventMinutes;
+
+  // availability event duration
+  String productionEventHours;
+  String productionEventMinutes;
+
+  // keys to get the availability DateTime
+  final availabilityStartTimeKey = new GlobalKey<DateTimeWidgetState>();
+  final availabilityEndTimeKey = new GlobalKey<DateTimeWidgetState>();
+
+  // keys to get the production DateTime
+  final productionStartTimeKey = new GlobalKey<DateTimeWidgetState>();
+  final productionEndTimeKey = new GlobalKey<DateTimeWidgetState>();
+
+  // key to get the set up DateTime
+  final setupTimeKey = new GlobalKey<DateTimeWidgetState>();
 
   // form keys
   final GlobalKey<FormState> _availabilityFormKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _productionFormKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _setupFormKey = GlobalKey<FormState>();
 
-  // time period setttings
+  // time period settings
   bool showEndTime = true;
 
   static const int BY_PERIOD = 0;
   static const int BY_EVENT = 1;
 
-  // default event time period
-  int _eventTimeValue = BY_PERIOD;
+  // default availability event time period
+  int _availabilityEventTimeValue = BY_PERIOD;
+
+  // default availability event time period
+  int _productionEventTimeValue = BY_PERIOD;
 
   // production count settings
   static const int GOOD = 0;
@@ -54,9 +72,14 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
   // default production type
   int _productionValue = GOOD;
   String _productionUnit = '';
+  OeeEventType _productionEventType = OeeEventType.PROD_GOOD;
 
   final quantityController = TextEditingController();
-  double productionAmount;
+  double _productionAmount;
+
+  // job
+  final jobController = TextEditingController();
+  String _job = '';
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
@@ -70,13 +93,12 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     super.dispose();
   }
 
-  void _onSubmit() {
+  void _onSubmitAvailabilityEvent() {
     final FormState form = _availabilityFormKey.currentState;
     form.save(); //This invokes each onSaved event
 
-    DateTime startTime = startTimeKey.currentState != null
-        ? startTimeKey.currentState.dateTime
-        : null;
+    DateTime startTime = availabilityStartTimeKey.currentState?.dateTime;
+
     // no seconds
     DateTime start = startTime != null
         ? DateTime(startTime.year, startTime.month, startTime.day,
@@ -86,21 +108,22 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     DateTime end;
     Duration eventDuration;
 
-    if (_eventTimeValue == BY_PERIOD) {
-      DateTime endTime = endTimeKey.currentState != null
-          ? endTimeKey.currentState.dateTime
-          : null;
+    if (_availabilityEventTimeValue == BY_PERIOD) {
+      DateTime endTime = availabilityEndTimeKey.currentState?.dateTime;
+
       // no seconds
       end = endTime != null
           ? DateTime(endTime.year, endTime.month, endTime.day, endTime.hour,
               endTime.minute)
           : null;
 
-      int intHours = (eventHours != null && eventHours.length > 0)
-          ? int.parse(eventHours)
-          : 0;
-      int intMinutes = (eventMinutes != null && eventMinutes.length > 0)
-          ? int.parse(eventMinutes)
+      int intHours =
+          (availabilityEventHours != null && availabilityEventHours.length > 0)
+              ? int.parse(availabilityEventHours)
+              : 0;
+      int intMinutes = (availabilityEventMinutes != null &&
+              availabilityEventMinutes.length > 0)
+          ? int.parse(availabilityEventMinutes)
           : 0;
       eventDuration = Duration(hours: intHours, minutes: intMinutes);
     }
@@ -108,7 +131,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     OeeEvent availabilityEvent = OeeEvent(widget.equipment, start);
     availabilityEvent.duration = eventDuration;
     availabilityEvent.endTime = end;
-    availabilityEvent.reason = availabilityReason;
+    availabilityEvent.reason = _availabilityReason;
     availabilityEvent.eventType = OeeEventType.AVAILABILITY;
 
     OeeHttpService.getInstance.postEquipmentEvent(availabilityEvent);
@@ -118,9 +141,9 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
 
   void _handleEventTimeChange(int value) {
     setState(() {
-      _eventTimeValue = value;
+      _availabilityEventTimeValue = value;
 
-      switch (_eventTimeValue) {
+      switch (_availabilityEventTimeValue) {
         case BY_PERIOD:
           showEndTime = true;
           break;
@@ -225,7 +248,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
   _showAvailabilityReasons(BuildContext context) async {
     await Navigator.push(
         context, MaterialPageRoute(builder: (ctx) => ReasonPage(true)));
-    availabilityReason = OeeExecutionService.getInstance.availabilityReason;
+    _availabilityReason = OeeExecutionService.getInstance.availabilityReason;
 
     // update state
     setState(() {});
@@ -234,22 +257,35 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
   _showProductionReasons(BuildContext context) async {
     await Navigator.push(
         context, MaterialPageRoute(builder: (ctx) => ReasonPage(false)));
-    productionReason = OeeExecutionService.getInstance.productionReason;
+    _productionReason = OeeExecutionService.getInstance.productionReason;
+
+    // update state
+    setState(() {});
+  }
+
+  _showMaterials(BuildContext context) async {
+    await Navigator.push(
+        context, MaterialPageRoute(builder: (ctx) => MaterialPage()));
+    _selectedMaterial = OeeExecutionService.getInstance.setupMaterial;
 
     // update state
     setState(() {});
   }
 
   String _getAvailabilityReason() {
-    return availabilityReason?.toString() ?? 'no reason selected';
+    return _availabilityReason?.toString() ?? 'no reason selected';
   }
 
   String _getProductionReason() {
-    return productionReason?.toString() ?? 'no reason selected';
+    return _productionReason?.toString() ?? 'no reason selected';
+  }
+
+  String _getSelectedMaterial() {
+    return _selectedMaterial?.toString() ?? 'no material selected';
   }
 
   Widget _buildAvailabilityView(BuildContext context) {
-    Form form = Form(
+    return Form(
         key: _availabilityFormKey,
         autovalidate: true,
         child: ListView(
@@ -272,13 +308,13 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
             Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
               Radio(
                 value: BY_PERIOD,
-                groupValue: _eventTimeValue,
+                groupValue: _availabilityEventTimeValue,
                 onChanged: _handleEventTimeChange,
               ),
               Text('By Time Period'),
               Radio(
                 value: BY_EVENT,
-                groupValue: _eventTimeValue,
+                groupValue: _availabilityEventTimeValue,
                 onChanged: _handleEventTimeChange,
               ),
               Text('By Event'),
@@ -287,7 +323,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
             // event start date and time
             Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
               SizedBox(child: Text('Start Time'), width: 100),
-              Expanded(child: DateTimeWidget(key: startTimeKey)),
+              Expanded(child: DateTimeWidget(key: availabilityStartTimeKey)),
               SizedBox(width: 195),
             ]),
 
@@ -297,7 +333,8 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
                       SizedBox(child: Text('End Time'), width: 100),
-                      Expanded(child: DateTimeWidget(key: endTimeKey)),
+                      Expanded(
+                          child: DateTimeWidget(key: availabilityEndTimeKey)),
                       SizedBox(child: Text('Duration'), width: 75),
                       SizedBox(
                           child: TextFormField(
@@ -308,7 +345,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                                 labelText: 'Hrs'),
                             keyboardType: TextInputType.number,
                             onSaved: (String value) {
-                              eventHours = value;
+                              availabilityEventHours = value;
                             },
                           ),
                           width: 50),
@@ -322,7 +359,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                                 labelText: 'Mins'),
                             keyboardType: TextInputType.number,
                             onSaved: (String value) {
-                              eventMinutes = value;
+                              availabilityEventMinutes = value;
                             },
                           ),
                           width: 50),
@@ -332,16 +369,15 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                 padding: const EdgeInsets.only(left: 40.0, top: 20.0),
                 child: RaisedButton.icon(
                   label: const Text('Submit'),
-                  onPressed: _onSubmit,
+                  onPressed: _onSubmitAvailabilityEvent,
                   icon: const Icon(Icons.check_circle_outline),
                 )),
           ],
         ));
-    return form;
   }
 
   Widget _buildProductionView(BuildContext context) {
-    Form form = Form(
+    return Form(
         key: _productionFormKey,
         autovalidate: true,
         child: ListView(
@@ -364,13 +400,13 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
             Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
               Radio(
                 value: BY_PERIOD,
-                groupValue: _eventTimeValue,
+                groupValue: _productionEventTimeValue,
                 onChanged: _handleEventTimeChange,
               ),
               Text('By Time Period'),
               Radio(
                 value: BY_EVENT,
-                groupValue: _eventTimeValue,
+                groupValue: _productionEventTimeValue,
                 onChanged: _handleEventTimeChange,
               ),
               Text('By Event'),
@@ -412,7 +448,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                     ),
                     keyboardType: TextInputType.number,
                     onSaved: (String value) {
-                      this.productionAmount = double.parse(value);
+                      this._productionAmount = double.parse(value);
                     },
                     validator: _validateAmount,
                   ),
@@ -425,7 +461,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
             // event start date and time
             Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
               SizedBox(child: Text('Start Time'), width: 100),
-              Expanded(child: DateTimeWidget(key: startTimeKey)),
+              Expanded(child: DateTimeWidget(key: productionStartTimeKey)),
               SizedBox(width: 195),
             ]),
 
@@ -435,7 +471,8 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
                       SizedBox(child: Text('End Time'), width: 100),
-                      Expanded(child: DateTimeWidget(key: endTimeKey)),
+                      Expanded(
+                          child: DateTimeWidget(key: productionEndTimeKey)),
                       SizedBox(child: Text('Duration'), width: 75),
                       SizedBox(
                           child: TextFormField(
@@ -446,7 +483,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                                 labelText: 'Hrs'),
                             keyboardType: TextInputType.number,
                             onSaved: (String value) {
-                              eventHours = value;
+                              productionEventHours = value;
                             },
                           ),
                           width: 50),
@@ -460,7 +497,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                                 labelText: 'Mins'),
                             keyboardType: TextInputType.number,
                             onSaved: (String value) {
-                              eventMinutes = value;
+                              productionEventMinutes = value;
                             },
                           ),
                           width: 50),
@@ -470,12 +507,58 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                 padding: const EdgeInsets.only(left: 40.0, top: 20.0),
                 child: RaisedButton.icon(
                   label: const Text('Submit'),
-                  onPressed: _onSubmit,
+                  onPressed: _onSubmitProductionEvent,
                   icon: const Icon(Icons.check_circle_outline),
                 )),
           ],
         ));
-    return form;
+  }
+
+  void _onSubmitProductionEvent() {
+    final FormState form = _productionFormKey.currentState;
+    form.save(); //This invokes each onSaved event
+
+    DateTime startTime = productionStartTimeKey.currentState?.dateTime;
+
+    // no seconds
+    DateTime start = startTime != null
+        ? DateTime(startTime.year, startTime.month, startTime.day,
+            startTime.hour, startTime.minute)
+        : null;
+
+    DateTime end;
+    Duration eventDuration;
+
+    if (_productionEventTimeValue == BY_PERIOD) {
+      DateTime endTime = productionEndTimeKey.currentState?.dateTime;
+
+      // no seconds
+      end = endTime != null
+          ? DateTime(endTime.year, endTime.month, endTime.day, endTime.hour,
+              endTime.minute)
+          : null;
+
+      int intHours =
+          (productionEventHours != null && productionEventHours.length > 0)
+              ? int.parse(productionEventHours)
+              : 0;
+      int intMinutes =
+          (productionEventMinutes != null && productionEventMinutes.length > 0)
+              ? int.parse(productionEventMinutes)
+              : 0;
+      eventDuration = Duration(hours: intHours, minutes: intMinutes);
+    }
+
+    OeeEvent productionEvent = OeeEvent(widget.equipment, start);
+    productionEvent.duration = eventDuration;
+    productionEvent.endTime = end;
+    productionEvent.reason = _productionReason;
+    productionEvent.eventType = _productionEventType;
+    productionEvent.amount = _productionAmount;
+
+    OeeHttpService.getInstance.postEquipmentEvent(productionEvent);
+
+    _showSnackBar("Production event recorded.");
   }
 
   String _validateAmount(String value) {
@@ -491,14 +574,17 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
         case GOOD:
           // good
           _productionUnit = widget.equipmentStatus.runRateUOM ?? '';
+          _productionEventType = OeeEventType.PROD_GOOD;
           break;
         case REJECT:
           // reject and rework
           _productionUnit = widget.equipmentStatus.rejectUOM ?? '';
+          _productionEventType = OeeEventType.PROD_REJECT;
           break;
         case STARTUP:
           // startup and yield
           _productionUnit = widget.equipmentStatus.rejectUOM ?? '';
+          _productionEventType = OeeEventType.PROD_STARTUP;
           break;
       }
     });
@@ -506,6 +592,85 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
 
   // material setup view
   Widget _buildSetupView(BuildContext context) {
-    return Icon(Icons.do_not_disturb);
+    return Form(
+        key: _setupFormKey,
+        autovalidate: true,
+        child: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          children: <Widget>[
+            // material selection button
+            Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
+              RaisedButton.icon(
+                label: Text('Material'),
+                onPressed: () {
+                  // TODO
+                  _showMaterials(context);
+                },
+                icon: const Icon(Icons.group_work),
+              ),
+              SizedBox(width: 20),
+              Text(_getSelectedMaterial()),
+            ]),
+
+            // job
+            Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
+              SizedBox(
+                  child: TextFormField(
+                    controller: jobController,
+                    decoration: const InputDecoration(
+                      border: UnderlineInputBorder(),
+                      filled: true,
+                      icon: Icon(Icons.build),
+                      hintText: 'Job Id',
+                      labelText: 'Job',
+                    ),
+                    keyboardType: TextInputType.text,
+                    onSaved: (String value) {
+                      this._job = value;
+                    },
+                  ),
+                  width: 250),
+              //
+            ]),
+
+            // record event
+            Container(
+                padding: const EdgeInsets.only(left: 40.0, top: 20.0),
+                child: RaisedButton.icon(
+                  label: const Text('Submit'),
+                  onPressed: _onSubmitSetupEvent,
+                  icon: const Icon(Icons.check_circle_outline),
+                )),
+          ],
+        ));
+  }
+
+  void _onSubmitSetupEvent() {
+    final FormState form = _setupFormKey.currentState;
+    form.save(); //This invokes each onSaved event
+
+    DateTime startTime = setupTimeKey.currentState?.dateTime;
+
+    // no seconds
+    DateTime start = startTime != null
+        ? DateTime(startTime.year, startTime.month, startTime.day,
+            startTime.hour, startTime.minute)
+        : null;
+    OeeEvent setupEvent = OeeEvent(widget.equipment, start);
+
+    setupEvent.eventType = OeeEventType.MATL_CHANGE;
+    if (_selectedMaterial == null) {
+      setupEvent.eventType = OeeEventType.JOB_CHANGE;
+    }
+
+    // material
+    setupEvent.material = _selectedMaterial ?? widget.equipmentStatus.material;
+
+    // job
+    setupEvent.job = _job;
+
+    OeeHttpService.getInstance.postEquipmentEvent(setupEvent);
+
+    _showSnackBar("Setup event recorded.");
   }
 }
