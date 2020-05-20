@@ -134,9 +134,16 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     availabilityEvent.reason = _availabilityReason;
     availabilityEvent.eventType = OeeEventType.AVAILABILITY;
 
-    OeeHttpService.getInstance.postEquipmentEvent(availabilityEvent);
+    Future<String> future =
+        OeeHttpService.getInstance.postEquipmentEvent(availabilityEvent);
 
-    _showSnackBar("Availability event recorded.");
+    future.then((value) {
+      if (value.isEmpty) {
+        _showSnackBar("Availability event recorded.");
+      } else {
+        UIUtils.showAlert(context, "Error", value);
+      }
+    });
   }
 
   void _handleEventTimeChange(int value) {
@@ -156,6 +163,10 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
 
   Icon _getAvailabilityIcon(OeeReason reason) {
     Icon icon;
+
+    if (reason == null) {
+      return Icon(Icons.error);
+    }
 
     switch (reason.lossCategory) {
       case LossCategory.MINOR_STOPPAGES:

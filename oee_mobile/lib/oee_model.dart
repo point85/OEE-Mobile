@@ -373,18 +373,18 @@ class EquipmentEventRequestDto {
 
     switch (event.eventType) {
       case OeeEventType.AVAILABILITY:
-        value = event.reason.name;
+        value = event.reason?.name;
         break;
 
       case OeeEventType.PROD_GOOD:
       case OeeEventType.PROD_REJECT:
       case OeeEventType.PROD_STARTUP:
         value = event.amount.toString();
-        reasonName = event.reason.name;
+        reasonName = event.reason?.name;
         break;
 
       case OeeEventType.MATL_CHANGE:
-        value = event.material.name;
+        value = event.material?.name;
         job = event.job;
         break;
 
@@ -402,11 +402,14 @@ class EquipmentEventRequestDto {
   Map<String, dynamic> toJson() => {
         'messageType': 'EQUIPMENT_EVENT',
         'equipmentName': equipmentName,
-        'value': reasonName,
+        'value': value,
         'timestamp': startTime,
         'endTimestamp': endTime,
         'duration': durationSeconds,
         'eventType': eventType,
+        'reason': reasonName,
+        'job': job,
+        'immediate': immediate
       };
 
   String toJsonString() {
