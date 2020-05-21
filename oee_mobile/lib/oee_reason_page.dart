@@ -40,9 +40,9 @@ class _ReasonPageState extends State<ReasonPage> {
   Future<bool> _onBackPressed() {
     // cache reason in execution service
     if (widget.isAvailability) {
-      OeeExecutionService.getInstance.availabilityReason = this.reason;
+      OeeExecutionService.getInstance.availabilityReason = reason;
     } else {
-      OeeExecutionService.getInstance.productionReason = this.reason;
+      OeeExecutionService.getInstance.productionReason = reason;
     }
     return Future.value(true);
   }

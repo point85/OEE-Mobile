@@ -34,7 +34,6 @@ class OeeHomePage extends StatefulWidget {
 }
 
 class _OeeHomePageState extends State<OeeHomePage> {
-  ProgressDialog equipmentStatusProgressDialog;
   // nav bar index
   int _bottomNavBarIndex = 0;
 
@@ -164,9 +163,9 @@ class _OeeHomePageState extends State<OeeHomePage> {
         OeeEntity entity = EntityDataModel.getEntity(dataMap);
 
         if (entity.level == EntityLevel.EQUIPMENT) {
-          equipmentStatusProgressDialog = new ProgressDialog(context);
-          equipmentStatusProgressDialog.style(message: 'Requesting equipment status ...');
-          equipmentStatusProgressDialog.show();
+          ProgressDialog dialog = ProgressDialog(context);
+          dialog.style(message: 'Requesting equipment status ...');
+          dialog.show();
 
           // get current status
           Future<OeeEquipmentStatus> future =
@@ -174,7 +173,7 @@ class _OeeHomePageState extends State<OeeHomePage> {
 
           future.then((status) {
             // hide progress dialog
-            equipmentStatusProgressDialog.hide().whenComplete(() {
+            dialog.hide().whenComplete(() {
               Navigator.push(
                   context,
                   MaterialPageRoute(

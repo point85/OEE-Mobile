@@ -4,6 +4,7 @@ import 'oee_reason_page.dart';
 import 'oee_model.dart';
 import 'oee_ui_shared.dart';
 import 'oee_material_page.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 
 class EquipmentEventPage extends StatefulWidget {
   // equipment
@@ -53,7 +54,8 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
   final GlobalKey<FormState> _setupFormKey = GlobalKey<FormState>();
 
   // time period settings
-  bool showEndTime = true;
+  bool showAvailabilityEndTime = true;
+  bool showProductionEndTime = true;
 
   static const int BY_PERIOD = 0;
   static const int BY_EVENT = 1;
@@ -65,12 +67,12 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
   int _productionEventTimeValue = BY_PERIOD;
 
   // production count settings
-  static const int GOOD = 0;
-  static const int REJECT = 1;
-  static const int STARTUP = 2;
+  static const int GOOD_AMOUNT = 0;
+  static const int REJECT_AMOUNT = 1;
+  static const int STARTUP_AMOUNT = 2;
 
   // default production type
-  int _productionValue = GOOD;
+  int _productionValue;
   String _productionUnit = '';
   OeeEventType _productionEventType = OeeEventType.PROD_GOOD;
 
@@ -134,28 +136,52 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     availabilityEvent.reason = _availabilityReason;
     availabilityEvent.eventType = OeeEventType.AVAILABILITY;
 
+    // show a progress dialog
+    ProgressDialog dialog = ProgressDialog(context);
+    dialog.style(message: 'Recording availability event ...');
+    dialog.show();
+
+    // send the equipment event
     Future<String> future =
         OeeHttpService.getInstance.postEquipmentEvent(availabilityEvent);
 
     future.then((value) {
-      if (value.isEmpty) {
-        _showSnackBar("Availability event recorded.");
-      } else {
-        UIUtils.showAlert(context, "Error", value);
-      }
+      // hide progress dialog and check response
+      dialog.hide().whenComplete(() {
+        if (value.isEmpty) {
+          _showSnackBar("Availability event recorded.");
+        } else {
+          UIUtils.showAlert(context, "Error", value);
+        }
+      });
     });
   }
 
-  void _handleEventTimeChange(int value) {
+  void _handleAvailabilityTimeChange(int value) {
     setState(() {
       _availabilityEventTimeValue = value;
 
       switch (_availabilityEventTimeValue) {
         case BY_PERIOD:
-          showEndTime = true;
+          showAvailabilityEndTime = true;
           break;
         case BY_EVENT:
-          showEndTime = false;
+          showAvailabilityEndTime = false;
+          break;
+      }
+    });
+  }
+
+  void _handleProductionTimeChange(int value) {
+    setState(() {
+      _productionEventTimeValue = value;
+
+      switch (_productionEventTimeValue) {
+        case BY_PERIOD:
+          showProductionEndTime = true;
+          break;
+        case BY_EVENT:
+          showProductionEndTime = false;
           break;
       }
     });
@@ -320,13 +346,13 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
               Radio(
                 value: BY_PERIOD,
                 groupValue: _availabilityEventTimeValue,
-                onChanged: _handleEventTimeChange,
+                onChanged: _handleAvailabilityTimeChange,
               ),
               Text('By Time Period'),
               Radio(
                 value: BY_EVENT,
                 groupValue: _availabilityEventTimeValue,
-                onChanged: _handleEventTimeChange,
+                onChanged: _handleAvailabilityTimeChange,
               ),
               Text('By Event'),
             ]),
@@ -375,7 +401,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                           ),
                           width: 50),
                     ]),
-                visible: showEndTime),
+                visible: showAvailabilityEndTime),
             Container(
                 padding: const EdgeInsets.only(left: 40.0, top: 20.0),
                 child: RaisedButton.icon(
@@ -412,13 +438,13 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
               Radio(
                 value: BY_PERIOD,
                 groupValue: _productionEventTimeValue,
-                onChanged: _handleEventTimeChange,
+                onChanged: _handleProductionTimeChange,
               ),
               Text('By Time Period'),
               Radio(
                 value: BY_EVENT,
                 groupValue: _productionEventTimeValue,
-                onChanged: _handleEventTimeChange,
+                onChanged: _handleProductionTimeChange,
               ),
               Text('By Event'),
             ]),
@@ -426,19 +452,19 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
             // production type radio buttons
             Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
               Radio(
-                value: GOOD,
+                value: GOOD_AMOUNT,
                 groupValue: _productionValue,
                 onChanged: _handleProductionChange,
               ),
               Text('Good'),
               Radio(
-                value: REJECT,
+                value: REJECT_AMOUNT,
                 groupValue: _productionValue,
                 onChanged: _handleProductionChange,
               ),
               Text('Reject/Rework'),
               Radio(
-                value: STARTUP,
+                value: STARTUP_AMOUNT,
                 groupValue: _productionValue,
                 onChanged: _handleProductionChange,
               ),
@@ -461,7 +487,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                     onSaved: (String value) {
                       this._productionAmount = double.parse(value);
                     },
-                    validator: _validateAmount,
+                    //validator: _validateAmount,
                   ),
                   width: 150),
               SizedBox(width: 20),
@@ -513,7 +539,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                           ),
                           width: 50),
                     ]),
-                visible: showEndTime),
+                visible: showProductionEndTime),
             Container(
                 padding: const EdgeInsets.only(left: 40.0, top: 20.0),
                 child: RaisedButton.icon(
@@ -527,7 +553,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
 
   void _onSubmitProductionEvent() {
     final FormState form = _productionFormKey.currentState;
-    form.save(); //This invokes each onSaved event
+    form.save();
 
     DateTime startTime = productionStartTimeKey.currentState?.dateTime;
 
@@ -567,14 +593,23 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     productionEvent.eventType = _productionEventType;
     productionEvent.amount = _productionAmount;
 
-    OeeHttpService.getInstance.postEquipmentEvent(productionEvent);
+    ProgressDialog dialog = ProgressDialog(context);
+    dialog.style(message: 'Recording production event ...');
+    dialog.show();
 
-    _showSnackBar("Production event recorded.");
-  }
+    Future<String> future =
+        OeeHttpService.getInstance.postEquipmentEvent(productionEvent);
 
-  String _validateAmount(String value) {
-    if (value.isEmpty) return 'Production amount is required.';
-    return null;
+    future.then((value) {
+      // hide progress dialog
+      dialog.hide().whenComplete(() {
+        if (value.isEmpty) {
+          _showSnackBar("Production event recorded.");
+        } else {
+          UIUtils.showAlert(context, "Error", value);
+        }
+      });
+    });
   }
 
   void _handleProductionChange(int value) {
@@ -582,17 +617,17 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
       _productionValue = value;
 
       switch (_productionValue) {
-        case GOOD:
+        case GOOD_AMOUNT:
           // good
           _productionUnit = widget.equipmentStatus.runRateUOM ?? '';
           _productionEventType = OeeEventType.PROD_GOOD;
           break;
-        case REJECT:
+        case REJECT_AMOUNT:
           // reject and rework
           _productionUnit = widget.equipmentStatus.rejectUOM ?? '';
           _productionEventType = OeeEventType.PROD_REJECT;
           break;
-        case STARTUP:
+        case STARTUP_AMOUNT:
           // startup and yield
           _productionUnit = widget.equipmentStatus.rejectUOM ?? '';
           _productionEventType = OeeEventType.PROD_STARTUP;
@@ -614,7 +649,6 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
               RaisedButton.icon(
                 label: Text('Material'),
                 onPressed: () {
-                  // TODO
                   _showMaterials(context);
                 },
                 icon: const Icon(Icons.group_work),
@@ -680,8 +714,22 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     // job
     setupEvent.job = _job;
 
-    OeeHttpService.getInstance.postEquipmentEvent(setupEvent);
+    ProgressDialog dialog = ProgressDialog(context);
+    dialog.style(message: 'Recording set up event ...');
+    dialog.show();
 
-    _showSnackBar("Setup event recorded.");
+    Future<String> future =
+        OeeHttpService.getInstance.postEquipmentEvent(setupEvent);
+
+    future.then((value) {
+      // hide progress dialog
+      dialog.hide().whenComplete(() {
+        if (value.isEmpty) {
+          _showSnackBar("Set up event recorded.");
+        } else {
+          UIUtils.showAlert(context, "Error", value);
+        }
+      });
+    });
   }
 }

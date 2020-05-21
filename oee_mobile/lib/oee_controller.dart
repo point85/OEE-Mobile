@@ -188,6 +188,7 @@ class EquipmentPageController {
     for (String category in categories) {
       OeeMaterial catMaterial = OeeMaterial(category, category, null);
       MaterialDataModel cat = MaterialDataModel(catMaterial);
+      cat.parentId = root.getId();
       materialData.add(cat);
     }
     return materialData;
