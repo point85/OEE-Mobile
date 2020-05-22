@@ -2,18 +2,17 @@ import 'package:flutter/material.dart';
 import 'oee_model.dart';
 import 'oee_controller.dart';
 import 'dynamic_treeview.dart';
-import 'oee_services.dart';
 
 class MaterialPage extends StatefulWidget {
   final String title = 'Choose a Material';
 
-  MaterialPage();
+  MaterialPage({Key key}) : super(key: key);
 
   @override
-  _MaterialPageState createState() => _MaterialPageState();
+  MaterialPageState createState() => MaterialPageState();
 }
 
-class _MaterialPageState extends State<MaterialPage> {
+class MaterialPageState extends State<MaterialPage> {
   OeeMaterial material;
 
   Future<MaterialList> refreshMaterials() async {
@@ -37,7 +36,6 @@ class _MaterialPageState extends State<MaterialPage> {
   }
 
   Future<bool> _onBackPressed() {
-    OeeExecutionService.getInstance.setupMaterial = material;
     return Future.value(true);
   }
 

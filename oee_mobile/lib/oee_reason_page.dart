@@ -2,19 +2,17 @@ import 'package:flutter/material.dart';
 import 'oee_model.dart';
 import 'oee_controller.dart';
 import 'dynamic_treeview.dart';
-import 'oee_services.dart';
 
 class ReasonPage extends StatefulWidget {
   final String title = 'Choose a Reason';
-  final bool isAvailability;
 
-  ReasonPage(this.isAvailability);
+  ReasonPage({Key key}) : super(key: key);
 
   @override
-  _ReasonPageState createState() => _ReasonPageState();
+  ReasonPageState createState() => ReasonPageState();
 }
 
-class _ReasonPageState extends State<ReasonPage> {
+class ReasonPageState extends State<ReasonPage> {
   OeeReason reason;
 
   Future<ReasonList> refreshReasons() async {
@@ -38,12 +36,6 @@ class _ReasonPageState extends State<ReasonPage> {
   }
 
   Future<bool> _onBackPressed() {
-    // cache reason in execution service
-    if (widget.isAvailability) {
-      OeeExecutionService.getInstance.availabilityReason = reason;
-    } else {
-      OeeExecutionService.getInstance.productionReason = reason;
-    }
     return Future.value(true);
   }
 

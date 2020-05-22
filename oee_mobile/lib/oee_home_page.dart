@@ -44,12 +44,13 @@ class _OeeHomePageState extends State<OeeHomePage> {
     var value = await PersistenceService.getInstance.getServerInfo();
 
     if (value == null || value[0] == null || value[1] == null) {
-      UIUtils.showAlert(context, 'Server Not Defined',
+      UIUtils.showErrorDialog(context,
           'The HTTP server name and port must be defined under Settings.');
       return null;
     }
     OeeHttpService.getInstance.setUrl(value[0], value[1]);
-    return OeeHomePageController.fetchEntities();
+
+    return OeeHttpService.getInstance.fetchEntities();
   }
 
   void _showAboutDialog() {
@@ -183,7 +184,9 @@ class _OeeHomePageState extends State<OeeHomePage> {
                           )));
             });
           }, onError: (error) {
-            UIUtils.showAlert(context, 'Equipment Status Error', '$error');
+            dialog.hide().whenComplete(() {
+              UIUtils.showErrorDialog(context, '$error');
+            });
           });
         }
       },

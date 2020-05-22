@@ -153,10 +153,6 @@ class OeeHomePageController {
       addChildren(entityData, child);
     }
   }
-
-  static Future<EntityList> fetchEntities() {
-    return OeeHttpService.getInstance.fetchEntities();
-  }
 }
 
 class EquipmentPageController {

@@ -23,6 +23,10 @@ class UIUtils {
       },
     );
   }
+
+  static void showErrorDialog(BuildContext context, String content){
+    showAlert(context, 'Application Error', content);
+  }
 }
 
 class DateTimeWidget extends StatefulWidget {

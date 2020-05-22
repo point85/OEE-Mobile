@@ -20,6 +20,12 @@ class EquipmentEventPage extends StatefulWidget {
 }
 
 class _EquipmentEventPageState extends State<EquipmentEventPage> {
+  // access to reason state
+  final reasonStateKey = GlobalKey<ReasonPageState>();
+
+  // access to material state
+  final materialStateKey = GlobalKey<MaterialPageState>();
+
   // availability event reason
   OeeReason _availabilityReason;
 
@@ -142,17 +148,19 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     dialog.show();
 
     // send the equipment event
-    Future<String> future =
+    Future<bool> future =
         OeeHttpService.getInstance.postEquipmentEvent(availabilityEvent);
 
-    future.then((value) {
+    future.then((ok) {
       // hide progress dialog and check response
       dialog.hide().whenComplete(() {
-        if (value.isEmpty) {
+        if (ok) {
           _showSnackBar("Availability event recorded.");
-        } else {
-          UIUtils.showAlert(context, "Error", value);
         }
+      });
+    }, onError: (error) {
+      dialog.hide().whenComplete(() {
+        UIUtils.showErrorDialog(context, '$error');
       });
     });
   }
@@ -284,8 +292,9 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
 
   _showAvailabilityReasons(BuildContext context) async {
     await Navigator.push(
-        context, MaterialPageRoute(builder: (ctx) => ReasonPage(true)));
-    _availabilityReason = OeeExecutionService.getInstance.availabilityReason;
+        context, MaterialPageRoute(builder: (ctx) => ReasonPage(key: reasonStateKey)));
+
+    _availabilityReason = reasonStateKey.currentState.reason;
 
     // update state
     setState(() {});
@@ -293,8 +302,8 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
 
   _showProductionReasons(BuildContext context) async {
     await Navigator.push(
-        context, MaterialPageRoute(builder: (ctx) => ReasonPage(false)));
-    _productionReason = OeeExecutionService.getInstance.productionReason;
+        context, MaterialPageRoute(builder: (ctx) => ReasonPage(key: reasonStateKey)));
+    _productionReason = reasonStateKey.currentState.reason;
 
     // update state
     setState(() {});
@@ -302,8 +311,8 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
 
   _showMaterials(BuildContext context) async {
     await Navigator.push(
-        context, MaterialPageRoute(builder: (ctx) => MaterialPage()));
-    _selectedMaterial = OeeExecutionService.getInstance.setupMaterial;
+        context, MaterialPageRoute(builder: (ctx) => MaterialPage(key: materialStateKey)));
+    _selectedMaterial = materialStateKey.currentState.material;
 
     // update state
     setState(() {});
@@ -597,17 +606,18 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     dialog.style(message: 'Recording production event ...');
     dialog.show();
 
-    Future<String> future =
+    Future<bool> future =
         OeeHttpService.getInstance.postEquipmentEvent(productionEvent);
 
-    future.then((value) {
-      // hide progress dialog
+    future.then((ok) {
       dialog.hide().whenComplete(() {
-        if (value.isEmpty) {
+        if (ok) {
           _showSnackBar("Production event recorded.");
-        } else {
-          UIUtils.showAlert(context, "Error", value);
         }
+      });
+    }, onError: (error) {
+      dialog.hide().whenComplete(() {
+        UIUtils.showErrorDialog(context, '$error');
       });
     });
   }
@@ -718,17 +728,19 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     dialog.style(message: 'Recording set up event ...');
     dialog.show();
 
-    Future<String> future =
+    Future<bool> future =
         OeeHttpService.getInstance.postEquipmentEvent(setupEvent);
 
-    future.then((value) {
+    future.then((ok) {
       // hide progress dialog
       dialog.hide().whenComplete(() {
-        if (value.isEmpty) {
+        if (ok) {
           _showSnackBar("Set up event recorded.");
-        } else {
-          UIUtils.showAlert(context, "Error", value);
         }
+      });
+    }, onError: (error) {
+      dialog.hide().whenComplete(() {
+        UIUtils.showErrorDialog(context, '$error');
       });
     });
   }
