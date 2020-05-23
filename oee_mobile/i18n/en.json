@@ -1,0 +1,19 @@
+{
+  "app.name" : "Point85 OEE Application",
+  "app.version" : "3.0.0",
+  "home.page.title" : "Point85 OEE",
+  "home.about.text" : "The Point85 Overall Equipment Effectiveness (OEE) applications enable collection of equipment data from multiple sources to support OEE calculations of performance, availability and quality.",
+  "home.settings" : "Settings",
+  "home.refresh" : "Refresh",
+  "home.about" : "About",
+  "home.save" : "Save",
+  "home.equip.status" : "Requesting equipment status ...",
+  "home.settings.saved" : "Settings saved.",
+  "home.server.hint" : "HTTP server name or IP address",
+  "home.server.label" : "Server *",
+  "home.port.hint": "HTTP server port",
+  "home.port.label": "Port *",
+  "no.http.server" : "The HTTP server name and port must be defined under Settings.",
+  "no.server.name" : "Server name is required.",
+  "no.server.port" : "Server port is required."
+}

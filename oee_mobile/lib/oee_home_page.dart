@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'dynamic_treeview.dart';
 import 'oee_model.dart';
 import 'oee_equipment_page.dart';
@@ -8,26 +9,33 @@ import 'oee_services.dart';
 import 'oee_persistence_service.dart';
 import 'oee_ui_shared.dart';
 import 'package:progress_dialog/progress_dialog.dart';
+import 'oee_localization.dart';
 
 void main() => runApp(OeeMobileApp());
 
+// the application
 class OeeMobileApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      title: 'Point85 OEE Application',
+      supportedLocales: [
+        Locale('en', 'US'),
+      ],
+      localizationsDelegates: [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
       theme: new ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: new OeeHomePage(title: 'Point85 OEE'),
+      home: new OeeHomePage(),
     );
   }
 }
 
 class OeeHomePage extends StatefulWidget {
-  final String title;
-
-  OeeHomePage({Key key, this.title}) : super(key: key);
+  OeeHomePage({Key key}) : super(key: key);
 
   @override
   _OeeHomePageState createState() => _OeeHomePageState();
@@ -37,15 +45,15 @@ class _OeeHomePageState extends State<OeeHomePage> {
   // nav bar index
   int _bottomNavBarIndex = 0;
 
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _homeScaffoldKey = GlobalKey<ScaffoldState>();
 
   // fetch the HTTP server info
   Future<EntityList> refreshEntities() async {
     var value = await PersistenceService.getInstance.getServerInfo();
 
     if (value == null || value[0] == null || value[1] == null) {
-      UIUtils.showErrorDialog(context,
-          'The HTTP server name and port must be defined under Settings.');
+      UIUtils.showErrorDialog(
+          context, AppLocalizations.of(context).translate('no.http.server'));
       return null;
     }
     OeeHttpService.getInstance.setUrl(value[0], value[1]);
@@ -63,8 +71,7 @@ class _OeeHomePageState extends State<OeeHomePage> {
             TextSpan(
                 style: textStyle,
                 text:
-                    'The Point85 Overall Equipment Effectiveness (OEE) applications enable '
-                    'collection of equipment data from multiple sources to support OEE calculations of performance, availability and quality.'),
+                    AppLocalizations.of(context).translate('home.about.text')),
           ],
         ),
       ),
@@ -73,8 +80,8 @@ class _OeeHomePageState extends State<OeeHomePage> {
     showAboutDialog(
       context: context,
       applicationIcon: FlutterLogo(),
-      applicationName: 'Point OEE',
-      applicationVersion: '3.0.0',
+      applicationName: AppLocalizations.of(context).translate('app.name'),
+      applicationVersion: AppLocalizations.of(context).translate('app.version'),
       children: aboutBoxChildren,
     );
   }
@@ -82,7 +89,7 @@ class _OeeHomePageState extends State<OeeHomePage> {
   @override
   Widget build(BuildContext context) {
     final _showSettings = () {
-      _scaffoldKey.currentState.showBottomSheet((context) {
+      _homeScaffoldKey.currentState.showBottomSheet((context) {
         return SettingsWidget();
       });
     };
@@ -109,10 +116,10 @@ class _OeeHomePageState extends State<OeeHomePage> {
     }
 
     return Scaffold(
-      key: _scaffoldKey,
+      key: _homeScaffoldKey,
       // top app bar
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(AppLocalizations.of(context).translate('home.page.title')),
       ),
 
       // body
@@ -130,18 +137,18 @@ class _OeeHomePageState extends State<OeeHomePage> {
 
       // bottom navigation bar
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
-            title: Text('Settings'),
+            title: Text(AppLocalizations.of(context).translate('home.settings')),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.refresh),
-            title: Text('Refresh'),
+            title: Text(AppLocalizations.of(context).translate('home.refresh')),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.info),
-            title: Text('About'),
+            title: Text(AppLocalizations.of(context).translate('home.about')),
           ),
         ],
         currentIndex: _bottomNavBarIndex,
@@ -165,7 +172,9 @@ class _OeeHomePageState extends State<OeeHomePage> {
 
         if (entity.level == EntityLevel.EQUIPMENT) {
           ProgressDialog dialog = ProgressDialog(context);
-          dialog.style(message: 'Requesting equipment status ...');
+          dialog.style(
+              message:
+                  AppLocalizations.of(context).translate('home.equip.status'));
           dialog.show();
 
           // get current status
@@ -227,12 +236,14 @@ class _SettingsWidgetState extends State<SettingsWidget> {
   }
 
   String _validateName(String value) {
-    if (value.isEmpty) return 'Server name is required.';
+    if (value.isEmpty)
+      return AppLocalizations.of(context).translate('no.server.name');
     return null;
   }
 
   String _validatePort(String value) {
-    if (value.isEmpty) return 'Server port is required.';
+    if (value.isEmpty)
+      return AppLocalizations.of(context).translate('no.server.port');
     return null;
   }
 
@@ -245,7 +256,8 @@ class _SettingsWidgetState extends State<SettingsWidget> {
       PersistenceService.getInstance.saveServerInfo(serverName, serverPort);
 
       final snackBar = SnackBar(
-        content: Text('Settings saved'),
+        content:
+            Text(AppLocalizations.of(context).translate('home.settings.saved')),
         behavior: SnackBarBehavior.floating,
         duration: Duration(seconds: 2),
       );
@@ -262,12 +274,14 @@ class _SettingsWidgetState extends State<SettingsWidget> {
           children: <Widget>[
             TextFormField(
               controller: nameController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 border: UnderlineInputBorder(),
                 filled: true,
                 icon: Icon(Icons.computer),
-                hintText: 'HTTP server name or IP address',
-                labelText: 'Server *',
+                hintText:
+                    AppLocalizations.of(context).translate('home.server.hint'),
+                labelText:
+                    AppLocalizations.of(context).translate('home.server.label'),
               ),
               keyboardType: TextInputType.text,
               onSaved: (String value) {
@@ -283,8 +297,10 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                 border: UnderlineInputBorder(),
                 filled: true,
                 icon: Icon(Icons.panorama_fish_eye),
-                hintText: 'HTTP server port',
-                labelText: 'Port *',
+                hintText:
+                    AppLocalizations.of(context).translate('home.port.hint'),
+                labelText:
+                    AppLocalizations.of(context).translate('home.port.label'),
               ),
               keyboardType: TextInputType.number,
               onSaved: (String value) {
@@ -298,7 +314,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                 RaisedButton.icon(
                   onPressed: _onSave,
                   icon: Icon(Icons.save),
-                  label: Text('Save'),
+                  label: Text(AppLocalizations.of(context).translate('home.save')),
                 ),
               ],
             ),
