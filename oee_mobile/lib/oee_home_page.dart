@@ -1,14 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 import 'dynamic_treeview.dart';
 import 'oee_model.dart';
 import 'oee_equipment_page.dart';
 import 'oee_controller.dart';
-import 'oee_services.dart';
+import 'oee_http_service.dart';
 import 'oee_persistence_service.dart';
 import 'oee_ui_shared.dart';
-import 'package:progress_dialog/progress_dialog.dart';
 import 'oee_localization.dart';
 
 void main() => runApp(OeeMobileApp());

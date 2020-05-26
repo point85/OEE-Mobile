@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'oee_model.dart';
 import 'oee_controller.dart';
+import 'oee_localization.dart';
 import 'dynamic_treeview.dart';
 
 class MaterialPage extends StatefulWidget {
-  final String title = 'Choose a Material';
-
   MaterialPage({Key key}) : super(key: key);
 
   @override
@@ -24,10 +23,10 @@ class MaterialPageState extends State<MaterialPage> {
       data: EquipmentPageController.fromMaterialList(materialList),
       config: Config(
           parentTextStyle:
-          TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+              TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
           rootId: HierarchicalDataModel.ROOT_ID,
           parentPaddingEdgeInsets:
-          EdgeInsets.only(left: 16, top: 0, bottom: 0)),
+              EdgeInsets.only(left: 16, top: 0, bottom: 0)),
       onTap: (materialMap) {
         material = MaterialDataModel.getMaterial(materialMap);
       },
@@ -45,9 +44,9 @@ class MaterialPageState extends State<MaterialPage> {
         onWillPop: _onBackPressed,
         child: Scaffold(
           appBar: AppBar(
-            title: Text(widget.title),
+            title:
+                Text(AppLocalizations.of(context).translate('material.title')),
           ),
-
           body: FutureBuilder<MaterialList>(
               future: refreshMaterials(),
               builder: (context, snapshot) {

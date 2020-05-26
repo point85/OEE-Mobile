@@ -1,15 +1,14 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'oee_model.dart';
-//import 'dart:html';
 
 ///
 /// This singleton class makes HTTP requests to the Point85 collector to obtain materials, plant entities and reasons
 ///
 class OeeHttpService {
-  final Duration timeout = Duration(seconds: 10);
+  final Duration timeout = Duration(seconds: 15);
 
-  // singleton
+  // singleton service
   static OeeHttpService _instance;
 
   OeeHttpService._();
@@ -37,18 +36,15 @@ class OeeHttpService {
 
   Future<MaterialList> fetchMaterials() async {
     if (materialList == null) {
-      final response = await http
-          .get(url + 'material')
-          .timeout(timeout)
-          .timeout(timeout)
-          .catchError((e) {
-        throw Exception('Fetching materials timed out.');
+      final response =
+          await http.get(url + 'material').timeout(timeout).catchError((e) {
+        throw e;
       });
 
       if (statusOk(response.statusCode)) {
         materialList = MaterialList.fromJson(json.decode(response.body));
       } else {
-        throw Exception('Failed to load material.');
+        throw Exception(_buildErrorMessage(response));
       }
     }
     return Future.value(materialList);
@@ -58,13 +54,13 @@ class OeeHttpService {
     if (entityList == null) {
       final response =
           await http.get(url + 'entity').timeout(timeout).catchError((e) {
-        throw Exception('Fetching entities timed out.');
+        throw e;
       });
 
       if (statusOk(response.statusCode)) {
         entityList = EntityList.fromJson(json.decode(response.body));
       } else {
-        throw Exception('Failed to load entities.');
+        throw Exception(_buildErrorMessage(response));
       }
     }
     return Future.value(entityList);
@@ -74,13 +70,13 @@ class OeeHttpService {
     if (reasonList == null) {
       final response =
           await http.get(url + 'reason').timeout(timeout).catchError((e) {
-        throw Exception('Fetching reasons timed out.');
+        throw e;
       });
 
       if (statusOk(response.statusCode)) {
         reasonList = ReasonList.fromJson(json.decode(response.body));
       } else {
-        throw Exception('Failed to load reasons.');
+        throw Exception(_buildErrorMessage(response));
       }
     }
     return Future.value(reasonList);
@@ -91,13 +87,13 @@ class OeeHttpService {
         .get(url + 'status?equipment=' + equipment.name)
         .timeout(timeout)
         .catchError((e) {
-      throw Exception('Fetching equipment status timed out.');
+      throw e;
     });
 
     if (statusOk(response.statusCode)) {
       return OeeEquipmentStatus.fromJson(json.decode(response.body));
     } else {
-      throw Exception('Failed to get status for equipment ' + equipment.name);
+      throw Exception(_buildErrorMessage(response));
     }
   }
 
@@ -108,17 +104,18 @@ class OeeHttpService {
         .post(url + 'event', body: data)
         .timeout(timeout)
         .catchError((e) {
-      throw Exception('Posting equipment event timed out.');
+      throw e;
     });
 
     bool ok = statusOk(response.statusCode);
 
     if (!ok) {
-      throw Exception('Failed to post event, status: ' +
-          response.statusCode.toString() +
-          ', response: ' +
-          '${response.body}');
+      throw Exception(_buildErrorMessage(response));
     }
     return Future.value(ok);
+  }
+
+  String _buildErrorMessage(http.Response response) {
+    return response.statusCode.toString() + ', ' + '${response.body}';
   }
 }

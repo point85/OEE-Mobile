@@ -362,7 +362,7 @@ class EquipmentEventRequestDto {
   EquipmentEventRequestDto(OeeEvent event) {
     equipmentName = event.equipment.name;
 
-    startTime = event.startTime.toIso8601String();
+    startTime = event.startTime?.toIso8601String();
     endTime = event.endTime?.toIso8601String();
 
     if (event.duration != null) {

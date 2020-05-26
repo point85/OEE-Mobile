@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:oee_mobile/oee_services.dart';
+import 'package:oee_mobile/oee_http_service.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 import 'oee_reason_page.dart';
 import 'oee_model.dart';
 import 'oee_ui_shared.dart';
 import 'oee_material_page.dart';
-import 'package:progress_dialog/progress_dialog.dart';
+import 'oee_localization.dart';
 
 class EquipmentEventPage extends StatefulWidget {
   // equipment
@@ -103,7 +104,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
 
   void _onSubmitAvailabilityEvent() {
     final FormState form = _availabilityFormKey.currentState;
-    form.save(); //This invokes each onSaved event
+    form.save();
 
     DateTime startTime = availabilityStartTimeKey.currentState?.dateTime;
 
@@ -144,7 +145,8 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
 
     // show a progress dialog
     ProgressDialog dialog = ProgressDialog(context);
-    dialog.style(message: 'Recording availability event ...');
+    dialog.style(
+        message: AppLocalizations.of(context).translate('equip.avail.start'));
     dialog.show();
 
     // send the equipment event
@@ -155,7 +157,8 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
       // hide progress dialog and check response
       dialog.hide().whenComplete(() {
         if (ok) {
-          _showSnackBar("Availability event recorded.");
+          _showSnackBar(
+              AppLocalizations.of(context).translate('equip.avail.done'));
         }
       });
     }, onError: (error) {
@@ -265,9 +268,15 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
         leading: _getAvailabilityIcon(widget.equipmentStatus.reason),
         bottom: TabBar(
           tabs: [
-            Tab(text: 'Availability', icon: Icon(Icons.query_builder)),
-            Tab(text: 'Production', icon: Icon(Icons.data_usage)),
-            Tab(text: 'Setup/Job', icon: Icon(Icons.settings_applications)),
+            Tab(
+                text: AppLocalizations.of(context).translate('equip.tab.avail'),
+                icon: Icon(Icons.query_builder)),
+            Tab(
+                text: AppLocalizations.of(context).translate('equip.tab.prod'),
+                icon: Icon(Icons.data_usage)),
+            Tab(
+                text: AppLocalizations.of(context).translate('equip.tab.setup'),
+                icon: Icon(Icons.settings_applications)),
           ],
         ));
   }
@@ -284,15 +293,15 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     final snackBarContent = SnackBar(
       content: Text(text),
       action: SnackBarAction(
-          label: 'Close',
+          label: AppLocalizations.of(context).translate('button.close'),
           onPressed: _scaffoldKey.currentState.hideCurrentSnackBar),
     );
     _scaffoldKey.currentState.showSnackBar(snackBarContent);
   }
 
   _showAvailabilityReasons(BuildContext context) async {
-    await Navigator.push(
-        context, MaterialPageRoute(builder: (ctx) => ReasonPage(key: reasonStateKey)));
+    await Navigator.push(context,
+        MaterialPageRoute(builder: (ctx) => ReasonPage(key: reasonStateKey)));
 
     _availabilityReason = reasonStateKey.currentState.reason;
 
@@ -301,8 +310,8 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
   }
 
   _showProductionReasons(BuildContext context) async {
-    await Navigator.push(
-        context, MaterialPageRoute(builder: (ctx) => ReasonPage(key: reasonStateKey)));
+    await Navigator.push(context,
+        MaterialPageRoute(builder: (ctx) => ReasonPage(key: reasonStateKey)));
     _productionReason = reasonStateKey.currentState.reason;
 
     // update state
@@ -311,7 +320,9 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
 
   _showMaterials(BuildContext context) async {
     await Navigator.push(
-        context, MaterialPageRoute(builder: (ctx) => MaterialPage(key: materialStateKey)));
+        context,
+        MaterialPageRoute(
+            builder: (ctx) => MaterialPage(key: materialStateKey)));
     _selectedMaterial = materialStateKey.currentState.material;
 
     // update state
@@ -319,15 +330,18 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
   }
 
   String _getAvailabilityReason() {
-    return _availabilityReason?.toString() ?? 'no reason selected';
+    return _availabilityReason?.toString() ??
+        AppLocalizations.of(context).translate('equip.no.reason');
   }
 
   String _getProductionReason() {
-    return _productionReason?.toString() ?? 'no reason selected';
+    return _productionReason?.toString() ??
+        AppLocalizations.of(context).translate('equip.no.reason');
   }
 
   String _getSelectedMaterial() {
-    return _selectedMaterial?.toString() ?? 'no material selected';
+    return _selectedMaterial?.toString() ??
+        AppLocalizations.of(context).translate('equip.no.material');
   }
 
   Widget _buildAvailabilityView(BuildContext context) {
@@ -340,7 +354,8 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
             // reason selection
             Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
               RaisedButton.icon(
-                label: Text('Reason'),
+                label: Text(
+                    AppLocalizations.of(context).translate('equip.reason')),
                 onPressed: () {
                   _showAvailabilityReasons(context);
                 },
@@ -357,18 +372,21 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                 groupValue: _availabilityEventTimeValue,
                 onChanged: _handleAvailabilityTimeChange,
               ),
-              Text('By Time Period'),
+              Text(AppLocalizations.of(context).translate('equip.time.period')),
               Radio(
                 value: BY_EVENT,
                 groupValue: _availabilityEventTimeValue,
                 onChanged: _handleAvailabilityTimeChange,
               ),
-              Text('By Event'),
+              Text(AppLocalizations.of(context).translate('equip.event')),
             ]),
 
             // event start date and time
             Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
-              SizedBox(child: Text('Start Time'), width: 100),
+              SizedBox(
+                  child: Text(
+                      AppLocalizations.of(context).translate('equip.start')),
+                  width: 100),
               Expanded(child: DateTimeWidget(key: availabilityStartTimeKey)),
               SizedBox(width: 195),
             ]),
@@ -378,17 +396,21 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                 child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
-                      SizedBox(child: Text('End Time'), width: 100),
+                      SizedBox(
+                          child: Text(AppLocalizations.of(context)
+                              .translate('equip.end')),
+                          width: 100),
                       Expanded(
                           child: DateTimeWidget(key: availabilityEndTimeKey)),
-                      SizedBox(child: Text('Duration'), width: 75),
+                      SizedBox(
+                          child: Text(AppLocalizations.of(context)
+                              .translate('equip.duration')),
+                          width: 75),
                       SizedBox(
                           child: TextFormField(
-                            //controller: hoursController,
                             decoration: InputDecoration(
-                                //border: InputBorder.none,
-                                //hintText: 'Duration',
-                                labelText: 'Hrs'),
+                                labelText: AppLocalizations.of(context)
+                                    .translate('equip.hrs')),
                             keyboardType: TextInputType.number,
                             onSaved: (String value) {
                               availabilityEventHours = value;
@@ -398,11 +420,9 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                       SizedBox(width: 20),
                       SizedBox(
                           child: TextFormField(
-                            //controller: minutesController,
                             decoration: InputDecoration(
-                                //border: InputBorder.none,
-                                //hintText: 'Duration',
-                                labelText: 'Mins'),
+                                labelText: AppLocalizations.of(context)
+                                    .translate('equip.mins')),
                             keyboardType: TextInputType.number,
                             onSaved: (String value) {
                               availabilityEventMinutes = value;
@@ -414,7 +434,8 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
             Container(
                 padding: const EdgeInsets.only(left: 40.0, top: 20.0),
                 child: RaisedButton.icon(
-                  label: const Text('Submit'),
+                  label: Text(
+                      AppLocalizations.of(context).translate('equip.submit')),
                   onPressed: _onSubmitAvailabilityEvent,
                   icon: const Icon(Icons.check_circle_outline),
                 )),
@@ -432,7 +453,8 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
             // reason selection button
             Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
               RaisedButton.icon(
-                label: Text('Reason'),
+                label: Text(
+                    AppLocalizations.of(context).translate('equip.reason')),
                 onPressed: () {
                   _showProductionReasons(context);
                 },
@@ -449,13 +471,13 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                 groupValue: _productionEventTimeValue,
                 onChanged: _handleProductionTimeChange,
               ),
-              Text('By Time Period'),
+              Text(AppLocalizations.of(context).translate('equip.time.period')),
               Radio(
                 value: BY_EVENT,
                 groupValue: _productionEventTimeValue,
                 onChanged: _handleProductionTimeChange,
               ),
-              Text('By Event'),
+              Text(AppLocalizations.of(context).translate('equip.event')),
             ]),
 
             // production type radio buttons
@@ -465,19 +487,19 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                 groupValue: _productionValue,
                 onChanged: _handleProductionChange,
               ),
-              Text('Good'),
+              Text(AppLocalizations.of(context).translate('equip.good')),
               Radio(
                 value: REJECT_AMOUNT,
                 groupValue: _productionValue,
                 onChanged: _handleProductionChange,
               ),
-              Text('Reject/Rework'),
+              Text(AppLocalizations.of(context).translate('equip.reject')),
               Radio(
                 value: STARTUP_AMOUNT,
                 groupValue: _productionValue,
                 onChanged: _handleProductionChange,
               ),
-              Text('Reject/Rework'),
+              Text(AppLocalizations.of(context).translate('equip.startup')),
             ]),
 
             // amount of production
@@ -485,12 +507,14 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
               SizedBox(
                   child: TextFormField(
                     controller: quantityController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       border: UnderlineInputBorder(),
                       filled: true,
                       icon: Icon(Icons.confirmation_number),
-                      hintText: 'Enter amount',
-                      labelText: 'Amount *',
+                      hintText: AppLocalizations.of(context)
+                          .translate('equip.amount.hint'),
+                      labelText: AppLocalizations.of(context)
+                          .translate('equip.amount.label'),
                     ),
                     keyboardType: TextInputType.number,
                     onSaved: (String value) {
@@ -506,7 +530,10 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
 
             // event start date and time
             Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
-              SizedBox(child: Text('Start Time'), width: 100),
+              SizedBox(
+                  child: Text(
+                      AppLocalizations.of(context).translate('equip.start')),
+                  width: 100),
               Expanded(child: DateTimeWidget(key: productionStartTimeKey)),
               SizedBox(width: 195),
             ]),
@@ -516,17 +543,21 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                 child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
-                      SizedBox(child: Text('End Time'), width: 100),
+                      SizedBox(
+                          child: Text(AppLocalizations.of(context)
+                              .translate('equip.end')),
+                          width: 100),
                       Expanded(
                           child: DateTimeWidget(key: productionEndTimeKey)),
-                      SizedBox(child: Text('Duration'), width: 75),
+                      SizedBox(
+                          child: Text(AppLocalizations.of(context)
+                              .translate('equip.duration')),
+                          width: 75),
                       SizedBox(
                           child: TextFormField(
-                            //controller: hoursController,
                             decoration: InputDecoration(
-                                //border: InputBorder.none,
-                                //hintText: 'Duration',
-                                labelText: 'Hrs'),
+                                labelText: AppLocalizations.of(context)
+                                    .translate('equip.hrs')),
                             keyboardType: TextInputType.number,
                             onSaved: (String value) {
                               productionEventHours = value;
@@ -536,11 +567,9 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                       SizedBox(width: 20),
                       SizedBox(
                           child: TextFormField(
-                            //controller: minutesController,
                             decoration: InputDecoration(
-                                //border: InputBorder.none,
-                                //hintText: 'Duration',
-                                labelText: 'Mins'),
+                                labelText: AppLocalizations.of(context)
+                                    .translate('equip.mins')),
                             keyboardType: TextInputType.number,
                             onSaved: (String value) {
                               productionEventMinutes = value;
@@ -552,7 +581,8 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
             Container(
                 padding: const EdgeInsets.only(left: 40.0, top: 20.0),
                 child: RaisedButton.icon(
-                  label: const Text('Submit'),
+                  label: Text(
+                      AppLocalizations.of(context).translate('equip.submit')),
                   onPressed: _onSubmitProductionEvent,
                   icon: const Icon(Icons.check_circle_outline),
                 )),
@@ -603,7 +633,8 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     productionEvent.amount = _productionAmount;
 
     ProgressDialog dialog = ProgressDialog(context);
-    dialog.style(message: 'Recording production event ...');
+    dialog.style(
+        message: AppLocalizations.of(context).translate('equip.prod.start'));
     dialog.show();
 
     Future<bool> future =
@@ -612,7 +643,8 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     future.then((ok) {
       dialog.hide().whenComplete(() {
         if (ok) {
-          _showSnackBar("Production event recorded.");
+          _showSnackBar(
+              AppLocalizations.of(context).translate('equip.prod.done'));
         }
       });
     }, onError: (error) {
@@ -657,7 +689,8 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
             // material selection button
             Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
               RaisedButton.icon(
-                label: Text('Material'),
+                label: Text(
+                    AppLocalizations.of(context).translate('equip.material')),
                 onPressed: () {
                   _showMaterials(context);
                 },
@@ -672,12 +705,14 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
               SizedBox(
                   child: TextFormField(
                     controller: jobController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       border: UnderlineInputBorder(),
                       filled: true,
                       icon: Icon(Icons.build),
-                      hintText: 'Job Id',
-                      labelText: 'Job',
+                      hintText: AppLocalizations.of(context)
+                          .translate('equip.job.hint'),
+                      labelText: AppLocalizations.of(context)
+                          .translate('equip.job.label'),
                     ),
                     keyboardType: TextInputType.text,
                     onSaved: (String value) {
@@ -685,14 +720,24 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                     },
                   ),
                   width: 250),
-              //
+            ]),
+
+            // event start date and time
+            Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
+              SizedBox(
+                  child: Text(
+                      AppLocalizations.of(context).translate('equip.start')),
+                  width: 100),
+              Expanded(child: DateTimeWidget(key: setupTimeKey)),
+              SizedBox(width: 195),
             ]),
 
             // record event
             Container(
                 padding: const EdgeInsets.only(left: 40.0, top: 20.0),
                 child: RaisedButton.icon(
-                  label: const Text('Submit'),
+                  label: Text(
+                      AppLocalizations.of(context).translate('equip.submit')),
                   onPressed: _onSubmitSetupEvent,
                   icon: const Icon(Icons.check_circle_outline),
                 )),
@@ -725,7 +770,8 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     setupEvent.job = _job;
 
     ProgressDialog dialog = ProgressDialog(context);
-    dialog.style(message: 'Recording set up event ...');
+    dialog.style(
+        message: AppLocalizations.of(context).translate('equip.setup.start'));
     dialog.show();
 
     Future<bool> future =
@@ -735,7 +781,8 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
       // hide progress dialog
       dialog.hide().whenComplete(() {
         if (ok) {
-          _showSnackBar("Set up event recorded.");
+          _showSnackBar(
+              AppLocalizations.of(context).translate('equip.setup.done'));
         }
       });
     }, onError: (error) {

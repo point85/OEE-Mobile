@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'oee_model.dart';
 import 'oee_controller.dart';
+import 'oee_localization.dart';
 import 'dynamic_treeview.dart';
 
 class ReasonPage extends StatefulWidget {
-  final String title = 'Choose a Reason';
-
   ReasonPage({Key key}) : super(key: key);
 
   @override
@@ -45,7 +44,7 @@ class ReasonPageState extends State<ReasonPage> {
         onWillPop: _onBackPressed,
         child: Scaffold(
           appBar: AppBar(
-            title: Text(widget.title),
+            title: Text(AppLocalizations.of(context).translate('reason.title')),
           ),
           body: FutureBuilder<ReasonList>(
               future: refreshReasons(),
