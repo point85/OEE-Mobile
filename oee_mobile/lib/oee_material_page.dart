@@ -4,6 +4,7 @@ import 'oee_controller.dart';
 import 'oee_localization.dart';
 import 'dynamic_treeview.dart';
 
+// manages OEE materials
 class MaterialPage extends StatefulWidget {
   MaterialPage({Key key}) : super(key: key);
 

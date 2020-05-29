@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
 
+// manages localization of strings
 class AppLocalizations {
   final Locale locale;
 
@@ -14,7 +15,7 @@ class AppLocalizations {
   // Helper method to keep the code in the widgets concise
   // Localizations are accessed using an InheritedWidget "of" syntax
   static AppLocalizations of(BuildContext context) {
-    return  Localizations.of<AppLocalizations>(context, AppLocalizations);
+    return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
   // Static member to have a simple access to the delegate from the MaterialApp
@@ -42,8 +43,6 @@ class AppLocalizations {
 
 class _AppLocalizationsDelegate
     extends LocalizationsDelegate<AppLocalizations> {
-  // This delegate instance will never change (it doesn't even have fields!)
-  // It can provide a constant constructor.
   const _AppLocalizationsDelegate();
 
   @override

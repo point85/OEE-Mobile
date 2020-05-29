@@ -11,9 +11,7 @@ import 'oee_persistence_service.dart';
 import 'oee_ui_shared.dart';
 import 'oee_localization.dart';
 
-void main() => runApp(OeeMobileApp());
-
-// the application
+// the application widget
 class OeeMobileApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -79,7 +77,8 @@ class _OeeHomePageState extends State<OeeHomePage> {
 
     showAboutDialog(
       context: context,
-      applicationIcon: FlutterLogo(),
+      applicationIcon:
+      Image(image: AssetImage('assets/images/Point85_48.png')),
       applicationName: AppLocalizations.of(context).translate('app.name'),
       applicationVersion: AppLocalizations.of(context).translate('app.version'),
       children: aboutBoxChildren,

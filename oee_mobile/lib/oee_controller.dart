@@ -3,6 +3,7 @@ import 'dynamic_treeview.dart';
 import 'oee_model.dart';
 import 'oee_http_service.dart';
 
+// manages entities, reasons and material hierarchical data
 abstract class HierarchicalDataModel implements BaseData {
   static const String ROOT_ID = 'root';
 
@@ -250,7 +251,6 @@ class ReasonDataModel extends HierarchicalDataModel {
     this.icon = Icon(
       Icons.build,
       color: Colors.cyan,
-      //size: 30.0,
     );
   }
 

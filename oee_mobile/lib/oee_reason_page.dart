@@ -4,6 +4,7 @@ import 'oee_controller.dart';
 import 'oee_localization.dart';
 import 'dynamic_treeview.dart';
 
+// manages OEE reasons
 class ReasonPage extends StatefulWidget {
   ReasonPage({Key key}) : super(key: key);
 

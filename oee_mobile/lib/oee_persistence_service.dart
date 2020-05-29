@@ -1,8 +1,8 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-// singleton
+// singleton for storing data locally in shared preferences
 class PersistenceService {
-  final String _serverInfoKey = "server_info";
+  final String _serverInfoKey = 'server_info';
 
   static PersistenceService _instance;
 

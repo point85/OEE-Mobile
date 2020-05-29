@@ -18,6 +18,7 @@ abstract class _NamedObject {
   }
 }
 
+// equipment event
 class OeeEquipmentEvent {
   final String eventType;
   final String equipmentName;
@@ -71,7 +72,7 @@ class OeeEquipmentStatus {
 
   @override
   String toString() {
-    String value = material?.toString() ?? 'No material has been set up';
+    String value = material?.toString() ?? '';
 
     if (job != null) {
       value += ', ' + job;

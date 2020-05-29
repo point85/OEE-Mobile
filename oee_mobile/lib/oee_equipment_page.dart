@@ -7,6 +7,7 @@ import 'oee_ui_shared.dart';
 import 'oee_material_page.dart';
 import 'oee_localization.dart';
 
+// manages the availability, performance and setup of equipment
 class EquipmentEventPage extends StatefulWidget {
   // equipment
   final OeeEntity equipment;
@@ -520,12 +521,10 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                     onSaved: (String value) {
                       this._productionAmount = double.parse(value);
                     },
-                    //validator: _validateAmount,
                   ),
-                  width: 150),
+                  width: 200),
               SizedBox(width: 20),
               Text(_productionUnit),
-              //
             ]),
 
             // event start date and time
