@@ -389,7 +389,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                       AppLocalizations.of(context).translate('equip.start')),
                   width: 100),
               Expanded(child: DateTimeWidget(key: availabilityStartTimeKey)),
-              SizedBox(width: 195),
+              //SizedBox(width: 195),
             ]),
 
             // event end date and time
@@ -417,7 +417,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                               availabilityEventHours = value;
                             },
                           ),
-                          width: 50),
+                          width: 75),
                       SizedBox(width: 20),
                       SizedBox(
                           child: TextFormField(
@@ -429,7 +429,8 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                               availabilityEventMinutes = value;
                             },
                           ),
-                          width: 50),
+                          width: 75),
+                      SizedBox(width: 20),
                     ]),
                 visible: showAvailabilityEndTime),
             Container(
@@ -534,7 +535,6 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                       AppLocalizations.of(context).translate('equip.start')),
                   width: 100),
               Expanded(child: DateTimeWidget(key: productionStartTimeKey)),
-              SizedBox(width: 195),
             ]),
 
             // event end date and time
@@ -548,33 +548,6 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                           width: 100),
                       Expanded(
                           child: DateTimeWidget(key: productionEndTimeKey)),
-                      SizedBox(
-                          child: Text(AppLocalizations.of(context)
-                              .translate('equip.duration')),
-                          width: 75),
-                      SizedBox(
-                          child: TextFormField(
-                            decoration: InputDecoration(
-                                labelText: AppLocalizations.of(context)
-                                    .translate('equip.hrs')),
-                            keyboardType: TextInputType.number,
-                            onSaved: (String value) {
-                              productionEventHours = value;
-                            },
-                          ),
-                          width: 50),
-                      SizedBox(width: 20),
-                      SizedBox(
-                          child: TextFormField(
-                            decoration: InputDecoration(
-                                labelText: AppLocalizations.of(context)
-                                    .translate('equip.mins')),
-                            keyboardType: TextInputType.number,
-                            onSaved: (String value) {
-                              productionEventMinutes = value;
-                            },
-                          ),
-                          width: 50),
                     ]),
                 visible: showProductionEndTime),
             Container(
