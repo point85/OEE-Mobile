@@ -15,8 +15,16 @@ class ReasonPage extends StatefulWidget {
 class ReasonPageState extends State<ReasonPage> {
   OeeReason reason;
 
+  var _appBarTitle;
+
   Future<ReasonList> refreshReasons() async {
     return EquipmentPageController.fetchReasons();
+  }
+
+  void _updateAppBar() {
+    setState(() {
+      _appBarTitle = Text(reason.toString());
+    });
   }
 
   DynamicTreeView createReasonView(ReasonList reasonList) {
@@ -30,6 +38,9 @@ class ReasonPageState extends State<ReasonPage> {
               EdgeInsets.only(left: 16, top: 0, bottom: 0)),
       onTap: (reasonMap) {
         reason = ReasonDataModel.getReason(reasonMap);
+
+        // update the title
+        _updateAppBar();
       },
       width: MediaQuery.of(context).size.width,
     );
@@ -41,11 +52,16 @@ class ReasonPageState extends State<ReasonPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (_appBarTitle == null) {
+      _appBarTitle =
+          Text(AppLocalizations.of(context).translate('reason.title'));
+    }
+
     return WillPopScope(
         onWillPop: _onBackPressed,
         child: Scaffold(
           appBar: AppBar(
-            title: Text(AppLocalizations.of(context).translate('reason.title')),
+            title: _appBarTitle,
           ),
           body: FutureBuilder<ReasonList>(
               future: refreshReasons(),

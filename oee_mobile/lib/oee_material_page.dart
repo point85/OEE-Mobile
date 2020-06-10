@@ -16,7 +16,7 @@ class MaterialPageState extends State<MaterialPage> {
   // selected material
   OeeMaterial material;
 
-  var _appBarTitle = Text('');
+  var _appBarTitle;
 
   Future<MaterialList> refreshMaterials() async {
     return EquipmentPageController.fetchMaterials();
@@ -32,9 +32,10 @@ class MaterialPageState extends State<MaterialPage> {
           parentPaddingEdgeInsets:
               EdgeInsets.only(left: 16, top: 0, bottom: 0)),
       onTap: (materialMap) {
-        OeeMaterial selectedMaterial =
-            MaterialDataModel.getMaterial(materialMap);
-        _updateAppBar(selectedMaterial);
+        material = MaterialDataModel.getMaterial(materialMap);
+
+        // update the title
+        _updateAppBar();
       },
       width: MediaQuery.of(context).size.width,
     );
@@ -44,21 +45,24 @@ class MaterialPageState extends State<MaterialPage> {
     return Future.value(true);
   }
 
-  void _updateAppBar(OeeMaterial material) {
+  void _updateAppBar() {
     if (material.category == null) {
       // it is a category
       return;
     }
 
-    this.material = material;
     setState(() {
-      _appBarTitle = Text(material.toString() ??
-          AppLocalizations.of(context).translate('material.title'));
+      _appBarTitle = Text(material.toString());
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_appBarTitle == null) {
+      _appBarTitle =
+          Text(AppLocalizations.of(context).translate('material.title'));
+    }
+
     return WillPopScope(
         onWillPop: _onBackPressed,
         child: Scaffold(
