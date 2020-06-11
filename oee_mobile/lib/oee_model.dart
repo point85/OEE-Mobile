@@ -417,3 +417,19 @@ class EquipmentEventRequestDto {
     return jsonEncode(toJson());
   }
 }
+
+class EquipmentEventResponseDto {
+  String status;
+  String errorText;
+
+  EquipmentEventResponseDto(this.status, this.errorText);
+
+  // create DTO from HTTP response
+  factory EquipmentEventResponseDto.fromResponseBody(String body) {
+    String exception = body.substring(body.indexOf('{'));
+    print(exception);
+    Map<String, dynamic> jsonMap = json.decode(exception);
+
+    return EquipmentEventResponseDto(jsonMap['status'], jsonMap['errorText']);
+  }
+}

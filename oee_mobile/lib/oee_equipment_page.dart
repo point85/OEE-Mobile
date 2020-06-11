@@ -164,7 +164,9 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
       });
     }, onError: (error) {
       dialog.hide().whenComplete(() {
-        UIUtils.showErrorDialog(context, '$error');
+        EquipmentEventResponseDto dto =
+            EquipmentEventResponseDto.fromResponseBody('$error');
+        UIUtils.showErrorDialog(context, dto.errorText);
       });
     });
   }
@@ -403,6 +405,12 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                           width: 100),
                       Expanded(
                           child: DateTimeWidget(key: availabilityEndTimeKey)),
+                    ]),
+                visible: showAvailabilityEndTime),
+            Visibility(
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
                       SizedBox(
                           child: Text(AppLocalizations.of(context)
                               .translate('equip.duration')),
@@ -430,9 +438,10 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                             },
                           ),
                           width: 75),
-                      SizedBox(width: 20),
+                      //SizedBox(width: 20),
                     ]),
                 visible: showAvailabilityEndTime),
+
             Container(
                 padding: const EdgeInsets.only(left: 40.0, top: 20.0),
                 child: RaisedButton.icon(
