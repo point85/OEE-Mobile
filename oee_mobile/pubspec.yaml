@@ -12,6 +12,7 @@ description: OEE Mobile Application
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 version: 1.0.0+1
+versionName: "Point85 OEE 3.0"
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
@@ -35,7 +36,7 @@ dependencies:
   intl_translation: ^0.17.0
 
   # key store persistence
-  shared_preferences: ">=0.5.6"
+  shared_preferences: '>=0.5.7+3 <2.0.0'
   
   # progress dialog
   progress_dialog: ^1.2.2
