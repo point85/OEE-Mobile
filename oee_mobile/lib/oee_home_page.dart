@@ -77,8 +77,7 @@ class _OeeHomePageState extends State<OeeHomePage> {
 
     showAboutDialog(
       context: context,
-      applicationIcon:
-      Image(image: AssetImage('assets/images/Point85_48.png')),
+      applicationIcon: Image(image: AssetImage('assets/images/Point85_48.png')),
       applicationName: AppLocalizations.of(context).translate('app.name'),
       applicationVersion: AppLocalizations.of(context).translate('app.version'),
       children: aboutBoxChildren,
@@ -104,8 +103,8 @@ class _OeeHomePageState extends State<OeeHomePage> {
           _showSettings();
           break;
         case 1:
-          // refresh
-          refreshEntities();
+          // refresh page
+          setState(() {});
           break;
         case 2:
           // about dialog
@@ -139,7 +138,8 @@ class _OeeHomePageState extends State<OeeHomePage> {
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
-            title: Text(AppLocalizations.of(context).translate('home.settings')),
+            title:
+                Text(AppLocalizations.of(context).translate('home.settings')),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.refresh),
@@ -313,7 +313,8 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                 RaisedButton.icon(
                   onPressed: _onSave,
                   icon: Icon(Icons.save),
-                  label: Text(AppLocalizations.of(context).translate('home.save')),
+                  label:
+                      Text(AppLocalizations.of(context).translate('home.save')),
                 ),
               ],
             ),

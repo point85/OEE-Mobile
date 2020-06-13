@@ -529,7 +529,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                     ),
                     keyboardType: TextInputType.number,
                     onSaved: (String value) {
-                      this._productionAmount = double.parse(value);
+                        _productionAmount = double.tryParse(value) ?? 0;
                     },
                   ),
                   width: 200),
@@ -630,7 +630,9 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
       });
     }, onError: (error) {
       dialog.hide().whenComplete(() {
-        UIUtils.showErrorDialog(context, '$error');
+        EquipmentEventResponseDto dto =
+        EquipmentEventResponseDto.fromResponseBody('$error');
+        UIUtils.showErrorDialog(context, dto.errorText);
       });
     });
   }
@@ -768,7 +770,9 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
       });
     }, onError: (error) {
       dialog.hide().whenComplete(() {
-        UIUtils.showErrorDialog(context, '$error');
+        EquipmentEventResponseDto dto =
+        EquipmentEventResponseDto.fromResponseBody('$error');
+        UIUtils.showErrorDialog(context, dto.errorText);
       });
     });
   }
