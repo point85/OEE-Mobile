@@ -148,20 +148,17 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     ProgressDialog dialog = ProgressDialog(context);
     dialog.style(
         message: AppLocalizations.of(context).translate('equip.avail.start'));
-    dialog.show();
+    Future<bool> isShowing = dialog.show();
 
     // send the equipment event
     Future<bool> future =
         OeeHttpService.getInstance.postEquipmentEvent(availabilityEvent);
 
     future.then((ok) {
-      // hide progress dialog and check response
-      dialog.hide().whenComplete(() {
-        if (ok) {
-          _showSnackBar(
-              AppLocalizations.of(context).translate('equip.avail.done'));
-        }
-      });
+      // hide progress dialog and show completion
+      isShowing.whenComplete(() => dialog.hide());
+
+      _showSnackBar(AppLocalizations.of(context).translate('equip.avail.done'));
     }, onError: (error) {
       dialog.hide().whenComplete(() {
         EquipmentEventResponseDto dto =
@@ -529,7 +526,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                     ),
                     keyboardType: TextInputType.number,
                     onSaved: (String value) {
-                        _productionAmount = double.tryParse(value) ?? 0;
+                      _productionAmount = double.tryParse(value) ?? 0;
                     },
                   ),
                   width: 200),
@@ -613,25 +610,25 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     productionEvent.eventType = _productionEventType;
     productionEvent.amount = _productionAmount;
 
+    // show progress dialog
     ProgressDialog dialog = ProgressDialog(context);
     dialog.style(
         message: AppLocalizations.of(context).translate('equip.prod.start'));
-    dialog.show();
+    Future<bool> isShowing = dialog.show();
 
+    // invoke API
     Future<bool> future =
         OeeHttpService.getInstance.postEquipmentEvent(productionEvent);
 
     future.then((ok) {
-      dialog.hide().whenComplete(() {
-        if (ok) {
-          _showSnackBar(
-              AppLocalizations.of(context).translate('equip.prod.done'));
-        }
-      });
+      // hide progress dialog and show completion
+      isShowing.whenComplete(() => dialog.hide());
+
+      _showSnackBar(AppLocalizations.of(context).translate('equip.prod.done'));
     }, onError: (error) {
       dialog.hide().whenComplete(() {
         EquipmentEventResponseDto dto =
-        EquipmentEventResponseDto.fromResponseBody('$error');
+            EquipmentEventResponseDto.fromResponseBody('$error');
         UIUtils.showErrorDialog(context, dto.errorText);
       });
     });
@@ -752,26 +749,26 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     // job
     setupEvent.job = _job;
 
+    // show progress dialog
     ProgressDialog dialog = ProgressDialog(context);
     dialog.style(
         message: AppLocalizations.of(context).translate('equip.setup.start'));
-    dialog.show();
+    Future<bool> isShowing = dialog.show();
 
+    // invoke API
     Future<bool> future =
         OeeHttpService.getInstance.postEquipmentEvent(setupEvent);
 
     future.then((ok) {
       // hide progress dialog
-      dialog.hide().whenComplete(() {
-        if (ok) {
-          _showSnackBar(
-              AppLocalizations.of(context).translate('equip.setup.done'));
-        }
-      });
+      // hide progress dialog and show completion
+      isShowing.whenComplete(() => dialog.hide());
+
+      _showSnackBar(AppLocalizations.of(context).translate('equip.setup.done'));
     }, onError: (error) {
       dialog.hide().whenComplete(() {
         EquipmentEventResponseDto dto =
-        EquipmentEventResponseDto.fromResponseBody('$error');
+            EquipmentEventResponseDto.fromResponseBody('$error');
         UIUtils.showErrorDialog(context, dto.errorText);
       });
     });

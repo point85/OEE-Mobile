@@ -39,7 +39,7 @@ dependencies:
   shared_preferences: '>=0.5.7+3 <2.0.0'
   
   # progress dialog
-  progress_dialog: ^1.2.2
+  progress_dialog: ^1.2.4
 
 dev_dependencies:
   flutter_test:
