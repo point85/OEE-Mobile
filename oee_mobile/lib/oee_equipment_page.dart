@@ -388,7 +388,6 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                       AppLocalizations.of(context).translate('equip.start')),
                   width: 100),
               Expanded(child: DateTimeWidget(key: availabilityStartTimeKey)),
-              //SizedBox(width: 195),
             ]),
 
             // event end date and time
@@ -709,7 +708,6 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                       AppLocalizations.of(context).translate('equip.start')),
                   width: 100),
               Expanded(child: DateTimeWidget(key: setupTimeKey)),
-              SizedBox(width: 195),
             ]),
 
             // record event

@@ -72,12 +72,7 @@ class OeeEquipmentStatus {
 
   @override
   String toString() {
-    String value = material?.toString() ?? '';
-
-    if (job != null) {
-      value += ', ' + job;
-    }
-    return value;
+    return material?.toString() ?? '';
   }
 }
 

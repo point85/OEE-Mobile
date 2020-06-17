@@ -174,7 +174,7 @@ class _OeeHomePageState extends State<OeeHomePage> {
           dialog.style(
               message:
                   AppLocalizations.of(context).translate('home.equip.status'));
-          dialog.show();
+          Future<bool> isShowing = dialog.show();
 
           // get current status
           Future<OeeEquipmentStatus> future =
@@ -182,19 +182,19 @@ class _OeeHomePageState extends State<OeeHomePage> {
 
           future.then((status) {
             // hide progress dialog
-            dialog.hide().whenComplete(() {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (ctx) => EquipmentEventPage(
-                            equipment: entity,
-                            equipmentStatus: status,
-                          )));
-            });
+            isShowing.whenComplete(() => dialog.hide().whenComplete(() {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (ctx) => EquipmentEventPage(
+                                equipment: entity,
+                                equipmentStatus: status,
+                              )));
+                }));
           }, onError: (error) {
-            dialog.hide().whenComplete(() {
-              UIUtils.showErrorDialog(context, '$error');
-            });
+            isShowing.whenComplete(() => dialog.hide().whenComplete(() {
+                  UIUtils.showErrorDialog(context, '$error');
+                }));
           });
         }
       },
