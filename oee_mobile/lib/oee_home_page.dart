@@ -188,7 +188,7 @@ class _OeeHomePageState extends State<OeeHomePage> {
                       MaterialPageRoute(
                           builder: (ctx) => EquipmentEventPage(
                                 equipment: entity,
-                                equipmentStatus: status,
+                                initialEquipmentStatus: status,
                               )));
                 }));
           }, onError: (error) {

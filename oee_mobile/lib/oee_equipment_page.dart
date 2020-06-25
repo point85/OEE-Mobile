@@ -13,15 +13,19 @@ class EquipmentEventPage extends StatefulWidget {
   final OeeEntity equipment;
 
   // equipment status
-  final OeeEquipmentStatus equipmentStatus;
+  final OeeEquipmentStatus initialEquipmentStatus;
 
-  EquipmentEventPage({this.equipment, this.equipmentStatus});
+  EquipmentEventPage({this.equipment, this.initialEquipmentStatus});
 
   @override
-  _EquipmentEventPageState createState() => _EquipmentEventPageState();
+  _EquipmentEventPageState createState() =>
+      _EquipmentEventPageState(initialEquipmentStatus);
 }
 
 class _EquipmentEventPageState extends State<EquipmentEventPage> {
+  // equipment status
+  OeeEquipmentStatus equipmentStatus;
+
   // access to reason state
   final reasonStateKey = GlobalKey<ReasonPageState>();
 
@@ -93,6 +97,8 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
+  _EquipmentEventPageState(this.equipmentStatus);
+
   @override
   void initState() {
     super.initState();
@@ -157,6 +163,8 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     future.then((ok) {
       // hide progress dialog and show completion
       isShowing.whenComplete(() => dialog.hide());
+
+      _refreshEquipmentStatus();
 
       _showSnackBar(AppLocalizations.of(context).translate('equip.avail.done'));
     }, onError: (error) {
@@ -261,11 +269,11 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
           child: Column(
             children: [
               Text(widget.equipment.toString()),
-              Text(widget.equipmentStatus.toString()),
+              Text(equipmentStatus.toString()),
             ],
           ),
         ),
-        leading: _getAvailabilityIcon(widget.equipmentStatus.reason),
+        leading: _getAvailabilityIcon(equipmentStatus.reason),
         bottom: TabBar(
           tabs: [
             Tab(
@@ -362,7 +370,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                 icon: const Icon(Icons.category),
               ),
               SizedBox(width: 20),
-              Text(_getAvailabilityReason()),
+              Expanded(child: Text(_getAvailabilityReason())),
             ]),
 
             // by event or by time period
@@ -468,7 +476,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                 icon: const Icon(Icons.category),
               ),
               SizedBox(width: 20),
-              Text(_getProductionReason()),
+              Expanded(child: Text(_getProductionReason())),
             ]),
 
             // by event or by time period radio buttons
@@ -640,17 +648,17 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
       switch (_productionValue) {
         case GOOD_AMOUNT:
           // good
-          _productionUnit = widget.equipmentStatus.runRateUOM ?? '';
+          _productionUnit = equipmentStatus.runRateUOM ?? '';
           _productionEventType = OeeEventType.PROD_GOOD;
           break;
         case REJECT_AMOUNT:
           // reject and rework
-          _productionUnit = widget.equipmentStatus.rejectUOM ?? '';
+          _productionUnit = equipmentStatus.rejectUOM ?? '';
           _productionEventType = OeeEventType.PROD_REJECT;
           break;
         case STARTUP_AMOUNT:
           // startup and yield
-          _productionUnit = widget.equipmentStatus.rejectUOM ?? '';
+          _productionUnit = equipmentStatus.rejectUOM ?? '';
           _productionEventType = OeeEventType.PROD_STARTUP;
           break;
       }
@@ -676,7 +684,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
                 icon: const Icon(Icons.group_work),
               ),
               SizedBox(width: 20),
-              Text(_getSelectedMaterial()),
+              Expanded(child: Text(_getSelectedMaterial())),
             ]),
 
             // job
@@ -742,7 +750,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     }
 
     // material
-    setupEvent.material = _selectedMaterial ?? widget.equipmentStatus.material;
+    setupEvent.material = _selectedMaterial ?? equipmentStatus.material;
 
     // job
     setupEvent.job = _job;
@@ -759,8 +767,9 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
 
     future.then((ok) {
       // hide progress dialog
-      // hide progress dialog and show completion
       isShowing.whenComplete(() => dialog.hide());
+
+      _refreshEquipmentStatus();
 
       _showSnackBar(AppLocalizations.of(context).translate('equip.setup.done'));
     }, onError: (error) {
@@ -769,6 +778,16 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
             EquipmentEventResponseDto.fromResponseBody('$error');
         UIUtils.showErrorDialog(context, dto.errorText);
       });
+    });
+  }
+
+  void _refreshEquipmentStatus() async {
+    // fetch status from the database
+    OeeEquipmentStatus status =
+        await OeeHttpService.getInstance.fetchEquipmentStatus(widget.equipment);
+
+    setState(() {
+      equipmentStatus = status;
     });
   }
 }
