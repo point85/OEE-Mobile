@@ -1,3 +1,0 @@
-Tree View Control:
-https://pub.dev/packages/dynamic_treeview#-readme-tab-
-https://pub.dev/packages/tree_view

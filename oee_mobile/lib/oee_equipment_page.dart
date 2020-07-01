@@ -168,11 +168,12 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
 
       _showSnackBar(AppLocalizations.of(context).translate('equip.avail.done'));
     }, onError: (error) {
-      dialog.hide().whenComplete(() {
-        EquipmentEventResponseDto dto =
-            EquipmentEventResponseDto.fromResponseBody('$error');
-        UIUtils.showErrorDialog(context, dto.errorText);
-      });
+      isShowing.whenComplete(() => dialog.hide().whenComplete(() {
+            EquipmentEventResponseDto dto =
+                EquipmentEventResponseDto.fromResponseBody('$error');
+            UIUtils.showErrorDialog(context, dto.errorText);
+            isShowing.whenComplete(() => dialog.hide());
+          }));
     });
   }
 
@@ -633,11 +634,11 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
 
       _showSnackBar(AppLocalizations.of(context).translate('equip.prod.done'));
     }, onError: (error) {
-      dialog.hide().whenComplete(() {
-        EquipmentEventResponseDto dto =
-            EquipmentEventResponseDto.fromResponseBody('$error');
-        UIUtils.showErrorDialog(context, dto.errorText);
-      });
+      isShowing.whenComplete(() => dialog.hide().whenComplete(() {
+            EquipmentEventResponseDto dto =
+                EquipmentEventResponseDto.fromResponseBody('$error');
+            UIUtils.showErrorDialog(context, dto.errorText);
+          }));
     });
   }
 
@@ -773,11 +774,11 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
 
       _showSnackBar(AppLocalizations.of(context).translate('equip.setup.done'));
     }, onError: (error) {
-      dialog.hide().whenComplete(() {
-        EquipmentEventResponseDto dto =
-            EquipmentEventResponseDto.fromResponseBody('$error');
-        UIUtils.showErrorDialog(context, dto.errorText);
-      });
+      isShowing.whenComplete(() => dialog.hide().whenComplete(() {
+            EquipmentEventResponseDto dto =
+                EquipmentEventResponseDto.fromResponseBody('$error');
+            UIUtils.showErrorDialog(context, dto.errorText);
+          }));
     });
   }
 

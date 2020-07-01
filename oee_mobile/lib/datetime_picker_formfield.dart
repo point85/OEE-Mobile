@@ -166,7 +166,7 @@ class DateTimeField extends FormField<DateTime> {
         // print('Error parsing date: $e');
       }
     }
-    return null;
+    return DateTime.now();
   }
 
   /// Sets the hour and minute of a [DateTime] from a [TimeOfDay].
