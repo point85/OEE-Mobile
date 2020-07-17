@@ -1,8 +1,8 @@
 {
   "app.name" : "Point85 OEE Application",
-  "app.version" : "3.0.0.6",
+  "app.version" : "1.0.1",
   "home.page.title" : "Point85 OEE",
-  "home.about.text" : "The Point85 Overall Equipment Effectiveness (OEE) applications enable collection of equipment data from multiple sources to support OEE calculations of performance, availability and quality.",
+  "home.about.text" : "The Point85 Overall Equipment Effectiveness (OEE) applications enable collection of equipment data from multiple sources to support OEE calculations of performance, availability and quality.\n\nFor more information please visit https://github.com/Point85/OEE-Designer.",
   "home.settings" : "Settings",
   "home.refresh" : "Refresh",
   "home.about" : "About",

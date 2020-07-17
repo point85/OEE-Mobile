@@ -15,7 +15,7 @@ import 'oee_localization.dart';
 class OeeMobileApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
+    return MaterialApp(
       supportedLocales: [
         Locale('en', 'US'),
       ],
@@ -24,10 +24,11 @@ class OeeMobileApp extends StatelessWidget {
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
       ],
-      theme: new ThemeData(
+      theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: new OeeHomePage(),
+      home: OeeHomePage(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
@@ -46,12 +47,15 @@ class _OeeHomePageState extends State<OeeHomePage> {
   final _homeScaffoldKey = GlobalKey<ScaffoldState>();
 
   // fetch the HTTP server info
-  Future<EntityList> refreshEntities() async {
+  Future<EntityList> _refreshEntities() async {
     var value = await PersistenceService.getInstance.getServerInfo();
 
-    if (value == null || value[0] == null || value[1] == null) {
-      UIUtils.showErrorDialog(
-          context, AppLocalizations.of(context).translate('no.http.server'));
+    if (value == null ||
+        value[0] == null ||
+        value[0].length == 0 ||
+        value[1] == null ||
+        value[1].length == 0) {
+
       return null;
     }
     OeeHttpService.getInstance.setUrl(value[0], value[1]);
@@ -122,14 +126,22 @@ class _OeeHomePageState extends State<OeeHomePage> {
 
       // body
       body: FutureBuilder<EntityList>(
-        future: refreshEntities(),
+        future: _refreshEntities(),
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return createEntityView(snapshot.data);
-          } else if (snapshot.hasError) {
-            return Text('${snapshot.error}');
+          switch (snapshot.connectionState) {
+            case ConnectionState.waiting:
+              return CircularProgressIndicator();
+            default:
+              if (snapshot.hasError) {
+                return Center(child: Text('${snapshot.error}'));
+              } else if (snapshot.hasData) {
+                return createEntityView(snapshot.data);
+              } else {
+                return Center(
+                    child: Text(AppLocalizations.of(context)
+                        .translate('no.http.server')));
+              }
           }
-          return Center(child: CircularProgressIndicator());
         },
       ),
 

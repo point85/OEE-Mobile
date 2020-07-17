@@ -274,7 +274,13 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
             ],
           ),
         ),
-        leading: _getAvailabilityIcon(equipmentStatus.reason),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context, false),
+        ),
+        actions: [
+          _getAvailabilityIcon(equipmentStatus.reason),
+        ],
         bottom: TabBar(
           tabs: [
             Tab(
