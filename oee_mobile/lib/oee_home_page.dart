@@ -59,7 +59,7 @@ class _OeeHomePageState extends State<OeeHomePage> {
       return null;
     }
     OeeHttpService.getInstance.setUrl(value[0], value[1]);
-
+    OeeHttpService.getInstance.clearCache();
     return OeeHttpService.getInstance.fetchEntities();
   }
 

@@ -24,6 +24,12 @@ class OeeHttpService {
   EntityList entityList;
   MaterialList materialList;
 
+  void clearCache() {
+    reasonList = null;
+    entityList = null;
+    materialList = null;
+  }
+
   bool statusOk(int code) {
     return (code / 100 == 4 || code / 100 == 5) ? false : true;
   }
