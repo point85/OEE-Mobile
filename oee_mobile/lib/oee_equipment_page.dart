@@ -27,10 +27,10 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
   OeeEquipmentStatus equipmentStatus;
 
   // access to reason state
-  final reasonStateKey = GlobalKey<ReasonPageState>();
+  final reasonStateKey = GlobalKey<OeeReasonPageState>();
 
   // access to material state
-  final materialStateKey = GlobalKey<MaterialPageState>();
+  final materialStateKey = GlobalKey<OeeMaterialPageState>();
 
   // availability event reason
   OeeReason _availabilityReason;
@@ -316,7 +316,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
 
   _showAvailabilityReasons(BuildContext context) async {
     await Navigator.push(context,
-        MaterialPageRoute(builder: (ctx) => ReasonPage(key: reasonStateKey)));
+        MaterialPageRoute(builder: (ctx) => OeeReasonPage(key: reasonStateKey)));
 
     _availabilityReason = reasonStateKey.currentState.reason;
 
@@ -326,7 +326,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
 
   _showProductionReasons(BuildContext context) async {
     await Navigator.push(context,
-        MaterialPageRoute(builder: (ctx) => ReasonPage(key: reasonStateKey)));
+        MaterialPageRoute(builder: (ctx) => OeeReasonPage(key: reasonStateKey)));
     _productionReason = reasonStateKey.currentState.reason;
 
     // update state
@@ -337,7 +337,7 @@ class _EquipmentEventPageState extends State<EquipmentEventPage> {
     await Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (ctx) => MaterialPage(key: materialStateKey)));
+            builder: (ctx) => OeeMaterialPage(key: materialStateKey)));
     _selectedMaterial = materialStateKey.currentState.material;
 
     // update state

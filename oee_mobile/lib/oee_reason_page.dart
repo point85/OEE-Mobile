@@ -5,14 +5,14 @@ import 'oee_localization.dart';
 import 'dynamic_treeview.dart';
 
 // manages OEE reasons
-class ReasonPage extends StatefulWidget {
-  ReasonPage({Key key}) : super(key: key);
+class OeeReasonPage extends StatefulWidget {
+  OeeReasonPage({Key key}) : super(key: key);
 
   @override
-  ReasonPageState createState() => ReasonPageState();
+  OeeReasonPageState createState() => OeeReasonPageState();
 }
 
-class ReasonPageState extends State<ReasonPage> {
+class OeeReasonPageState extends State<OeeReasonPage> {
   OeeReason reason;
 
   var _appBarTitle;

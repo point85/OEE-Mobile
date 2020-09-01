@@ -5,14 +5,14 @@ import 'oee_localization.dart';
 import 'dynamic_treeview.dart';
 
 // manages OEE materials
-class MaterialPage extends StatefulWidget {
-  MaterialPage({Key key}) : super(key: key);
+class OeeMaterialPage extends StatefulWidget {
+  OeeMaterialPage({Key key}) : super(key: key);
 
   @override
-  MaterialPageState createState() => MaterialPageState();
+  OeeMaterialPageState createState() => OeeMaterialPageState();
 }
 
-class MaterialPageState extends State<MaterialPage> {
+class OeeMaterialPageState extends State<OeeMaterialPage> {
   // selected material
   OeeMaterial material;
 
