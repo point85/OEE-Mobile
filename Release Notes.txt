@@ -1,0 +1,5 @@
+				   Point85 OEE Mobile Application
+						   RELEASE NOTES
+
+(1)  1.0.2, November 23, 2021:  
+	- Initial functionality
