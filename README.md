@@ -5,7 +5,7 @@ The screen captures below are from the Android application.  Home and settings p
 ![HomePage](https://github.com/point85/OEE-Mobile/blob/master/docs/HomeSetup.PNG)
 
 Availability and production reasons pages:
-![AvailabilityReasons](https://github.com/point85/OEE-Mobile/blob/master/docs/AvailabilityReasons.PNG)
+![AvailabilityReasons](https://github.com/point85/OEE-Mobile/blob/master/docs/AvailabilityPage.PNG)
 
 Setup and material pages:
-![SetupMaterials](https://github.com/point85/OEE-Mobile/blob/master/docs/SetupMaterials.PNG)
+![SetupMaterials](https://github.com/point85/OEE-Mobile/blob/master/docs/SetupPage.PNG)
