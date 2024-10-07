@@ -1,11 +1,11 @@
 {
-    "name": "simple_test",
-    "short_name": "simple_test",
+    "name": "Overall Equipment Effectiveness",
+    "short_name": "OEE",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Overall Equipment Effectiveness data collection application.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
