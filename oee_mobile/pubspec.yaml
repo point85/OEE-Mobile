@@ -30,16 +30,10 @@ dependencies:
   # asynch provider
   flutter_riverpod: ^2.5.1
 
-flutter_icons:
-  image_path: "assets/icon.png"
-  android: true
-  ios: true
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
-  flutter_launcher_icons: ^0.14.1
 
 flutter:
   uses-material-design: true
