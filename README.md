@@ -11,6 +11,16 @@ The screen captures below are from the Android application.  Home and HTTP serve
 Availability page:
 ![AvailabilityReasons](https://github.com/point85/OEE-Mobile/blob/master/docs/AvailabilityPage.png)
 Production page:
-![AvailabilityReasons](https://github.com/point85/OEE-Mobile/blob/master/docs/ProductionPage.png)
+![Production](https://github.com/point85/OEE-Mobile/blob/master/docs/ProductionPage.png)
 Setup page:
 ![SetupMaterials](https://github.com/point85/OEE-Mobile/blob/master/docs/SetupPage.png)
+
+The screen capture below is from the Edge/Chrome web application home page:
+![WebHome](https://github.com/point85/OEE-Mobile/blob/master/docs/WebHome.png)
+
+The screen capture below is from the Windows x64 application home page:
+![WinHome](https://github.com/point85/OEE-Mobile/blob/master/docs/WinHome.png)
+
+The screen capture below is from the Linux Ubuntu x64 application home page:
+![LinuxHome](https://github.com/point85/OEE-Mobile/blob/master/docs/LinuxHome.png)
+
