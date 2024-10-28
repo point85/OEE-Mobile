@@ -44,3 +44,5 @@ flutter:
   assets:
     # icon folder
     - assets/icons/
+    # app localizations
+    - lib/l10n/

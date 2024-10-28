@@ -62,7 +62,7 @@ class _OeeEntityPageState extends ConsumerState<OeeEntityPage> {
     showAboutDialog(
       context: context,
       applicationIcon:
-          const Image(image: AssetImage('assets/icons/Point85_48.png')),
+          const Image(image: AssetImage('assets/icons/Point85_48x48.png')),
       applicationName: AppLocalizations.of(context)!.appName,
       applicationVersion: AppLocalizations.of(context)!.appVersion,
       children: aboutBoxChildren,
