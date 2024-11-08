@@ -4,7 +4,7 @@ OEE Mobile Application
 
 ## Getting Started
 
-This project is a Overall Equipment Effectiveness (OEE) Flutter application.
+This project is a Overall Equipment Effectiveness (OEE) Flutter application for operator data entry.
 
 A few resources to get you started if this is your first Flutter project:
 

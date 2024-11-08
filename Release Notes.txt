@@ -3,6 +3,6 @@
 
 (1)  1.0.2, November 23, 2021:  
 	- Initial functionality
-(1)  2.0.0, October 6, 2024:  
+(2)  2.0.0, October 6, 2024:  
 	- Implement for Dart 3 and latest Flutter
-	- Support Windows, Linux and web apps
+	- Support iOS, Androis, Windows, Linux, macOS and Edge/Chrome web apps
