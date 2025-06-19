@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:oee_mobile/l10n/app_localizations.dart';
 
 // tree view support
 class TreeUtils {
@@ -7,10 +7,10 @@ class TreeUtils {
 
   static const Duration animationDuration = Duration(milliseconds: 200);
   static const EdgeInsets edgeInsets = EdgeInsets.symmetric(horizontal: 8);
-  static const SizedBox parentPadding = SizedBox(width: 16);
+  static const Widget parentPadding = SizedBox(width: 16);
   static const Icon folderIcon = Icon(Icons.folder);
   static const Icon chevronIcon = Icon(Icons.chevron_right);
-  static const SizedBox rowPadding = SizedBox(width: 10);
+  static const Widget rowPadding = SizedBox(width: 10);
 
   static BoxDecoration buildBoxDecoration(
       BuildContext context, bool isSelected) {
@@ -18,8 +18,8 @@ class TreeUtils {
       gradient: isSelected
           ? LinearGradient(
               colors: [
-                Theme.of(context).colorScheme.primary.withOpacity(.3),
-                Theme.of(context).colorScheme.primary.withOpacity(.1),
+                Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -36,24 +36,28 @@ class TreeUtils {
     return Padding(
       padding: const EdgeInsets.all(8),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Icon(iconData),
               rowPadding,
-              Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
+              Expanded(
+                child: Text(
+                  name,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
             ],
           ),
-          Row(
-            children: [
-              const SizedBox.shrink(),
-              rowPadding,
-              Text(
+          if (subtitle.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(left: 34), // Icon width + spacing
+              child: Text(
                 subtitle,
                 style: const TextStyle(fontStyle: FontStyle.italic),
               ),
-            ],
-          )
+            ),
         ],
       ),
     );
@@ -62,17 +66,29 @@ class TreeUtils {
 
 // shared utilities
 class UIUtils {
-  static const Icon backIcon =
-      Icon(Icons.chevron_left, size: 48, color: Colors.white);
-  static const Color appBarBackground = Colors.blue;
+  static Icon getBackIcon(BuildContext context) => Icon(
+        Icons.chevron_left,
+        size: 48,
+        color: Theme.of(context).colorScheme.onPrimary,
+      );
 
-  static ButtonStyle submitStyle = ElevatedButton.styleFrom(
-    textStyle: const TextStyle(fontSize: 18),
-    backgroundColor: Colors.lightGreen, // Background color
-    foregroundColor: Colors.black, // Text color
-  );
+  static Color getAppBarBackground(BuildContext context) =>
+      Theme.of(context).colorScheme.primary;
+
+  static ButtonStyle getSubmitStyle(BuildContext context) =>
+      ElevatedButton.styleFrom(
+        textStyle: const TextStyle(fontSize: 18),
+        backgroundColor: Theme.of(context).colorScheme.secondary,
+        foregroundColor: Theme.of(context).colorScheme.onSecondary,
+      );
 
   static void showAlert(BuildContext context, String title, String content) {
+    final localizations = AppLocalizations.of(context);
+    if (localizations == null) {
+      // Fallback if localizations aren't available
+      return;
+    }
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -81,7 +97,7 @@ class UIUtils {
           content: Text(content),
           actions: <Widget>[
             ElevatedButton(
-              child: Text(AppLocalizations.of(context)!.buttonClose),
+              child: Text(localizations.buttonClose),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -93,22 +109,30 @@ class UIUtils {
   }
 
   static void showErrorDialog(BuildContext context, String content) {
-    showAlert(context, AppLocalizations.of(context)!.errorTitle, content);
+    final localizations = AppLocalizations.of(context);
+    if (localizations == null) return;
+
+    showAlert(context, localizations.errorTitle, content);
   }
 
   static void showInfoDialog(BuildContext context, String content) {
-    showAlert(context, AppLocalizations.of(context)!.infoTitle, content);
+    final localizations = AppLocalizations.of(context);
+    if (localizations == null) return;
+
+    showAlert(context, localizations.infoTitle, content);
   }
 
   static void showSnackBar(BuildContext context, String text) {
+    final localizations = AppLocalizations.of(context);
+    if (localizations == null) return;
+
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(text),
       behavior: SnackBarBehavior.floating,
       duration: const Duration(seconds: 2),
       action: SnackBarAction(
-        label: AppLocalizations.of(context)!.buttonClose,
+        label: localizations.buttonClose,
         onPressed: () {
-          // Perform some action (e.g., undo the change)
           ScaffoldMessenger.of(context).hideCurrentSnackBar();
         },
       ),

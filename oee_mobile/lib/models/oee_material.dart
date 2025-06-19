@@ -12,4 +12,10 @@ class OeeMaterial extends HierarchicalObject {
 
     return material;
   }
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'description': description,
+        'category': category,
+      };
 }

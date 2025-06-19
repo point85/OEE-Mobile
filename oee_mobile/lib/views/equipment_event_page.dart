@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:oee_mobile/l10n/app_localizations.dart';
 import 'package:oee_mobile/views/tree_nodes.dart';
 import '../services/http_service.dart';
 import '../models/oee_entity.dart';
@@ -113,10 +113,10 @@ class EquipmentEventPageState extends State<EquipmentEventPage> {
     DateTime? startTime = _availabilityStartTimeKey.currentState?.value;
 
     // no seconds
-    DateTime? start = startTime != null
+    DateTime start = startTime != null
         ? DateTime(startTime.year, startTime.month, startTime.day,
             startTime.hour, startTime.minute)
-        : null;
+        : DateTime.now();
 
     DateTime? end;
     Duration? eventDuration;
@@ -143,7 +143,9 @@ class EquipmentEventPageState extends State<EquipmentEventPage> {
 
         if (eventDuration.isNegative) {
           UIUtils.showErrorDialog(
-              context, AppLocalizations.of(context)!.invalidDuration);
+              context,
+              AppLocalizations.of(context)!
+                  .errInvalidDuration(eventDuration.toString()));
           return;
         }
       } catch (e) {
@@ -154,7 +156,7 @@ class EquipmentEventPageState extends State<EquipmentEventPage> {
 
     OeeEvent availabilityEvent = OeeEvent(
         equipment: widget._equipmentNode.name,
-        startTime: start!,
+        startTime: start,
         eventType: OeeEventType.availability);
     availabilityEvent.duration = eventDuration;
     availabilityEvent.endTime = end;
@@ -316,7 +318,7 @@ class EquipmentEventPageState extends State<EquipmentEventPage> {
     ]);
   }
 
-  _showAvailabilityReasons(BuildContext context) async {
+  void _showAvailabilityReasons(BuildContext context) async {
     await Navigator.push(
         context,
         MaterialPageRoute(
@@ -332,7 +334,7 @@ class EquipmentEventPageState extends State<EquipmentEventPage> {
     setState(() {});
   }
 
-  _showProductionReasons(BuildContext context) async {
+  void _showProductionReasons(BuildContext context) async {
     await Navigator.push(
         context,
         MaterialPageRoute(
@@ -347,7 +349,7 @@ class EquipmentEventPageState extends State<EquipmentEventPage> {
     setState(() {});
   }
 
-  _showMaterials(BuildContext context) async {
+  void _showMaterials(BuildContext context) async {
     await Navigator.push(
         context,
         MaterialPageRoute(
@@ -478,7 +480,7 @@ class EquipmentEventPageState extends State<EquipmentEventPage> {
                   label: Text(AppLocalizations.of(context)!.equipSubmit),
                   onPressed: _onSubmitAvailabilityEvent,
                   icon: const Icon(Icons.check_circle_outline),
-                  style: UIUtils.submitStyle,
+                  style: UIUtils.getSubmitStyle(context),
                 )),
           ],
         ));
@@ -593,7 +595,7 @@ class EquipmentEventPageState extends State<EquipmentEventPage> {
                   label: Text(AppLocalizations.of(context)!.equipSubmit),
                   onPressed: _onSubmitProductionEvent,
                   icon: const Icon(Icons.check_circle_outline),
-                  style: UIUtils.submitStyle,
+                  style: UIUtils.getSubmitStyle(context),
                 )),
           ],
         ));
@@ -636,18 +638,19 @@ class EquipmentEventPageState extends State<EquipmentEventPage> {
 
     if (_productionEventType == null) {
       UIUtils.showErrorDialog(
-          context, AppLocalizations.of(context)!.mustSelectEvent);
+          context, AppLocalizations.of(context)!.errMustSelectEvent);
       return;
     }
 
     if (_equipmentStatus.material == null) {
-      UIUtils.showErrorDialog(context, AppLocalizations.of(context)!.noSetup);
+      UIUtils.showErrorDialog(context,
+          AppLocalizations.of(context)!.errNoSetup(widget._equipmentNode.name));
       return;
     }
 
     if (_productionAmount <= 0) {
-      UIUtils.showErrorDialog(
-          context, AppLocalizations.of(context)!.invalidAmount);
+      UIUtils.showErrorDialog(context,
+          AppLocalizations.of(context)!.errInvalidAmount(_productionAmount));
       return;
     }
 
@@ -763,7 +766,7 @@ class EquipmentEventPageState extends State<EquipmentEventPage> {
                   label: Text(AppLocalizations.of(context)!.equipSubmit),
                   onPressed: _onSubmitSetupEvent,
                   icon: const Icon(Icons.check_circle_outline),
-                  style: UIUtils.submitStyle,
+                  style: UIUtils.getSubmitStyle(context),
                 )),
           ],
         ));

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:arborio/tree_view.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:oee_mobile/l10n/app_localizations.dart';
 import 'package:oee_mobile/controllers/entity_controller.dart';
 import '../controllers/material_controller.dart';
 import 'tree_nodes.dart';
@@ -26,29 +26,47 @@ class OeeMaterialPageState extends ConsumerState<OeeMaterialPage> {
   String? _appBarTitle;
 
   void _updateAppBar() {
-    if (selectedNode!.data.category.isNotEmpty) {
-      // it is a production material
+    if (!mounted) return; // Check if widget is still mounted
+
+    final node = selectedNode;
+    if (node != null) {
+      // Check if it's a production material (has category)
+      final isProductionMaterial = node.data.category.isNotEmpty;
+
       setState(() {
-        _appBarTitle = selectedNode!.data.toString();
+        if (isProductionMaterial) {
+          _appBarTitle = node.data.toString();
+        } else {
+          // For non-production materials, show equipment name or default title
+          final localizations = AppLocalizations.of(context);
+          _appBarTitle = localizations?.materialTitle ?? 'Materials';
+        }
       });
     }
   }
 
   void _refreshMaterials() {
+    if (!mounted) return; // Check if widget is still mounted
+
     // re-read materials from the database
-    // ignore: unused_local_variable
-    final value =
-        ref.refresh(EntityController.equipmentProvider(widget.equipment));
+    ref.invalidate(EntityController.equipmentProvider(widget.equipment));
 
     // notify user
-    UIUtils.showSnackBar(
-        context, AppLocalizations.of(context)!.refreshedMaterials);
+    final localizations = AppLocalizations.of(context);
+    if (localizations != null) {
+      UIUtils.showSnackBar(context, localizations.refreshedMaterials);
+    }
+  }
+
+  void _onSelectionChanged(TreeNode<OeeMaterialNode> node) {
+    selectedNode = node;
+    _updateAppBar();
   }
 
   TreeView<OeeMaterialNode> _buildMaterialTree(
           List<TreeNode<OeeMaterialNode>> materialNodes) =>
       TreeView(
-        onSelectionChanged: (node) => {selectedNode = node, _updateAppBar()},
+        onSelectionChanged: _onSelectionChanged,
         key: treeViewKey,
         animationDuration: TreeUtils.animationDuration,
         animationCurve: Curves.easeInOut,
@@ -60,7 +78,7 @@ class OeeMaterialPageState extends ConsumerState<OeeMaterialPage> {
           select,
         ) =>
             switch (node.data.nodeType) {
-          (NodeType.child) => InkWell(
+          NodeType.child => InkWell(
               onTap: () => select(node),
               child: Container(
                 margin: TreeUtils.edgeInsets,
@@ -69,14 +87,19 @@ class OeeMaterialPageState extends ConsumerState<OeeMaterialPage> {
                     node.data.name, node.data.description, Icons.group_work),
               ),
             ),
-          (NodeType.parent) => Row(
+          NodeType.parent => Row(
               children: [
                 RotationTransition(
                   turns: expansionAnimation,
                   child: TreeUtils.folderIcon,
                 ),
                 TreeUtils.parentPadding,
-                Text(node.data.name),
+                Expanded(
+                  child: Text(
+                    node.data.name,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ],
             ),
         },
@@ -87,40 +110,49 @@ class OeeMaterialPageState extends ConsumerState<OeeMaterialPage> {
         ),
       );
 
+  String _getAppBarTitle(BuildContext context) {
+    if (_appBarTitle != null) {
+      return _appBarTitle!;
+    }
+
+    final localizations = AppLocalizations.of(context);
+    return localizations?.materialTitle ?? 'Materials'; // Fallback title
+  }
+
   @override
   Widget build(BuildContext context) {
     final asynchEquipment =
         ref.watch(EntityController.equipmentProvider(widget.equipment));
-    _appBarTitle ??= AppLocalizations.of(context)!.materialTitle;
 
     return Scaffold(
         appBar: AppBar(
             title: Center(
               child: Column(
                 children: [
-                  Text(_appBarTitle!,
-                      style: const TextStyle(color: Colors.white)),
+                  Text(
+                    _getAppBarTitle(context),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
+                  ),
                 ],
               ),
             ),
             leading: IconButton(
-              icon: UIUtils.backIcon,
+              icon: UIUtils.getBackIcon(context),
               onPressed: () {
                 Navigator.pop(context);
               },
             ),
-            backgroundColor: UIUtils.appBarBackground),
+            backgroundColor: UIUtils.getAppBarBackground(context)),
         floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            _refreshMaterials();
-          },
+          onPressed: _refreshMaterials,
           child: const Icon(Icons.refresh),
         ),
         body: asynchEquipment.when(
           data: (equipment) {
-            List<TreeNode<OeeMaterialNode>> treeNodes =
-                MaterialController.buildTreeNodes(
-                    equipment.getProducedMaterials());
+            final treeNodes = MaterialController.buildTreeNodes(
+                equipment.getProducedMaterials());
 
             return Stack(
               children: [
@@ -128,10 +160,50 @@ class OeeMaterialPageState extends ConsumerState<OeeMaterialPage> {
               ],
             );
           },
-          error: (err, s) => Text(err.toString()),
+          error: (err, stackTrace) => Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.error_outline,
+                  size: 48,
+                  color: Theme.of(context).colorScheme.error,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Error loading materials',
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Equipment: ${widget.equipment}',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  err.toString(),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _refreshMaterials,
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          ),
           loading: () => const Center(
             child: CircularProgressIndicator(),
           ),
         ));
+  }
+
+  @override
+  void dispose() {
+    // Clean up any resources if needed
+    super.dispose();
   }
 }

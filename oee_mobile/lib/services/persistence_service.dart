@@ -13,19 +13,21 @@ class PersistenceService {
   }
   PersistenceService._internal();
 
-  void saveServerInfo(String serverName, String port) async {
+  // save server settings
+  Future<void> saveServerInfo(String serverName, String port) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(_serverInfoKey, [serverName, port]);
   }
 
-  Future<List<String>?> readServerInfo() async {
+  // read server settings
+  Future<List<String>> readServerInfo() async {
     final prefs = await SharedPreferences.getInstance();
-
     List<String>? strings = prefs.getStringList(_serverInfoKey);
-    return strings;
+    return strings ?? []; // Return empty list if null
   }
 
-  void clearServerInfo() async {
+  // clear server settings
+  Future<void> clearServerInfo() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_serverInfoKey);
   }

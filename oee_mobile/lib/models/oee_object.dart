@@ -7,7 +7,7 @@ abstract class OeeObject {
 
   @override
   String toString() {
-    return description != null ? '$name (${description!})' : name;
+    return description != null ? '$name ($description)' : name;
   }
 }
 
@@ -15,8 +15,8 @@ abstract class HierarchicalObject extends OeeObject {
   // parent name
   String? parent;
 
-  // list of children reasons
-  List<String> children = List<String>.empty(growable: true);
+  // list of children
+  List<String> children = <String>[];
 
   HierarchicalObject(super.name, super.description);
 }

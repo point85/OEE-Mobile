@@ -35,8 +35,8 @@ class OeeReasonNode extends HierarchicalNode {
   LossCategory lossCategory = LossCategory.noLoss;
   late Icon lossIcon;
 
-  OeeReasonNode(HierarchicalObject reason) : super(reason) {
-    lossCategory = (reason as OeeReason).lossCategory;
+  OeeReasonNode(OeeReason reason) : super(reason) {
+    lossCategory = reason.lossCategory;
     lossIcon = ReasonController.getIconForLossCategory(reason);
   }
 }
@@ -79,8 +79,6 @@ class OeeEntityNode extends HierarchicalNode {
         break;
       case EntityLevel.equipment:
         iconData = Icons.construction;
-        break;
-      default:
         break;
     }
     return iconData;

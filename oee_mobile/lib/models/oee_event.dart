@@ -78,7 +78,6 @@ class EquipmentEventRequest {
 
       case OeeEventType.custom:
         eventType = 'CUSTOM';
-      default:
         break;
     }
   }
@@ -90,6 +89,7 @@ class EquipmentEventRequest {
         'duration': durationSeconds,
         'eventType': eventType,
         'reason': reasonName,
+        'job': job,
         'immediate': immediate
       };
 

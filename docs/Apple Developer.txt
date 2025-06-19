@@ -1,0 +1,46 @@
+Apple Developer: https://developer.apple.com/account
+kentra52@icloud.com/Aligner2024
+Team: org.point85.oeeuernrr85058cvi
+
+
+App Store Connect: https://appstoreconnect.apple.com/apps
+kentra@pacbell.net/Aligner2024
+
+Build and release iOS app:
+https://docs.flutter.dev/deployment/ios
+
+IOS bundle id: org.point85.oee
+Mac bundle id: org.point85.oee.mac
+team id: 363T9537YA
+
+MacInCloud:
+User: user270372
+Password: nrr85058cvi
+Host:  LA539.macincloud.com
+IP: 74.80.242.239
+
+iPhone 16: 6.1"
+iPhone 16+: 6.7"
+iPhone 16 Pro: 6.3"
+iPhone 16 Pro Max: 6.9"
+iPad Air M2: 13"
+
+6.9-inch Display:
+iPhone 16 Pro Max
+iPhone 16 Plus
+iPhone 15 Pro Max
+iPhone 15 Plus
+iPhone 14 Pro Max
+6.5-inch Display:u
+iPhone 14 Plus
+iPhone 13 Pro Max
+iPhone 12 Pro Max
+iPhone 11 Pro Max
+iPhone 11
+iPhone XS Max
+iPhone XR
+
+
+https://github.com/point85/OEE-Mobile/tree/master/docs/privacy/PrivacyPolicy.pdf
+
+OEE Data Collection

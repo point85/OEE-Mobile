@@ -29,11 +29,36 @@ class EquipmentMaterial {
   factory EquipmentMaterial.fromJson(Map<String, dynamic> json) {
     EquipmentMaterial equipmentMaterial = EquipmentMaterial();
 
-    if (json.containsKey('oeeTarget')) {
-      equipmentMaterial.oeeTarget = json['oeeTarget'];
+    // Parse oeeTarget
+    if (json.containsKey('oeeTarget') && json['oeeTarget'] != null) {
+      final target = json['oeeTarget'];
+      equipmentMaterial.oeeTarget = target is num ? target.toDouble() : null;
     }
 
-    if (json.containsKey('producedMaterial')) {
+    // Parse runRateAmount
+    if (json.containsKey('runRateAmount') && json['runRateAmount'] != null) {
+      final rate = json['runRateAmount'];
+      equipmentMaterial.runRateAmount = rate is num ? rate.toDouble() : null;
+    }
+
+    // Parse runRateUOM
+    if (json.containsKey('runRateUOM') && json['runRateUOM'] != null) {
+      equipmentMaterial.runRateUOM = json['runRateUOM'].toString();
+    }
+
+    // Parse rejectUOM
+    if (json.containsKey('rejectUOM') && json['rejectUOM'] != null) {
+      equipmentMaterial.rejectUOM = json['rejectUOM'].toString();
+    }
+
+    // Parse isDefault
+    if (json.containsKey('isDefault') && json['isDefault'] != null) {
+      equipmentMaterial.isDefault = json['isDefault'] as bool?;
+    }
+
+    // Parse material
+    if (json.containsKey('producedMaterial') &&
+        json['producedMaterial'] != null) {
       equipmentMaterial.material =
           OeeMaterial.fromJson(json['producedMaterial']);
     }
