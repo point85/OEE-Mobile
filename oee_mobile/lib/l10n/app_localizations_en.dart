@@ -52,6 +52,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homePortLabel => 'Port *';
 
   @override
+  String equipment(Object name) {
+    return 'Equipment : $name';
+  }
+
+  @override
+  String get equip => 'Equipment';
+
+  @override
   String get equipAvailStart => 'Recording availability event ...';
 
   @override
@@ -136,6 +144,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get equipJobLabel => 'Job';
 
   @override
+  String get equipMaterialLabel => 'Material';
+
+  @override
+  String get equipMatlDescLabel => 'Description';
+
+  @override
+  String get equipReasonLabel => 'Current Reason';
+
+  @override
+  String get equipLossLabel => 'Loss Category';
+
+  @override
+  String get equipRunLabel => 'Run Rate UOM';
+
+  @override
+  String get equipRejectLabel => 'Reject UOM';
+
+  @override
+  String get equipStatus => 'Equipment Status';
+
+  @override
   String get buttonClose => 'Close';
 
   @override
@@ -158,6 +187,48 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get refreshedReasons => 'Refreshed reasons';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get loading => 'Loading ...';
+
+  @override
+  String get none => 'None';
+
+  @override
+  String get na => 'N/A';
+
+  @override
+  String get lossMinorStoppages => 'Minor Stoppage';
+
+  @override
+  String get lossNoLoss => 'Running Normally';
+
+  @override
+  String get lossNotScheduled => 'Not Currently Scheduled';
+
+  @override
+  String get lossPlannedDowntime => 'Planned Downtime';
+
+  @override
+  String get lossReducedSpeed => 'Running at Reduced Speed';
+
+  @override
+  String get lossRejectRework => 'Rejected Material';
+
+  @override
+  String get lossSetup => 'Machine Setup';
+
+  @override
+  String get lossStartupYield => 'Machine Startup Yield';
+
+  @override
+  String get lossUnplannedDowntime => 'Unplanned Downtime';
+
+  @override
+  String get lossUnscheduled => 'Unscheduled';
 
   @override
   String errNoLocalizations(Object message) {
@@ -218,4 +289,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errNoEquipmentName => 'Equipment name cannot be empty.';
+
+  @override
+  String get errNoEntities => 'No entities found.';
+
+  @override
+  String get errConnection => 'Pull to refresh or check your connection.';
+
+  @override
+  String get errFailedLoadingEntities => 'Error loading entities';
+
+  @override
+  String get errFailedLoadingMaterials => 'Error loading materials';
+
+  @override
+  String get errFailedLoadingReasons => 'Error loading reasons';
+
+  @override
+  String errFailedLoadingSettings(Object message) {
+    return 'Error loading settings $message';
+  }
 }

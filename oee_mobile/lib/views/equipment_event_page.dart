@@ -93,7 +93,6 @@ class EquipmentEventPageState extends State<EquipmentEventPage> {
   int? _productionValue;
   String _productionUnit = '';
   OeeEventType? _productionEventType;
-  //= OeeEventType.prodGood;
 
   final _quantityController = TextEditingController();
   double _productionAmount = 0.0;
@@ -213,45 +212,48 @@ class EquipmentEventPageState extends State<EquipmentEventPage> {
   }
 
   Icon _getAvailabilityIcon(OeeReason? reason) {
-    Icon icon = const Icon(Icons.error, size: 32, color: Colors.red);
+    double size = 32;
+    Color white = Colors.white;
+    Color green = Colors.greenAccent;
+    Color red = Colors.red;
+    Color yellow = Colors.yellow;
+
+    Icon icon = Icon(Icons.error, size: 32, color: red);
 
     if (reason == null) {
       return icon;
     }
 
-    double size = 32;
-    Color color = Colors.white;
-
     switch (reason.lossCategory) {
       case LossCategory.minorStoppages:
-        icon = Icon(Icons.block, size: size, color: color);
+        icon = Icon(Icons.block, size: size, color: yellow);
         break;
       case LossCategory.noLoss:
-        icon = Icon(Icons.check_circle_outline, size: size, color: color);
+        icon = Icon(Icons.check_circle_outline, size: size, color: green);
         break;
       case LossCategory.notScheduled:
-        icon = Icon(Icons.clear_all, size: size, color: color);
+        icon = Icon(Icons.clear_all, size: size, color: yellow);
         break;
       case LossCategory.plannedDowntime:
-        icon = Icon(Icons.all_out, size: size, color: color);
+        icon = Icon(Icons.all_out, size: size, color: yellow);
         break;
       case LossCategory.reducedSpeed:
-        icon = Icon(Icons.change_history, size: size, color: color);
+        icon = Icon(Icons.change_history, size: size, color: yellow);
         break;
       case LossCategory.rejectRework:
-        icon = Icon(Icons.highlight_off, size: size, color: color);
+        icon = Icon(Icons.highlight_off, size: size, color: yellow);
         break;
       case LossCategory.setup:
-        icon = Icon(Icons.mode_edit, size: size, color: color);
+        icon = Icon(Icons.mode_edit, size: size, color: white);
         break;
       case LossCategory.startupYield:
-        icon = Icon(Icons.arrow_drop_down_circle, size: size, color: color);
+        icon = Icon(Icons.arrow_drop_down_circle, size: size, color: yellow);
         break;
       case LossCategory.unplannedDowntime:
-        icon = Icon(Icons.flash_on, size: size, color: color);
+        icon = Icon(Icons.flash_on, size: size, color: red);
         break;
       case LossCategory.unscheduled:
-        icon = Icon(Icons.do_not_disturb_on, size: size, color: color);
+        icon = Icon(Icons.do_not_disturb_on, size: size, color: yellow);
         break;
     }
     return icon;
@@ -291,7 +293,10 @@ class EquipmentEventPageState extends State<EquipmentEventPage> {
           onPressed: () => Navigator.pop(context, false),
         ),
         actions: [
-          _getAvailabilityIcon(_equipmentStatus.reason),
+          IconButton(
+            icon: _getAvailabilityIcon(_equipmentStatus.reason),
+            onPressed: () => _showEquipmentStatusDialog(),
+          ),
         ],
         bottom: TabBar(
           labelColor: Colors.white,
@@ -308,6 +313,143 @@ class EquipmentEventPageState extends State<EquipmentEventPage> {
                 icon: const Icon(Icons.settings_applications)),
           ],
         ));
+  }
+
+  void _showEquipmentStatusDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              _getAvailabilityIcon(_equipmentStatus.reason),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  AppLocalizations.of(context)!.equipStatus,
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildStatusRow(AppLocalizations.of(context)!.equip,
+                    widget._equipmentNode.name),
+                const Divider(),
+                _buildStatusRow(
+                    AppLocalizations.of(context)!.equipMaterial,
+                    _equipmentStatus.material?.name ??
+                        AppLocalizations.of(context)!.none),
+                _buildStatusRow(
+                    AppLocalizations.of(context)!.equipMatlDescLabel,
+                    _equipmentStatus.material?.description ??
+                        AppLocalizations.of(context)!.na),
+                const Divider(),
+                _buildStatusRow(AppLocalizations.of(context)!.equipJobLabel,
+                    _equipmentStatus.job ?? AppLocalizations.of(context)!.none),
+                const Divider(),
+                _buildStatusRow(
+                    AppLocalizations.of(context)!.equipReasonLabel,
+                    _equipmentStatus.reason?.name ??
+                        AppLocalizations.of(context)!.none),
+                _buildStatusRow(
+                    AppLocalizations.of(context)!.equipLossLabel,
+                    _lossCategoryToString(
+                        _equipmentStatus.reason?.lossCategory)),
+                const Divider(),
+                _buildStatusRow(
+                    AppLocalizations.of(context)!.equipRunLabel,
+                    _equipmentStatus.runRateUOM ??
+                        AppLocalizations.of(context)!.na),
+                _buildStatusRow(
+                    AppLocalizations.of(context)!.equipRejectLabel,
+                    _equipmentStatus.rejectUOM ??
+                        AppLocalizations.of(context)!.na),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(AppLocalizations.of(context)!.buttonClose),
+            ),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _refreshEquipmentStatus();
+              },
+              icon: const Icon(Icons.refresh),
+              label: Text(AppLocalizations.of(context)!.homeRefresh),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  String _lossCategoryToString(LossCategory? category) {
+    AppLocalizations localizations = AppLocalizations.of(context)!;
+
+    if (category == null) return AppLocalizations.of(context)!.na;
+
+    switch (category) {
+      case LossCategory.minorStoppages:
+        return localizations.lossMinorStoppages;
+      case LossCategory.noLoss:
+        return AppLocalizations.of(context)!.lossNoLoss;
+      case LossCategory.notScheduled:
+        return AppLocalizations.of(context)!.lossNotScheduled;
+      case LossCategory.plannedDowntime:
+        return AppLocalizations.of(context)!.lossPlannedDowntime;
+      case LossCategory.reducedSpeed:
+        return AppLocalizations.of(context)!.lossReducedSpeed;
+      case LossCategory.rejectRework:
+        return AppLocalizations.of(context)!.lossRejectRework;
+      case LossCategory.setup:
+        return AppLocalizations.of(context)!.lossSetup;
+      case LossCategory.startupYield:
+        return AppLocalizations.of(context)!.lossStartupYield;
+      case LossCategory.unplannedDowntime:
+        return AppLocalizations.of(context)!.lossUnplannedDowntime;
+      case LossCategory.unscheduled:
+        return AppLocalizations.of(context)!.lossUnscheduled;
+    }
+  }
+
+  Widget _buildStatusRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 120,
+            child: Text(
+              '$label:',
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                color: Colors.grey,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontWeight: FontWeight.w500,
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildBody() {

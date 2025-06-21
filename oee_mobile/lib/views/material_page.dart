@@ -171,12 +171,12 @@ class OeeMaterialPageState extends ConsumerState<OeeMaterialPage> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Error loading materials',
+                  AppLocalizations.of(context)!.errFailedLoadingMaterials,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Equipment: ${widget.equipment}',
+                  AppLocalizations.of(context)!.equipment(widget.equipment),
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 8),
@@ -190,7 +190,7 @@ class OeeMaterialPageState extends ConsumerState<OeeMaterialPage> {
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: _refreshMaterials,
-                  child: const Text('Retry'),
+                  child: Text(AppLocalizations.of(context)!.retry),
                 ),
               ],
             ),

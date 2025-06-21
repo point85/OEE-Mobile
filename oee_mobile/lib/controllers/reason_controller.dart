@@ -5,47 +5,57 @@ import '../models/oee_reason.dart';
 import '../views/tree_nodes.dart';
 import '../services/http_service.dart';
 
+///
+/// This controller manages the OEE reasons by calling HTTP REST services.
+/// Exceptions are passed through to the views.
+///
+// Create a provider for the controller itself
+final reasonControllerProvider = Provider<ReasonController>((ref) {
+  return ReasonController(ref);
+});
+
 class ReasonController {
-  // reason provider
+  final Ref _ref;
+
+  ReasonController(this._ref);
+
+  // get reasons provider
   static final reasonProvider =
       FutureProvider.autoDispose<List<OeeReason>>((ref) async {
-    return ref.read(HttpService.provider).getReasons();
+    return await ref.read(HttpService.provider).getReasons();
   });
 
+  // get reasons
+  Future<List<OeeReason>> getReasons() async {
+    return await _ref.read(HttpService.provider).getReasons();
+  }
+
+  // build nodes in the tree
   static List<TreeNode<OeeReasonNode>> buildTreeNodes(List<OeeReason> reasons) {
-    List<TreeNode<OeeReasonNode>> nodeList = <TreeNode<OeeReasonNode>>[];
+    final nodeList = <TreeNode<OeeReasonNode>>[];
+    final reasonMap = <String, OeeReason>{};
+    final processedReasons =
+        <String>{}; // Track processed reasons to prevent cycles
 
-    // reason map
-    Map<String, OeeReason> reasonMap = <String, OeeReason>{};
-
-    // processed nodes
-    Set<String> processedNodes = <String>{};
-
-    try {
-      // Populate reason map
-      for (OeeReason reason in reasons) {
-        if (reason.name.trim().isNotEmpty) {
-          reasonMap[reason.name] = reason;
-        }
+    // Populate reason map
+    for (OeeReason reason in reasons) {
+      if (reason.name.trim().isNotEmpty) {
+        reasonMap[reason.name] = reason;
       }
-
-      // Add top-level nodes
-      for (OeeReason reason in reasons) {
-        if (reason.parent == null &&
-            reason.name.trim().isNotEmpty &&
-            !processedNodes.contains(reason.name)) {
-          TreeNode<OeeReasonNode> topTreeNode = _createTreeNode(reason);
-          nodeList.add(topTreeNode);
-          processedNodes.add(reason.name);
-
-          // Add children recursively
-          _addChildReasons(topTreeNode, reason, reasonMap, processedNodes);
-        }
-      }
-    } catch (e) {
-      // Return what we have so far instead of empty list
     }
 
+    // Add top-level reason nodes
+    for (OeeReason reason in reasons) {
+      if (reason.parent == null &&
+          reason.name.trim().isNotEmpty &&
+          !processedReasons.contains(reason.name)) {
+        TreeNode<OeeReasonNode> topTreeNode = _createTreeNode(reason);
+        nodeList.add(topTreeNode);
+
+        // Add children recursively with cycle detection
+        _addChildReasons(topTreeNode, reason, reasonMap, processedReasons);
+      }
+    }
     return nodeList;
   }
 
@@ -53,34 +63,40 @@ class ReasonController {
       TreeNode<OeeReasonNode> parentTreeNode,
       OeeReason parentReason,
       Map<String, OeeReason> reasonMap,
-      Set<String> processedNodes) {
+      Set<String> processedReasons) {
+    // Prevent infinite recursion
+    if (processedReasons.contains(parentReason.name)) {
+      return;
+    }
+
+    processedReasons.add(parentReason.name);
+
     for (String childName in parentReason.children) {
-      // Skip if already processed
-      if (processedNodes.contains(childName)) {
+      final childReason = reasonMap[childName];
+
+      if (childReason == null || childReason.name.trim().isEmpty) {
         continue;
       }
 
-      // Safe null checking
-      OeeReason? childReason = reasonMap[childName];
+      TreeNode<OeeReasonNode> childTreeNode = _createTreeNode(childReason);
+      parentTreeNode.children.add(childTreeNode);
 
-      if (childReason != null && childReason.name.trim().isNotEmpty) {
-        TreeNode<OeeReasonNode> childTreeNode = _createTreeNode(childReason);
-        parentTreeNode.children.add(childTreeNode);
-        processedNodes.add(childName);
-
-        // Add descendants recursively
-        _addChildReasons(childTreeNode, childReason, reasonMap, processedNodes);
-      } else {
-        // child reason not found or empty name, safe to continue
-      }
+      // Add descendants
+      _addChildReasons(childTreeNode, childReason, reasonMap, processedReasons);
     }
   }
 
   static TreeNode<OeeReasonNode> _createTreeNode(OeeReason reason) {
     final OeeReasonNode reasonNode = OeeReasonNode(reason);
     // key generation
-    final String keyValue =
-        reason.name.trim().isEmpty ? 'reason_${reason.hashCode}' : reason.name;
+    String keyValue;
+    if (reason.name.trim().isEmpty) {
+      keyValue =
+          'reason_${reason.hashCode}_${DateTime.now().millisecondsSinceEpoch}';
+    } else {
+      keyValue = reason.name.trim();
+    }
+
     final TreeNode<OeeReasonNode> node =
         TreeNode<OeeReasonNode>(Key(keyValue), reasonNode);
     return node;
@@ -165,42 +181,5 @@ class ReasonController {
 
     addDescendantsRecursively(parentReason);
     return descendants;
-  }
-
-  /// Validate reason hierarchy for circular references
-  static List<String> validateReasonHierarchy(List<OeeReason> reasons) {
-    List<String> errors = [];
-    Map<String, OeeReason> reasonMap = {
-      for (OeeReason reason in reasons) reason.name: reason
-    };
-
-    for (OeeReason reason in reasons) {
-      Set<String> visited = {};
-      if (_hasCircularReference(reason, reasonMap, visited)) {
-        errors.add(
-            'Circular reference detected in reason hierarchy starting with: ${reason.name}');
-      }
-    }
-
-    return errors;
-  }
-
-  static bool _hasCircularReference(
-      OeeReason reason, Map<String, OeeReason> reasonMap, Set<String> visited) {
-    if (visited.contains(reason.name)) {
-      return true;
-    }
-
-    visited.add(reason.name);
-
-    for (String childName in reason.children) {
-      OeeReason? child = reasonMap[childName];
-      if (child != null && _hasCircularReference(child, reasonMap, visited)) {
-        return true;
-      }
-    }
-
-    visited.remove(reason.name);
-    return false;
   }
 }

@@ -35,7 +35,7 @@ class OeeReasonPageState extends ConsumerState<OeeReasonPage> {
   void _refreshReasons() {
     if (!mounted) return; // Check if widget is still mounted
 
-    // re-read reasons from the database
+    // re-read reasons from the server
     ref.invalidate(ReasonController.reasonProvider);
 
     // notify user
@@ -154,9 +154,9 @@ class OeeReasonPageState extends ConsumerState<OeeReasonPage> {
                   size: 48,
                   color: Theme.of(context).colorScheme.error,
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 Text(
-                  'Error loading reasons',
+                  AppLocalizations.of(context)!.errFailedLoadingReasons,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 const SizedBox(height: 8),
@@ -170,7 +170,7 @@ class OeeReasonPageState extends ConsumerState<OeeReasonPage> {
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: _refreshReasons,
-                  child: const Text('Retry'),
+                  child: Text(AppLocalizations.of(context)!.retry),
                 ),
               ],
             ),

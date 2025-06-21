@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:arborio/tree_view.dart';
-import 'package:oee_mobile/l10n/oee_exception.dart';
 import '../models/oee_material.dart';
 import '../views/tree_nodes.dart';
 import '../services/http_service.dart';
-import '../services/persistence_service.dart';
+
+///
+/// This controller manages the OEE materials by calling HTTP REST services.
+/// Exceptions are passed through to the views.
+///
 
 // Create a provider for the controller itself
 final materialControllerProvider = Provider<MaterialController>((ref) {
@@ -20,39 +23,12 @@ class MaterialController {
   // material provider with URL initialization
   static final materialProvider =
       FutureProvider.autoDispose<List<OeeMaterial>>((ref) async {
-    final controller = ref.read(materialControllerProvider);
-    await controller._ensureServerUrlSet();
-
-    try {
-      return await ref.read(HttpService.provider).getMaterials();
-    } catch (e) {
-      throw OeeException(OeeErrorId.notLocalizable, e.toString());
-    }
+    return await ref.read(HttpService.provider).getMaterials();
   });
-
-  // Private method to ensure URL is configured
-  Future<void> _ensureServerUrlSet() async {
-    final httpService = _ref.read(HttpService.provider);
-
-    // Only set URL if not already configured
-    if (!httpService.isUrlConfigured) {
-      final List<String> values = await PersistenceService().readServerInfo();
-
-      // check for correct server URL
-      if (values.length >= 2 && values[0].isNotEmpty && values[1].isNotEmpty) {
-        httpService.setUrl(values[0], values[1]);
-      }
-    }
-  }
 
   // Instance method for direct access
   Future<List<OeeMaterial>> getMaterials() async {
-    await _ensureServerUrlSet();
-    try {
-      return await _ref.read(HttpService.provider).getMaterials();
-    } catch (e) {
-      throw OeeException(OeeErrorId.notLocalizable, e.toString());
-    }
+    return await _ref.read(HttpService.provider).getMaterials();
   }
 
   static List<TreeNode<OeeMaterialNode>> buildTreeNodes(
@@ -121,7 +97,6 @@ class MaterialController {
         nodeList.add(topTreeNode);
       }
     }
-
     return nodeList;
   }
 
@@ -142,8 +117,6 @@ class MaterialController {
 
       // Skip if child material doesn't exist
       if (childMaterial == null) {
-        debugPrint(
-            'Warning: Child material "$childName" not found in material map');
         continue;
       }
 

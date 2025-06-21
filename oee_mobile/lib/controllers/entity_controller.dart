@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:arborio/tree_view.dart';
-import 'package:oee_mobile/l10n/oee_exception.dart';
 import '../models/oee_entity.dart';
 import '../models/oee_equipment_status.dart';
 import '../views/tree_nodes.dart';
 import '../services/http_service.dart';
 import '../services/persistence_service.dart';
 
+///
+/// This controller manages the OEE entities and their statuses by calling HTTP REST services.
+/// Exceptions are passed through to the views.
+///
+///
 // Create a provider for the controller itself
 final entityControllerProvider = Provider<EntityController>((ref) {
   return EntityController(ref);
@@ -19,28 +23,18 @@ class EntityController {
   EntityController(this._ref);
 
   // Providers with URL initialization
-  static final entityProvider =
+  static final entitiesProvider =
       FutureProvider.autoDispose<List<OeeEntity>>((ref) async {
     final controller = ref.read(entityControllerProvider);
     await controller._ensureServerUrlSet();
-
-    try {
-      return await ref.read(HttpService.provider).getEntities();
-    } catch (e) {
-      throw OeeException(OeeErrorId.notLocalizable, e.toString());
-    }
+    return await ref.read(HttpService.provider).getEntities();
   });
 
   static final equipmentProvider =
       FutureProvider.autoDispose.family<OeeEntity, String>((ref, name) async {
     final controller = ref.read(entityControllerProvider);
     await controller._ensureServerUrlSet();
-
-    try {
-      return await ref.read(HttpService.provider).getEquipment(name);
-    } catch (e) {
-      throw OeeException(OeeErrorId.equipmentLoadFailed, name, e.toString());
-    }
+    return await ref.read(HttpService.provider).getEquipment(name);
   });
 
   // equipment status provider
@@ -48,12 +42,7 @@ class EntityController {
       .family<OeeEquipmentStatus, String>((ref, name) async {
     final controller = ref.read(entityControllerProvider);
     await controller._ensureServerUrlSet();
-
-    try {
-      return await ref.read(HttpService.provider).getEquipmentStatus(name);
-    } catch (e) {
-      throw OeeException(OeeErrorId.statusGetFailed, name, e.toString());
-    }
+    return await ref.read(HttpService.provider).getEquipmentStatus(name);
   });
 
   // Private method to ensure URL is configured
@@ -74,29 +63,17 @@ class EntityController {
   // Instance methods for direct access
   Future<List<OeeEntity>> getEntities() async {
     await _ensureServerUrlSet();
-    try {
-      return await _ref.read(HttpService.provider).getEntities();
-    } catch (e) {
-      throw OeeException(OeeErrorId.notLocalizable, e.toString());
-    }
+    return await _ref.read(HttpService.provider).getEntities();
   }
 
   Future<OeeEntity> getEquipment(String name) async {
     await _ensureServerUrlSet();
-    try {
-      return await _ref.read(HttpService.provider).getEquipment(name);
-    } catch (e) {
-      throw OeeException(OeeErrorId.equipmentGetFailed, name, e.toString());
-    }
+    return await _ref.read(HttpService.provider).getEquipment(name);
   }
 
   Future<OeeEquipmentStatus> getEquipmentStatus(String name) async {
     await _ensureServerUrlSet();
-    try {
-      return await _ref.read(HttpService.provider).getEquipmentStatus(name);
-    } catch (e) {
-      throw OeeException(OeeErrorId.statusGetFailed, name, e.toString());
-    }
+    return await _ref.read(HttpService.provider).getEquipmentStatus(name);
   }
 
   // build nodes in the tree

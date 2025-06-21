@@ -9,8 +9,11 @@ import '../models/oee_equipment_status.dart';
 import '../l10n/oee_exception.dart';
 
 ///
-/// This singleton class makes HTTP REST requests to the Point85 collector to obtain materials, plant entities and reasons
-/// as well as to record an equipment event.  It provides the data to the UI.
+/// This singleton class makes HTTP REST requests to the Point85 Collector to
+/// obtain materials, plant entities and reasons,
+/// as well as to record an equipment event.  It provides the data to the UI via controllers.
+/// It relies on the Collector providing validation of parameters and returning an
+/// informative response.
 ///
 class HttpService {
   static const Duration timeout = Duration(seconds: 15);
@@ -59,16 +62,12 @@ class HttpService {
   // Add getter to check if URL is configured
   bool get isUrlConfigured => _urlConfigured;
 
-  // Add getter for current URL (useful for debugging)
+  // Add getter for current URL
   String get currentUrl => _restUrl;
 
   // GET request for equipment status
   Future<OeeEquipmentStatus> getEquipmentStatus(String equipmentName) async {
-    // Validate equipment name
-    if (equipmentName.trim().isEmpty) {
-      throw OeeException(OeeErrorId.noEquipmentName);
-    }
-
+    // build URI for the request
     Uri uri = Uri.parse(
         '$_restUrl$_statusResource/${Uri.encodeComponent(equipmentName)}');
 
@@ -80,24 +79,19 @@ class HttpService {
         final Map<String, dynamic> jsonData = json.decode(response.body);
         return OeeEquipmentStatus.fromJson(jsonData);
       } else {
-        throw OeeException(
-            OeeErrorId.notLocalizable, _buildErrorMessage(response));
+        throw OeeException(_buildErrorMessage(response));
       }
     } catch (e) {
       if (e is OeeException) rethrow;
-      throw OeeException(OeeErrorId.notLocalizable, e.toString());
+      throw OeeException(e.toString());
     }
   }
 
   // GET equipment
-  Future<OeeEntity> getEquipment(String equipmentName) async {
-    // Validate equipment name
-    if (equipmentName.trim().isEmpty) {
-      throw OeeException(OeeErrorId.noEquipmentName);
-    }
-
-    Uri uri = Uri.parse(
-        '$_restUrl$_entitiesResource/${Uri.encodeComponent(equipmentName)}');
+  Future<OeeEntity> getEquipment(String name) async {
+    // build the URI for the request
+    Uri uri =
+        Uri.parse('$_restUrl$_entitiesResource/${Uri.encodeComponent(name)}');
 
     try {
       final response =
@@ -107,12 +101,11 @@ class HttpService {
         final Map<String, dynamic> jsonData = json.decode(response.body);
         return OeeEntity.fromJson(jsonData);
       } else {
-        throw OeeException(
-            OeeErrorId.notLocalizable, _buildErrorMessage(response));
+        throw OeeException(_buildErrorMessage(response));
       }
     } catch (e) {
       if (e is OeeException) rethrow;
-      throw OeeException(OeeErrorId.notLocalizable, e.toString());
+      throw OeeException(e.toString());
     }
   }
 
@@ -128,12 +121,11 @@ class HttpService {
         final List<dynamic> jsonList = json.decode(response.body);
         return jsonList.map((item) => OeeMaterial.fromJson(item)).toList();
       } else {
-        throw OeeException(
-            OeeErrorId.notLocalizable, _buildErrorMessage(response));
+        throw OeeException(_buildErrorMessage(response));
       }
     } catch (e) {
       if (e is OeeException) rethrow;
-      throw OeeException(OeeErrorId.notLocalizable, e.toString());
+      throw OeeException(e.toString());
     }
   }
 
@@ -149,12 +141,11 @@ class HttpService {
         final List<dynamic> jsonList = json.decode(response.body);
         return jsonList.map((item) => OeeEntity.fromJson(item)).toList();
       } else {
-        throw OeeException(
-            OeeErrorId.notLocalizable, _buildErrorMessage(response));
+        throw OeeException(_buildErrorMessage(response));
       }
     } catch (e) {
       if (e is OeeException) rethrow;
-      throw OeeException(OeeErrorId.notLocalizable, e.toString());
+      throw OeeException(e.toString());
     }
   }
 
@@ -170,22 +161,17 @@ class HttpService {
         final List<dynamic> jsonList = json.decode(response.body);
         return jsonList.map((item) => OeeReason.fromJson(item)).toList();
       } else {
-        throw OeeException(
-            OeeErrorId.notLocalizable, _buildErrorMessage(response));
+        throw OeeException(_buildErrorMessage(response));
       }
     } catch (e) {
       if (e is OeeException) rethrow;
-      throw OeeException(OeeErrorId.notLocalizable, e.toString());
+      throw OeeException(e.toString());
     }
   }
 
   // POST an equipment event
   Future<bool> postEquipmentEvent(OeeEvent event) async {
-    // Validate event
-    if (event.equipment.trim().isEmpty) {
-      throw OeeException(OeeErrorId.noEquipmentName);
-    }
-
+    // build the body
     EquipmentEventRequest dto = EquipmentEventRequest(event);
     String data = dto.toJsonString();
     Uri uri = Uri.parse(
@@ -199,17 +185,16 @@ class HttpService {
       bool ok = _statusOk(response.statusCode);
 
       if (!ok) {
-        throw OeeException(
-            OeeErrorId.notLocalizable, _buildErrorMessage(response));
+        throw OeeException(_buildErrorMessage(response));
       }
       return ok;
     } catch (e) {
       if (e is OeeException) rethrow;
-      throw OeeException(OeeErrorId.notLocalizable, e.toString());
+      throw OeeException(e.toString());
     }
   }
 
   String _buildErrorMessage(http.Response response) {
-    return 'HTTP ${response.statusCode}: ${response.body}';
+    return '${response.statusCode}: ${response.body}';
   }
 }

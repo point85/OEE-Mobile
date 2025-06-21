@@ -30,7 +30,7 @@ class _OeeEntityPageState extends ConsumerState<OeeEntityPage> {
 
   void _refreshEntities() {
     // re-read entities from the database
-    ref.invalidate(EntityController.entityProvider);
+    ref.invalidate(EntityController.entitiesProvider);
 
     // notify user
     if (mounted) {
@@ -121,7 +121,7 @@ class _OeeEntityPageState extends ConsumerState<OeeEntityPage> {
   @override
   Widget build(BuildContext context) {
     // entity provider
-    final asynchEntities = ref.watch(EntityController.entityProvider);
+    final asynchEntities = ref.watch(EntityController.entitiesProvider);
 
     void showSettings() {
       _homeScaffoldKey.currentState?.showBottomSheet((context) {
@@ -178,14 +178,14 @@ class _OeeEntityPageState extends ConsumerState<OeeEntityPage> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'No entities found',
+                    AppLocalizations.of(context)!.errNoEntities,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           color: Colors.grey,
                         ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Pull to refresh or check your connection',
+                    AppLocalizations.of(context)!.errConnection,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Colors.grey,
                         ),
@@ -215,7 +215,7 @@ class _OeeEntityPageState extends ConsumerState<OeeEntityPage> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Error loading entities',
+                AppLocalizations.of(context)!.errFailedLoadingEntities,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       color: Colors.red,
                     ),
@@ -232,18 +232,18 @@ class _OeeEntityPageState extends ConsumerState<OeeEntityPage> {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _refreshEntities,
-                child: const Text('Retry'),
+                child: Text(AppLocalizations.of(context)!.retry),
               ),
             ],
           ),
         ),
-        loading: () => const Center(
+        loading: () => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CircularProgressIndicator(),
               SizedBox(height: 16),
-              Text('Loading entities...'),
+              Text(AppLocalizations.of(context)!.loading),
             ],
           ),
         ),

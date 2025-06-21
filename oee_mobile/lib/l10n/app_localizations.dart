@@ -178,6 +178,18 @@ abstract class AppLocalizations {
   /// **'Port *'**
   String get homePortLabel;
 
+  /// No description provided for @equipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment : {name}'**
+  String equipment(Object name);
+
+  /// No description provided for @equip.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment'**
+  String get equip;
+
   /// No description provided for @equipAvailStart.
   ///
   /// In en, this message translates to:
@@ -346,6 +358,48 @@ abstract class AppLocalizations {
   /// **'Job'**
   String get equipJobLabel;
 
+  /// No description provided for @equipMaterialLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Material'**
+  String get equipMaterialLabel;
+
+  /// No description provided for @equipMatlDescLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get equipMatlDescLabel;
+
+  /// No description provided for @equipReasonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Reason'**
+  String get equipReasonLabel;
+
+  /// No description provided for @equipLossLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Loss Category'**
+  String get equipLossLabel;
+
+  /// No description provided for @equipRunLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Run Rate UOM'**
+  String get equipRunLabel;
+
+  /// No description provided for @equipRejectLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject UOM'**
+  String get equipRejectLabel;
+
+  /// No description provided for @equipStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment Status'**
+  String get equipStatus;
+
   /// No description provided for @buttonClose.
   ///
   /// In en, this message translates to:
@@ -393,6 +447,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Refreshed reasons'**
   String get refreshedReasons;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading ...'**
+  String get loading;
+
+  /// No description provided for @none.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get none;
+
+  /// No description provided for @na.
+  ///
+  /// In en, this message translates to:
+  /// **'N/A'**
+  String get na;
+
+  /// No description provided for @lossMinorStoppages.
+  ///
+  /// In en, this message translates to:
+  /// **'Minor Stoppage'**
+  String get lossMinorStoppages;
+
+  /// No description provided for @lossNoLoss.
+  ///
+  /// In en, this message translates to:
+  /// **'Running Normally'**
+  String get lossNoLoss;
+
+  /// No description provided for @lossNotScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'Not Currently Scheduled'**
+  String get lossNotScheduled;
+
+  /// No description provided for @lossPlannedDowntime.
+  ///
+  /// In en, this message translates to:
+  /// **'Planned Downtime'**
+  String get lossPlannedDowntime;
+
+  /// No description provided for @lossReducedSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Running at Reduced Speed'**
+  String get lossReducedSpeed;
+
+  /// No description provided for @lossRejectRework.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected Material'**
+  String get lossRejectRework;
+
+  /// No description provided for @lossSetup.
+  ///
+  /// In en, this message translates to:
+  /// **'Machine Setup'**
+  String get lossSetup;
+
+  /// No description provided for @lossStartupYield.
+  ///
+  /// In en, this message translates to:
+  /// **'Machine Startup Yield'**
+  String get lossStartupYield;
+
+  /// No description provided for @lossUnplannedDowntime.
+  ///
+  /// In en, this message translates to:
+  /// **'Unplanned Downtime'**
+  String get lossUnplannedDowntime;
+
+  /// No description provided for @lossUnscheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'Unscheduled'**
+  String get lossUnscheduled;
 
   /// No description provided for @errNoLocalizations.
   ///
@@ -477,6 +615,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Equipment name cannot be empty.'**
   String get errNoEquipmentName;
+
+  /// No description provided for @errNoEntities.
+  ///
+  /// In en, this message translates to:
+  /// **'No entities found.'**
+  String get errNoEntities;
+
+  /// No description provided for @errConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Pull to refresh or check your connection.'**
+  String get errConnection;
+
+  /// No description provided for @errFailedLoadingEntities.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading entities'**
+  String get errFailedLoadingEntities;
+
+  /// No description provided for @errFailedLoadingMaterials.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading materials'**
+  String get errFailedLoadingMaterials;
+
+  /// No description provided for @errFailedLoadingReasons.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading reasons'**
+  String get errFailedLoadingReasons;
+
+  /// No description provided for @errFailedLoadingSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading settings {message}'**
+  String errFailedLoadingSettings(Object message);
 }
 
 class _AppLocalizationsDelegate

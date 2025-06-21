@@ -83,11 +83,6 @@ class _SettingsPageState extends State<SettingsPage> {
       return localizations?.errNoServerName ?? 'Server name is required';
     }
 
-    // Additional validation for server name format
-    if (value.trim().length < 3) {
-      return 'Server name must be at least 3 characters';
-    }
-
     return null;
   }
 
@@ -97,17 +92,6 @@ class _SettingsPageState extends State<SettingsPage> {
     if (value == null || value.trim().isEmpty) {
       return localizations?.errNoServerPort ?? 'Port is required';
     }
-
-    // Validate port number range
-    final port = int.tryParse(value.trim());
-    if (port == null) {
-      return 'Port must be a valid number';
-    }
-
-    if (port < 1 || port > 65535) {
-      return 'Port must be between 1 and 65535';
-    }
-
     return null;
   }
 
@@ -152,8 +136,8 @@ class _SettingsPageState extends State<SettingsPage> {
       UIUtils.showErrorDialog(
           context,
           localizations?.homeSettingsSaved != null
-              ? 'Failed to save settings: $error'
-              : 'Failed to save settings: $error');
+              ? AppLocalizations.of(context)!.errFailedLoadingSettings(error)
+              : AppLocalizations.of(context)!.errFailedLoadingSettings(error));
     }
   }
 
@@ -189,7 +173,7 @@ class _SettingsPageState extends State<SettingsPage> {
               decoration: InputDecoration(
                 border: const UnderlineInputBorder(),
                 filled: true,
-                icon: const Icon(Icons.computer),
+                icon: Icon(Icons.computer),
                 hintText: localizations?.homeServerHint ?? 'Enter server name',
                 labelText: localizations?.homeServerLabel ?? 'Server Name',
               ),
