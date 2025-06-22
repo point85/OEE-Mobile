@@ -9,7 +9,7 @@ The OEE operator applications support the following Flutter builds:
 
 Documentation on how to use the applications can be found on the Point85 Github respository at https://github.com/Point85/OEE-Designer in the Designer project.  The applications require Point85 release 3.11.0+ and use the REST API.
 
-A demo server is available at 52.37.56.187 on port 8182, and may be used for exploring the capabilities of the mobile app.
+A demo server is available at 52.37.56.187 on port 8182, and may be used for exploring the capabilities of the mobile application.
 
 The screen captures below are from the Android application.  Home and HTTP server settings page:
 ![HomePage](https://github.com/point85/OEE-Mobile/blob/master/docs/HomePageSetup.png)
