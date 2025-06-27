@@ -3,7 +3,20 @@ import 'package:intl/intl.dart';
 import 'package:datetime_picker_formfield_new/datetime_picker_formfield.dart';
 
 class DateTimeWidget extends StatefulWidget {
-  const DateTimeWidget({super.key});
+  final DateTime? initialValue;
+  final DateTime? firstDate;
+  final DateTime? lastDate;
+  final ValueChanged<DateTime?>? onChanged;
+  final String? Function(DateTime?)? validator;
+
+  const DateTimeWidget({
+    super.key,
+    this.initialValue,
+    this.firstDate,
+    this.lastDate,
+    this.onChanged,
+    this.validator,
+  });
 
   @override
   DateTimeWidgetState createState() => DateTimeWidgetState();
@@ -11,42 +24,50 @@ class DateTimeWidget extends StatefulWidget {
 
 class DateTimeWidgetState extends State<DateTimeWidget> {
   final _format = DateFormat('yyyy-MM-dd HH:mm');
-  DateTime? value = DateTime.now();
+  DateTime? _value;
+
+  DateTime? get value => _value;
+
+  @override
+  void initState() {
+    super.initState();
+    _value = widget.initialValue ?? DateTime.now();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: <Widget>[
-      DateTimeField(
-        format: _format,
-        onShowPicker: (context, currentValue) async {
-          return await showDatePicker(
+    return DateTimeField(
+      format: _format,
+      onShowPicker: (context, currentValue) async {
+        final date = await showDatePicker(
+          context: context,
+          firstDate: DateTime(2020),
+          initialDate: currentValue ?? DateTime.now(),
+          lastDate: DateTime(2100),
+        );
+
+        if (date != null) {
+          // Check if the context is still valid before using it
+          if (!context.mounted) return currentValue;
+
+          final time = await showTimePicker(
             context: context,
-            firstDate: DateTime(2020),
-            initialDate: currentValue ?? DateTime.now(),
-            lastDate: DateTime(2100),
-          ).then((DateTime? date) async {
-            if (date != null) {
-              final time = await showTimePicker(
-                // ignore: use_build_context_synchronously
-                context: context,
-                initialTime:
-                    TimeOfDay.fromDateTime(currentValue ?? DateTime.now()),
-              );
-              return DateTimeField.combine(date, time);
-            } else {
-              return currentValue;
-            }
-          });
-        },
-        autovalidateMode: AutovalidateMode.onUserInteraction,
-        validator: (date) => date == null ? 'Invalid date' : null,
-        initialValue: DateTime.now(),
-        onChanged: (date) => setState(() {
-          value = date;
-        }),
-        resetIcon: null,
-        readOnly: true,
-      ),
-    ]);
+            initialTime: TimeOfDay.fromDateTime(currentValue ?? DateTime.now()),
+          );
+          return DateTimeField.combine(date, time);
+        }
+        return currentValue;
+      },
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      validator:
+          widget.validator ?? (date) => date == null ? 'Invalid date' : null,
+      initialValue: _value,
+      onChanged: (date) {
+        setState(() => _value = date);
+        widget.onChanged?.call(date);
+      },
+      resetIcon: null,
+      readOnly: true,
+    );
   }
 }

@@ -6,10 +6,14 @@ import '../models/oee_reason.dart';
 import '../models/oee_material.dart';
 import '../models/oee_event.dart';
 import '../models/oee_equipment_status.dart';
+import '../l10n/oee_exception.dart';
 
 ///
-/// This singleton class makes HTTP REST requests to the Point85 collector to obtain materials, plant entities and reasons
-/// as well as to record an equipment event.  It provides the data to the UI.
+/// This singleton class makes HTTP REST requests to the Point85 Collector to
+/// obtain materials, plant entities and reasons,
+/// as well as to record an equipment event.  It provides the data to the UI via controllers.
+/// It relies on the Collector providing validation of parameters and returning an
+/// informative response.
 ///
 class HttpService {
   static const Duration timeout = Duration(seconds: 15);
@@ -40,148 +44,157 @@ class HttpService {
   // HTTP server URL
   String _restUrl = 'http://$defaultServer:$defaultPort/$_restAPI/';
 
+  // Track if URL has been explicitly set
+  bool _urlConfigured = false;
+
   // REST service Provider
-  final provider = Provider<HttpService>((ref) => HttpService());
+  static final provider = Provider<HttpService>((ref) => _instance);
 
   bool _statusOk(int code) {
-    return (code / 100 == 4 || code / 100 == 5) ? false : true;
+    return code >= 200 && code < 300;
   }
 
   void setUrl(String server, String port) {
     _restUrl = 'http://$server:$port/$_restAPI/';
+    _urlConfigured = true;
   }
+
+  // Add getter to check if URL is configured
+  bool get isUrlConfigured => _urlConfigured;
+
+  // Add getter for current URL
+  String get currentUrl => _restUrl;
 
   // GET request for equipment status
   Future<OeeEquipmentStatus> getEquipmentStatus(String equipmentName) async {
-    OeeEquipmentStatus? status;
+    // build URI for the request
+    Uri uri = Uri.parse(
+        '$_restUrl$_statusResource/${Uri.encodeComponent(equipmentName)}');
 
-    Uri uri = Uri.parse('$_restUrl$_statusResource/$equipmentName');
+    try {
+      final response =
+          await http.get(uri, headers: _jsonHeaders).timeout(timeout);
 
-    final response = await http
-        .get(uri, headers: _jsonHeaders)
-        .timeout(timeout)
-        .catchError((e) {
-      throw e;
-    });
-
-    if (_statusOk(response.statusCode)) {
-      status = OeeEquipmentStatus.fromJson(json.decode(response.body));
-    } else {
-      throw Exception(_buildErrorMessage(response));
+      if (_statusOk(response.statusCode)) {
+        final Map<String, dynamic> jsonData = json.decode(response.body);
+        return OeeEquipmentStatus.fromJson(jsonData);
+      } else {
+        throw OeeException(_buildErrorMessage(response));
+      }
+    } catch (e) {
+      if (e is OeeException) rethrow;
+      throw OeeException(e.toString());
     }
-    return Future.value(status);
   }
 
   // GET equipment
-  Future<OeeEntity> getEquipment(String equipmentName) async {
-    OeeEntity? equipment;
+  Future<OeeEntity> getEquipment(String name) async {
+    // build the URI for the request
+    Uri uri =
+        Uri.parse('$_restUrl$_entitiesResource/${Uri.encodeComponent(name)}');
 
-    Uri uri = Uri.parse('$_restUrl$_entitiesResource/$equipmentName');
+    try {
+      final response =
+          await http.get(uri, headers: _jsonHeaders).timeout(timeout);
 
-    final response = await http
-        .get(uri, headers: _jsonHeaders)
-        .timeout(timeout)
-        .catchError((e) {
-      throw e;
-    });
-
-    if (_statusOk(response.statusCode)) {
-      equipment = OeeEntity.fromJson(json.decode(response.body));
-    } else {
-      throw Exception(_buildErrorMessage(response));
+      if (_statusOk(response.statusCode)) {
+        final Map<String, dynamic> jsonData = json.decode(response.body);
+        return OeeEntity.fromJson(jsonData);
+      } else {
+        throw OeeException(_buildErrorMessage(response));
+      }
+    } catch (e) {
+      if (e is OeeException) rethrow;
+      throw OeeException(e.toString());
     }
-    return Future.value(equipment);
   }
 
   // GET request for production materials
   Future<List<OeeMaterial>> getMaterials() async {
-    List<OeeMaterial>? materialList;
-
     Uri uri = Uri.parse('$_restUrl$_materialsResource');
 
-    final response = await http
-        .get(uri, headers: _jsonHeaders)
-        .timeout(timeout)
-        .catchError((e) {
-      throw e;
-    });
+    try {
+      final response =
+          await http.get(uri, headers: _jsonHeaders).timeout(timeout);
 
-    if (_statusOk(response.statusCode)) {
-      final List<dynamic> jsonList = json.decode(response.body);
-      materialList =
-          jsonList.map((item) => OeeMaterial.fromJson(item)).toList();
-    } else {
-      throw Exception(_buildErrorMessage(response));
+      if (_statusOk(response.statusCode)) {
+        final List<dynamic> jsonList = json.decode(response.body);
+        return jsonList.map((item) => OeeMaterial.fromJson(item)).toList();
+      } else {
+        throw OeeException(_buildErrorMessage(response));
+      }
+    } catch (e) {
+      if (e is OeeException) rethrow;
+      throw OeeException(e.toString());
     }
-    return Future.value(materialList);
   }
 
   // GET request for plant entities
   Future<List<OeeEntity>> getEntities() async {
-    List<OeeEntity>? entityList;
-
     Uri uri = Uri.parse('$_restUrl$_entitiesResource');
 
-    final response = await http
-        .get(uri, headers: _jsonHeaders)
-        .timeout(timeout)
-        .catchError((e) {
-      throw (e);
-    });
+    try {
+      final response =
+          await http.get(uri, headers: _jsonHeaders).timeout(timeout);
 
-    if (_statusOk(response.statusCode)) {
-      final List<dynamic> jsonList = json.decode(response.body);
-      entityList = jsonList.map((item) => OeeEntity.fromJson(item)).toList();
-    } else {
-      throw Exception(_buildErrorMessage(response));
+      if (_statusOk(response.statusCode)) {
+        final List<dynamic> jsonList = json.decode(response.body);
+        return jsonList.map((item) => OeeEntity.fromJson(item)).toList();
+      } else {
+        throw OeeException(_buildErrorMessage(response));
+      }
+    } catch (e) {
+      if (e is OeeException) rethrow;
+      throw OeeException(e.toString());
     }
-    return Future.value(entityList);
   }
 
   // GET request for event reasons
   Future<List<OeeReason>> getReasons() async {
-    List<OeeReason>? reasonList;
-
     Uri uri = Uri.parse('$_restUrl$_reasonsResource');
 
-    final response = await http
-        .get(uri, headers: _jsonHeaders)
-        .timeout(timeout)
-        .catchError((e) {
-      throw e;
-    });
+    try {
+      final response =
+          await http.get(uri, headers: _jsonHeaders).timeout(timeout);
 
-    if (_statusOk(response.statusCode)) {
-      final List<dynamic> jsonList = json.decode(response.body);
-      reasonList = jsonList.map((item) => OeeReason.fromJson(item)).toList();
-    } else {
-      throw Exception(_buildErrorMessage(response));
+      if (_statusOk(response.statusCode)) {
+        final List<dynamic> jsonList = json.decode(response.body);
+        return jsonList.map((item) => OeeReason.fromJson(item)).toList();
+      } else {
+        throw OeeException(_buildErrorMessage(response));
+      }
+    } catch (e) {
+      if (e is OeeException) rethrow;
+      throw OeeException(e.toString());
     }
-    return Future.value(reasonList);
   }
 
   // POST an equipment event
   Future<bool> postEquipmentEvent(OeeEvent event) async {
+    // build the body
     EquipmentEventRequest dto = EquipmentEventRequest(event);
     String data = dto.toJsonString();
-    Uri uri = Uri.parse('$_restUrl$_eventResource/${event.equipment}');
+    Uri uri = Uri.parse(
+        '$_restUrl$_eventResource/${Uri.encodeComponent(event.equipment)}');
 
-    var response = await http
-        .post(uri, headers: _jsonHeaders, body: data)
-        .timeout(timeout)
-        .catchError((e) {
-      throw e;
-    });
+    try {
+      var response = await http
+          .post(uri, headers: _jsonHeaders, body: data)
+          .timeout(timeout);
 
-    bool ok = _statusOk(response.statusCode);
+      bool ok = _statusOk(response.statusCode);
 
-    if (!ok) {
-      throw Exception(_buildErrorMessage(response));
+      if (!ok) {
+        throw OeeException(_buildErrorMessage(response));
+      }
+      return ok;
+    } catch (e) {
+      if (e is OeeException) rethrow;
+      throw OeeException(e.toString());
     }
-    return Future.value(ok);
   }
 
   String _buildErrorMessage(http.Response response) {
-    return '${response.statusCode}, ${response.body}';
+    return '${response.statusCode}: ${response.body}';
   }
 }

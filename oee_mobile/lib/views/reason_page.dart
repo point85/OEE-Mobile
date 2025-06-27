@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:arborio/tree_view.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:oee_mobile/l10n/app_localizations.dart';
 import '../controllers/reason_controller.dart';
 import 'tree_nodes.dart';
 import 'common.dart';
@@ -22,25 +22,38 @@ class OeeReasonPageState extends ConsumerState<OeeReasonPage> {
   String? _appBarTitle;
 
   void _updateAppBar() {
-    setState(() {
-      _appBarTitle = selectedNode!.data.toString();
-    });
+    if (!mounted) return; // Check if widget is still mounted
+
+    final node = selectedNode;
+    if (node != null) {
+      setState(() {
+        _appBarTitle = node.data.toString();
+      });
+    }
   }
 
   void _refreshReasons() {
-    // re-read reasons from the database
-    // ignore: unused_local_variable
-    final value = ref.refresh(ReasonController.reasonProvider);
+    if (!mounted) return; // Check if widget is still mounted
+
+    // re-read reasons from the server
+    ref.invalidate(ReasonController.reasonProvider);
 
     // notify user
-    UIUtils.showSnackBar(
-        context, AppLocalizations.of(context)!.refreshedReasons);
+    final localizations = AppLocalizations.of(context);
+    if (localizations != null) {
+      UIUtils.showSnackBar(context, localizations.refreshedReasons);
+    }
+  }
+
+  void _onSelectionChanged(TreeNode<OeeReasonNode> node) {
+    selectedNode = node;
+    _updateAppBar();
   }
 
   TreeView<OeeReasonNode> _buildReasonTree(
           List<TreeNode<OeeReasonNode>> reasonNodes) =>
       TreeView(
-        onSelectionChanged: (node) => {selectedNode = node, _updateAppBar()},
+        onSelectionChanged: _onSelectionChanged,
         key: treeViewKey,
         animationDuration: TreeUtils.animationDuration,
         animationCurve: Curves.easeInOut,
@@ -52,7 +65,7 @@ class OeeReasonPageState extends ConsumerState<OeeReasonPage> {
           select,
         ) =>
             switch (node.data.nodeType) {
-          (NodeType.child) => InkWell(
+          NodeType.child => InkWell(
               onTap: () => select(node),
               child: Container(
                 margin: TreeUtils.edgeInsets,
@@ -61,14 +74,19 @@ class OeeReasonPageState extends ConsumerState<OeeReasonPage> {
                     node.data.name, node.data.description, Icons.edit),
               ),
             ),
-          (NodeType.parent) => Row(
+          NodeType.parent => Row(
               children: [
                 RotationTransition(
                   turns: expansionAnimation,
                   child: TreeUtils.folderIcon,
                 ),
                 TreeUtils.parentPadding,
-                Text(node.data.name),
+                Expanded(
+                  child: Text(
+                    node.data.name,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ],
             ),
         },
@@ -79,38 +97,47 @@ class OeeReasonPageState extends ConsumerState<OeeReasonPage> {
         ),
       );
 
+  String _getAppBarTitle(BuildContext context) {
+    if (_appBarTitle != null) {
+      return _appBarTitle!;
+    }
+
+    final localizations = AppLocalizations.of(context);
+    return localizations?.reasonTitle ?? 'Reasons'; // Fallback title
+  }
+
   @override
   Widget build(BuildContext context) {
     final asynchReasons = ref.watch(ReasonController.reasonProvider);
-    _appBarTitle ??= AppLocalizations.of(context)!.reasonTitle;
 
     return Scaffold(
         appBar: AppBar(
             title: Center(
               child: Column(
                 children: [
-                  Text(_appBarTitle!,
-                      style: const TextStyle(color: Colors.white)),
+                  Text(
+                    _getAppBarTitle(context),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
+                  ),
                 ],
               ),
             ),
             leading: IconButton(
-              icon: UIUtils.backIcon,
+              icon: UIUtils.getBackIcon(context),
               onPressed: () {
                 Navigator.pop(context);
               },
             ),
-            backgroundColor: UIUtils.appBarBackground),
+            backgroundColor: UIUtils.getAppBarBackground(context)),
         floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            _refreshReasons();
-          },
+          onPressed: _refreshReasons,
           child: const Icon(Icons.refresh),
         ),
         body: asynchReasons.when(
           data: (reasons) {
-            List<TreeNode<OeeReasonNode>> treeNodes =
-                ReasonController.buildTreeNodes(reasons);
+            final treeNodes = ReasonController.buildTreeNodes(reasons);
 
             return Stack(
               children: [
@@ -118,10 +145,45 @@ class OeeReasonPageState extends ConsumerState<OeeReasonPage> {
               ],
             );
           },
-          error: (err, s) => Text(err.toString()),
+          error: (err, stackTrace) => Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.error_outline,
+                  size: 48,
+                  color: Theme.of(context).colorScheme.error,
+                ),
+                SizedBox(height: 16),
+                Text(
+                  AppLocalizations.of(context)!.errFailedLoadingReasons,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  err.toString(),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _refreshReasons,
+                  child: Text(AppLocalizations.of(context)!.retry),
+                ),
+              ],
+            ),
+          ),
           loading: () => const Center(
             child: CircularProgressIndicator(),
           ),
         ));
+  }
+
+  @override
+  void dispose() {
+    // Clean up any resources if needed
+    super.dispose();
   }
 }

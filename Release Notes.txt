@@ -3,6 +3,14 @@
 
 (1)  1.0.2, November 23, 2021:  
 	- Initial functionality
+	
 (2)  2.0.0, October 6, 2024:  
 	- Implement for Dart 3 and latest Flutter
 	- Support iOS, Android, Windows, Linux, macOS and Edge/Chrome web apps
+	
+(3)  2.1.0, June 30, 2025:  
+	- Upgraded to Flutter 3.32.4 and Dart 3.8.1
+	- Implemented a specific OeeException
+	- Implemented an equipment status dialog
+	- Implemented various enhancements recommended by Antropic Claude AI
+	- Added text translations for German, Spanish and Chinese

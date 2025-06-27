@@ -7,58 +7,127 @@ import '../views/tree_nodes.dart';
 import '../services/http_service.dart';
 import '../services/persistence_service.dart';
 
-class EntityController {
-  // cache of defined entities
-  static final Map<String, OeeEntity> _entityMap = <String, OeeEntity>{};
+///
+/// This controller manages the OEE entities and their statuses by calling HTTP REST services.
+/// Exceptions are passed through to the views.
+///
+///
+// Create a provider for the controller itself
+final entityControllerProvider = Provider<EntityController>((ref) {
+  return EntityController(ref);
+});
 
-  // entity provider
-  static final entityProvider =
+class EntityController {
+  final Ref _ref;
+
+  EntityController(this._ref);
+
+  // Providers with URL initialization
+  static final entitiesProvider =
       FutureProvider.autoDispose<List<OeeEntity>>((ref) async {
-    return ref.read(HttpService().provider).getEntities();
+    final controller = ref.read(entityControllerProvider);
+    await controller._ensureServerUrlSet();
+    return await ref.read(HttpService.provider).getEntities();
   });
 
-  // equipment provider
   static final equipmentProvider =
       FutureProvider.autoDispose.family<OeeEntity, String>((ref, name) async {
-    return ref.read(HttpService().provider).getEquipment(name);
+    final controller = ref.read(entityControllerProvider);
+    await controller._ensureServerUrlSet();
+    return await ref.read(HttpService.provider).getEquipment(name);
   });
 
+  // equipment status provider
+  static final equipmentStatusProvider = FutureProvider.autoDispose
+      .family<OeeEquipmentStatus, String>((ref, name) async {
+    final controller = ref.read(entityControllerProvider);
+    await controller._ensureServerUrlSet();
+    return await ref.read(HttpService.provider).getEquipmentStatus(name);
+  });
+
+  // Private method to ensure URL is configured
+  Future<void> _ensureServerUrlSet() async {
+    final httpService = _ref.read(HttpService.provider);
+
+    // Only set URL if not already configured
+    if (!httpService.isUrlConfigured) {
+      final List<String> values = await PersistenceService().readServerInfo();
+
+      // check for correct server URL
+      if (values.length >= 2 && values[0].isNotEmpty && values[1].isNotEmpty) {
+        httpService.setUrl(values[0], values[1]);
+      }
+    }
+  }
+
+  // Instance methods for direct access
+  Future<List<OeeEntity>> getEntities() async {
+    await _ensureServerUrlSet();
+    return await _ref.read(HttpService.provider).getEntities();
+  }
+
+  Future<OeeEntity> getEquipment(String name) async {
+    await _ensureServerUrlSet();
+    return await _ref.read(HttpService.provider).getEquipment(name);
+  }
+
+  Future<OeeEquipmentStatus> getEquipmentStatus(String name) async {
+    await _ensureServerUrlSet();
+    return await _ref.read(HttpService.provider).getEquipmentStatus(name);
+  }
+
+  // build nodes in the tree
   static List<TreeNode<OeeEntityNode>> buildTreeNodes(
       List<OeeEntity> entities) {
     final nodeList = <TreeNode<OeeEntityNode>>[];
+    final entityMap = <String, OeeEntity>{};
+    final processedEntities =
+        <String>{}; // Track processed entities to prevent cycles
 
-    // populate Entity map
+    // Populate Entity map
     for (OeeEntity entity in entities) {
-      _entityMap[entity.name] = entity;
+      entityMap[entity.name] = entity;
     }
 
-    // add top-level model nodes
+    // Add top-level model nodes
     for (OeeEntity entity in entities) {
       if (entity.parent == null) {
         TreeNode<OeeEntityNode> topTreeNode = _createTreeNode(entity);
-
         nodeList.add(topTreeNode);
 
-        // add children recursively
-        _addChildEntities(topTreeNode, entity);
+        // Add children recursively with cycle detection
+        _addChildEntities(topTreeNode, entity, entityMap, processedEntities);
       }
     }
-    _entityMap.clear();
 
     return nodeList;
   }
 
   static void _addChildEntities(
-      TreeNode<OeeEntityNode> parentTreeNode, OeeEntity parentEntity) {
+      TreeNode<OeeEntityNode> parentTreeNode,
+      OeeEntity parentEntity,
+      Map<String, OeeEntity> entityMap,
+      Set<String> processedEntities) {
+    // Prevent infinite recursion
+    if (processedEntities.contains(parentEntity.name)) {
+      return;
+    }
+
+    processedEntities.add(parentEntity.name);
+
     for (String childName in parentEntity.children) {
-      OeeEntity childEntity = _entityMap[childName]!;
+      final childEntity = entityMap[childName];
+
+      if (childEntity == null) {
+        continue;
+      }
 
       TreeNode<OeeEntityNode> childTreeNode = _createTreeNode(childEntity);
-
       parentTreeNode.children.add(childTreeNode);
 
-      // add descendants
-      _addChildEntities(childTreeNode, childEntity);
+      // Add descendants
+      _addChildEntities(
+          childTreeNode, childEntity, entityMap, processedEntities);
     }
   }
 
@@ -67,22 +136,5 @@ class EntityController {
     final TreeNode<OeeEntityNode> node =
         TreeNode<OeeEntityNode>(Key(entity.name), entityNode);
     return node;
-  }
-
-  static Future<OeeEquipmentStatus> getEquipmentStatus(String name) {
-    return HttpService().getEquipmentStatus(name);
-  }
-
-  static Future<OeeEntity> getEquipment(String name) {
-    return HttpService().getEquipment(name);
-  }
-
-  static void setServerUrl() async {
-    // set HTTP server URL
-    List<String>? values = await PersistenceService().readServerInfo();
-
-    if (values != null && values[0].isNotEmpty && values[1].isNotEmpty) {
-      HttpService().setUrl(values[0], values[1]);
-    }
   }
 }

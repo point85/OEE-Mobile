@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:oee_mobile/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'views/entity_page.dart';
-import 'controllers/entity_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // set HTTP server URL
-  EntityController.setServerUrl();
+  // Server URL is now set automatically when needed by EntityController
+  // No need to call EntityController.setServerUrl() anymore
 
   // run the application now
   runApp(const ProviderScope(child: OeeMobileApp()));
@@ -31,6 +30,9 @@ class OeeMobileApp extends StatelessWidget {
       ],
       supportedLocales: const [
         Locale('en'), // English
+        Locale('es'), // Spanish
+        Locale('de'), // German
+        Locale('zh'),    // Chinese (Simplified)
       ],
       theme: ThemeData(
         primarySwatch: Colors.blue,

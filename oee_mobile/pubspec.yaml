@@ -1,6 +1,6 @@
 name: oee_mobile
 description: OEE Mobile Application
-version: 2.0.0+1
+version: 2.1.0+1
 versionName: "Point85 OEE Mobile Application"
 
 environment:
@@ -25,15 +25,16 @@ dependencies:
   datetime_picker_formfield_new: ^2.1.0  
   
   # tree view
-  arborio: ^0.3.0-beta
+  arborio: ^1.0.1
   
   # asynch provider
   flutter_riverpod: ^2.5.1
+  flutter_gen: ^5.10.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
+  flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true
@@ -45,4 +46,9 @@ flutter:
     # icon folder
     - assets/icons/
     # app localizations
-    - lib/l10n/
+    - lib/l10n/  
+    
+flutter_intl:
+  enabled: true
+  # Disable metadata validation
+  validate_metadata: false    

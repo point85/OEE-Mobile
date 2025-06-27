@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:arborio/tree_view.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:oee_mobile/l10n/app_localizations.dart';
 import '../models/oee_entity.dart';
-import '../models/oee_equipment_status.dart';
 import '../models/oee_event.dart';
 import '../controllers/entity_controller.dart';
 import 'common.dart';
@@ -30,19 +29,17 @@ class _OeeEntityPageState extends ConsumerState<OeeEntityPage> {
   int _bottomNavBarIndex = 0;
 
   void _refreshEntities() {
-    // refresh server URL
-    EntityController.setServerUrl();
-
     // re-read entities from the database
-    // ignore: unused_local_variable
-    final value = ref.refresh(EntityController.entityProvider);
+    ref.invalidate(EntityController.entitiesProvider);
 
     // notify user
-    UIUtils.showSnackBar(
-        context, AppLocalizations.of(context)!.refreshedEntities);
+    if (mounted) {
+      UIUtils.showSnackBar(
+          context, AppLocalizations.of(context)!.refreshedEntities);
+    }
   }
 
-// about dialog
+  // about dialog
   void _showAboutDialog() {
     final TextStyle? textStyle = Theme.of(context).textTheme.bodyMedium;
     final List<Widget> aboutBoxChildren = <Widget>[
@@ -74,8 +71,10 @@ class _OeeEntityPageState extends ConsumerState<OeeEntityPage> {
           List<TreeNode<OeeEntityNode>> entityNodes) =>
       TreeView(
         indentation: const SizedBox(width: 8),
-        onSelectionChanged: (node) =>
-            {selectedNode = node, _entitySelected(node)},
+        onSelectionChanged: (node) {
+          selectedNode = node;
+          _entitySelected(node);
+        },
         key: treeViewKey,
         animationDuration: TreeUtils.animationDuration,
         animationCurve: Curves.easeInOut,
@@ -103,7 +102,12 @@ class _OeeEntityPageState extends ConsumerState<OeeEntityPage> {
                   child: Icon(node.data.getIcon()),
                 ),
                 TreeUtils.parentPadding,
-                Text(node.data.name),
+                Expanded(
+                  child: Text(
+                    node.data.name,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ],
             ),
         },
@@ -117,10 +121,10 @@ class _OeeEntityPageState extends ConsumerState<OeeEntityPage> {
   @override
   Widget build(BuildContext context) {
     // entity provider
-    final asynchEntities = ref.watch(EntityController.entityProvider);
+    final asynchEntities = ref.watch(EntityController.entitiesProvider);
 
-    showSettings() {
-      _homeScaffoldKey.currentState!.showBottomSheet((context) {
+    void showSettings() {
+      _homeScaffoldKey.currentState?.showBottomSheet((context) {
         return const SettingsPage();
       });
     }
@@ -130,20 +134,24 @@ class _OeeEntityPageState extends ConsumerState<OeeEntityPage> {
         _bottomNavBarIndex = index;
       });
 
-      switch (index) {
-        case 0:
-          // settings
-          showSettings();
-          break;
-        case 1:
-          // refresh page
-          _refreshEntities();
-          break;
-        case 2:
-          // about dialog
-          _showAboutDialog();
-          break;
-      }
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (!mounted) return;
+
+        switch (index) {
+          case 0:
+            // settings
+            showSettings();
+            break;
+          case 1:
+            // refresh page
+            _refreshEntities();
+            break;
+          case 2:
+            // about dialog
+            _showAboutDialog();
+            break;
+        }
+      });
     }
 
     return Scaffold(
@@ -157,19 +165,89 @@ class _OeeEntityPageState extends ConsumerState<OeeEntityPage> {
         backgroundColor: Colors.blue,
       ),
       body: asynchEntities.when(
-          data: (entities) {
-            List<TreeNode<OeeEntityNode>> treeNodes =
-                EntityController.buildTreeNodes(entities);
-            return Stack(
-              children: [
-                _buildEntityTree(treeNodes),
-              ],
+        data: (entities) {
+          if (entities.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.business,
+                    size: 64,
+                    color: Colors.grey,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    AppLocalizations.of(context)!.errNoEntities,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          color: Colors.grey,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    AppLocalizations.of(context)!.errConnection,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Colors.grey,
+                        ),
+                  ),
+                ],
+              ),
             );
-          },
-          error: (err, s) => Text(err.toString()),
-          loading: () => const Center(
-                child: CircularProgressIndicator(),
-              )),
+          }
+
+          List<TreeNode<OeeEntityNode>> treeNodes =
+              EntityController.buildTreeNodes(entities);
+          return RefreshIndicator(
+            onRefresh: () async {
+              _refreshEntities();
+            },
+            child: _buildEntityTree(treeNodes),
+          );
+        },
+        error: (err, stackTrace) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.error_outline,
+                size: 64,
+                color: Colors.red,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                AppLocalizations.of(context)!.errFailedLoadingEntities,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: Colors.red,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  err.toString(),
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _refreshEntities,
+                child: Text(AppLocalizations.of(context)!.retry),
+              ),
+            ],
+          ),
+        ),
+        loading: () => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text(AppLocalizations.of(context)!.loading),
+            ],
+          ),
+        ),
+      ),
       bottomNavigationBar: BottomNavigationBar(
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -195,30 +273,39 @@ class _OeeEntityPageState extends ConsumerState<OeeEntityPage> {
 
   // show equipment event page
   void _entitySelected(TreeNode<OeeEntityNode> node) {
-    String entityName = node.data.name;
+    final entityName = node.data.name;
 
     if (node.data.level == EntityLevel.equipment) {
       // get current status
-      Future<OeeEquipmentStatus> future =
-          EntityController.getEquipmentStatus(entityName);
+      ref
+          .read(EntityController.equipmentStatusProvider(entityName).future)
+          .then(
+        (status) {
+          if (!mounted) return;
 
-      future.then((status) {
-        if (!mounted) return;
-        Navigator.push(
+          Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (ctx) => EquipmentEventPage(
-                      equipment: selectedNode!.data,
-                      status: status,
-                    )));
-      }, onError: (error) {
-        EquipmentEventResponse response =
-            EquipmentEventResponse.fromResponseBody('$error');
+              builder: (ctx) => EquipmentEventPage(
+                equipment: selectedNode!.data,
+                status: status,
+              ),
+            ),
+          );
+        },
+        onError: (error) {
+          if (!mounted) return;
 
-        if (!mounted) return;
-
-        UIUtils.showErrorDialog(context, response.errorText);
-      });
+          final response = EquipmentEventResponse.fromResponseBody('$error');
+          UIUtils.showErrorDialog(context, response.errorText);
+        },
+      );
     }
+  }
+
+  @override
+  void dispose() {
+    // Clean up any resources if needed
+    super.dispose();
   }
 }
