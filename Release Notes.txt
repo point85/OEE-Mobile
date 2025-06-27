@@ -12,5 +12,6 @@
 	- Upgraded to Flutter 3.32.4 and Dart 3.8.1
 	- Implemented a specific OeeException
 	- Implemented an equipment status dialog
-	- Implemented various enhancements recommended by Antropic Claude AI
+	- Implemented various enhancements recommended by Antropic Claude AI primarily for stability
 	- Added text translations for German, Spanish and Chinese
+	
