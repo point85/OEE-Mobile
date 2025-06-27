@@ -20,18 +20,18 @@ Production page:
 Setup page:
 ![SetupMaterials](https://github.com/point85/OEE-Mobile/blob/master/docs/SetupPage.png)
 
-The screen capture below is from the iOS iPhone application home page:
+The screen capture below is from the iOS v2.0.0 iPhone application home page:
 ![iosHome](https://github.com/point85/OEE-Mobile/blob/master/docs/iOSHome.png)
 
-The screen capture below is from the Edge/Chrome web application home page:
+The screen capture below is from the Edge/Chrome v2.0.0 web application home page:
 ![WebHome](https://github.com/point85/OEE-Mobile/blob/master/docs/WebHome.png)
 
-The screen capture below is from the Windows x64 application home page:
+The screen capture below is from the Windows x64 v2.0.0 application home page:
 ![WinHome](https://github.com/point85/OEE-Mobile/blob/master/docs/WinHome.png)
 
-The screen capture below is from the Linux Ubuntu x64 application home page:
+The screen capture below is from the Linux Ubuntu x64 v2.0.0 application home page:
 ![LinuxHome](https://github.com/point85/OEE-Mobile/blob/master/docs/LinuxHome.png)
 
-The screen capture below is from the macOS application home page:
+The screen capture below is from the macOS v2.0.0 application home page:
 ![MacHome](https://github.com/point85/OEE-Mobile/blob/master/docs/MacHome.png)
 
