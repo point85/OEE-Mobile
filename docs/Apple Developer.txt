@@ -1,0 +1,94 @@
+How  To
+
+Apple Developer: https://developer.apple.com/account
+kentra52@icloud.com/Aligner2024
+Team: org.point85.oeeuernrr85058cvi
+
+
+App Store Connect: https://appstoreconnect.apple.com/apps
+kentra@pacbell.net/Aligner2024
+
+Build and release iOS app:
+https://docs.flutter.dev/deployment/ios
+
+IOS bundle id: org.point85.oee
+Mac bundle id: org.point85.oee.mac
+team id: 363T9537YA
+
+MacInCloud:
+User: user270372
+Password: nrr85058cvi
+Host:  LA539.macincloud.com
+IP: 74.80.242.239
+
+iPhone 16: 6.1"
+iPhone 16+: 6.7"
+iPhone 16 Pro: 6.3"
+iPhone 16 Pro Max: 6.9"
+iPad Air M2: 13"
+
+6.9-inch Display:
+iPhone 16 Pro Max
+iPhone 16 Plus
+iPhone 15 Pro Max
+iPhone 15 Plus
+iPhone 14 Pro Max
+6.5-inch Display:u
+iPhone 14 Plus
+iPhone 13 Pro Max
+iPhone 12 Pro Max
+iPhone 11 Pro Max
+iPhone 11
+iPhone XS Max
+iPhone XR
+
+
+https://github.com/point85/OEE-Mobile/tree/master/docs/privacy/PrivacyPolicy.pdf
+
+OEE Data Collection
+
+GitHub:  kentra@pacbell.net/N&NZh9QZLd3E
+iCloud: kentra52@icloud.com/Aligner2024
+
+How To Install Flutter:
+Step-by-Step Installation
+1. Download the Flutter SDK
+Go to the Flutter macOS install page: https://docs.flutter.dev/get-started/install/macos
+
+Download the appropriate version for your chip (Apple Silicon or Intel)
+
+Extract it to a directory like ~/Development/flutter
+
+2. Add Flutter to Your PATH
+Open Terminal and edit your shell config file:
+
+For Zsh: nano ~/.zshrc or nano ~/.zshenv
+
+For Bash: nano ~/.bash_profile
+
+Add this line (adjust the path if needed): 
+
+bash
+export PATH="$PATH:$HOME/Development/flutter/bin"
+Save and restart Terminal
+
+3. Run Flutter Doctor
+bash
+flutter doctor
+This checks your environment and shows what’s missing (like Xcode or Android Studio).
+
+4. Install Xcode (for iOS)
+Download from the App Store
+
+Open Xcode → Preferences → Locations → Set Command Line Tools
+
+5. Install Android Studio (for Android)
+Download from developer.android.com
+
+During setup, install the Flutter and Dart plugins
+
+✅ Optional: Use Rosetta 2 (for Apple Silicon)
+If you're on an M1/M2/M3 Mac, install Rosetta:
+
+bash
+softwareupdate --install-rosetta --agree-to-license
