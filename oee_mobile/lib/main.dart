@@ -30,6 +30,9 @@ class OeeMobileApp extends StatelessWidget {
       ],
       supportedLocales: const [
         Locale('en'), // English
+        Locale('es'), // Spanish
+        Locale('de'), // German
+        Locale('zh'),    // Chinese (Simplified)
       ],
       theme: ThemeData(
         primarySwatch: Colors.blue,
