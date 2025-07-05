@@ -1,5 +1,6 @@
 name: oee_mobile
 description: OEE Mobile Application
+# version+build number
 version: 2.1.0+1
 versionName: "Point85 OEE Mobile Application"
 
