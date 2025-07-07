@@ -19,7 +19,6 @@ Production page:
 ![Production](https://github.com/point85/OEE-Mobile/blob/master/docs/ProductionPage.png)
 Setup page:
 ![SetupMaterials](https://github.com/point85/OEE-Mobile/blob/master/docs/SetupPage.png)
-
 Equipment status page:
 ![iosHome](https://github.com/point85/OEE-Mobile/blob/master/docs/EquipmentStatusPage.png)
 
