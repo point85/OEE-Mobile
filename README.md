@@ -23,6 +23,9 @@ Setup page:
 The screen capture below is from the iOS v2.0.0 iPhone application home page:
 ![iosHome](https://github.com/point85/OEE-Mobile/blob/master/docs/iOSHome.png)
 
+The screen capture below is from the iOS v2.1.0 iPhone application of the equipment status page:
+![iosHome](https://github.com/point85/OEE-Mobile/blob/master/docs/EquipmentStatusPage.png)
+
 The screen capture below is from the Edge/Chrome v2.0.0 web application home page:
 ![WebHome](https://github.com/point85/OEE-Mobile/blob/master/docs/WebHome.png)
 
