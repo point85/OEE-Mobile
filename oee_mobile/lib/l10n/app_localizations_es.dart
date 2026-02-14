@@ -12,9 +12,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get appName => 'Aplicación OEE Point85';
 
   @override
-  String get appVersion => '2.1.0';
-
-  @override
   String get homePageTitle => 'Point85 OEE';
 
   @override

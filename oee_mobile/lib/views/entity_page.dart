@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:arborio/tree_view.dart';
 import 'package:oee_mobile/l10n/app_localizations.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../models/oee_entity.dart';
 import '../models/oee_event.dart';
 import '../controllers/entity_controller.dart';
@@ -40,7 +41,12 @@ class _OeeEntityPageState extends ConsumerState<OeeEntityPage> {
   }
 
   // about dialog
-  void _showAboutDialog() {
+  void _showAboutDialog() async {
+    // Get version from pubspec.yaml
+    final packageInfo = await PackageInfo.fromPlatform();
+
+    if (!mounted) return;
+
     final TextStyle? textStyle = Theme.of(context).textTheme.bodyMedium;
     final List<Widget> aboutBoxChildren = <Widget>[
       const SizedBox(height: 24),
@@ -61,7 +67,7 @@ class _OeeEntityPageState extends ConsumerState<OeeEntityPage> {
       applicationIcon:
           const Image(image: AssetImage('assets/icons/Point85_48x48.png')),
       applicationName: AppLocalizations.of(context)!.appName,
-      applicationVersion: AppLocalizations.of(context)!.appVersion,
+      applicationVersion: packageInfo.version,
       children: aboutBoxChildren,
     );
   }

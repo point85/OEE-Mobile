@@ -108,12 +108,6 @@ abstract class AppLocalizations {
   /// **'Point85 OEE Application'**
   String get appName;
 
-  /// No description provided for @appVersion.
-  ///
-  /// In en, this message translates to:
-  /// **'2.1.0'**
-  String get appVersion;
-
   /// No description provided for @homePageTitle.
   ///
   /// In en, this message translates to:

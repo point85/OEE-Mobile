@@ -1,6 +1,6 @@
 name: oee_mobile
 description: OEE Mobile Application
-version: 2.1.0+1
+version: 2.2.0+2
 versionName: "Point85 OEE Mobile Application"
 
 environment:
@@ -20,6 +20,9 @@ dependencies:
 
   # key store persistence
   shared_preferences: ^2.3.2
+
+  # package info for version
+  package_info_plus: ^8.1.2
 
   # date time picker
   datetime_picker_formfield_new: ^2.1.0  

@@ -1,7 +1,6 @@
 {
   "@@locale": "zh",
   "appName" : "Point85 OEE 应用程序",
-  "appVersion" : "2.1.0",
   "homePageTitle" : "Point85 OEE",
   "homeAboutText" : "Point85 设备综合效率（OEE）应用程序能够从多个数据源收集设备数据，以支持性能、可用性和质量的 OEE 计算。\n\n更多信息请访问 https://github.com/Point85/OEE-Designer。",
   "homeSettings" : "设置",

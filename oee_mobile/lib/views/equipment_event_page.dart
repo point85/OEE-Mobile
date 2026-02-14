@@ -105,6 +105,13 @@ class EquipmentEventPageState extends State<EquipmentEventPage> {
 
   EquipmentEventPageState(this._equipmentStatus);
 
+  @override
+  void dispose() {
+    _quantityController.dispose();
+    _jobController.dispose();
+    super.dispose();
+  }
+
   void _onSubmitAvailabilityEvent() {
     final FormState? form = _availabilityFormKey.currentState;
     form!.save();
@@ -546,20 +553,18 @@ class EquipmentEventPageState extends State<EquipmentEventPage> {
             ]),
 
             // by event or by time period
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-              Radio(
-                value: _byPeriod,
-                groupValue: _availabilityEventTimeValue,
-                onChanged: _handleAvailabilityTimeChange,
-              ),
-              Text(AppLocalizations.of(context)!.equipTimePeriod),
-              Radio(
-                value: _byEvent,
-                groupValue: _availabilityEventTimeValue,
-                onChanged: _handleAvailabilityTimeChange,
-              ),
-              Text(AppLocalizations.of(context)!.equipEvent),
-            ]),
+            RadioGroup<int>(
+              groupValue: _availabilityEventTimeValue,
+              onChanged: _handleAvailabilityTimeChange,
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Radio<int>(value: _byPeriod),
+                    Text(AppLocalizations.of(context)!.equipTimePeriod),
+                    Radio<int>(value: _byEvent),
+                    Text(AppLocalizations.of(context)!.equipEvent),
+                  ]),
+            ),
 
             // event start date and time
             Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
@@ -652,42 +657,34 @@ class EquipmentEventPageState extends State<EquipmentEventPage> {
             ]),
 
             // by event or by time period radio buttons
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-              Radio(
-                value: _byPeriod,
-                groupValue: _productionEventTimeValue,
-                onChanged: _handleProductionTimeChange,
-              ),
-              Text(AppLocalizations.of(context)!.equipTimePeriod),
-              Radio(
-                value: _byEvent,
-                groupValue: _productionEventTimeValue,
-                onChanged: _handleProductionTimeChange,
-              ),
-              Text(AppLocalizations.of(context)!.equipEvent),
-            ]),
+            RadioGroup<int>(
+              groupValue: _productionEventTimeValue,
+              onChanged: _handleProductionTimeChange,
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Radio<int>(value: _byPeriod),
+                    Text(AppLocalizations.of(context)!.equipTimePeriod),
+                    Radio<int>(value: _byEvent),
+                    Text(AppLocalizations.of(context)!.equipEvent),
+                  ]),
+            ),
 
             // production type radio buttons
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-              Radio(
-                value: _goodAmount,
-                groupValue: _productionValue,
-                onChanged: _handleProductionChange,
-              ),
-              Text(AppLocalizations.of(context)!.equipGood),
-              Radio(
-                value: _rejectAmount,
-                groupValue: _productionValue,
-                onChanged: _handleProductionChange,
-              ),
-              Text(AppLocalizations.of(context)!.equipReject),
-              Radio(
-                value: _startupAmount,
-                groupValue: _productionValue,
-                onChanged: _handleProductionChange,
-              ),
-              Text(AppLocalizations.of(context)!.equipStartup),
-            ]),
+            RadioGroup<int>(
+              groupValue: _productionValue,
+              onChanged: _handleProductionChange,
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Radio<int>(value: _goodAmount),
+                    Text(AppLocalizations.of(context)!.equipGood),
+                    Radio<int>(value: _rejectAmount),
+                    Text(AppLocalizations.of(context)!.equipReject),
+                    Radio<int>(value: _startupAmount),
+                    Text(AppLocalizations.of(context)!.equipStartup),
+                  ]),
+            ),
 
             // amount of production
             Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
@@ -809,11 +806,11 @@ class EquipmentEventPageState extends State<EquipmentEventPage> {
     Future<bool> future = HttpService().postEquipmentEvent(productionEvent);
 
     future.then((ok) {
+      if (!mounted) return;
+
       setState(() {
         _productionReasonNode = null;
       });
-
-      if (!mounted) return;
 
       UIUtils.showInfoDialog(
           context, AppLocalizations.of(context)!.equipProdDone);
@@ -966,6 +963,8 @@ class EquipmentEventPageState extends State<EquipmentEventPage> {
     // fetch status from the database
     OeeEquipmentStatus status =
         await HttpService().getEquipmentStatus(widget._equipmentNode.name);
+
+    if (!mounted) return;
 
     setState(() {
       _productionReasonNode = null;

@@ -1,7 +1,7 @@
 {
   "@@locale": "de",
   "appName" : "Point85 OEE Anwendung",
-  "appVersion" : "2.1.0",
+
   "homePageTitle" : "Point85 OEE",
   "homeAboutText" : "Die Point85 Gesamtanlageneffektivität (OEE) Anwendungen ermöglichen die Sammlung von Anlagendaten aus mehreren Quellen zur Unterstützung von OEE-Berechnungen für Leistung, Verfügbarkeit und Qualität.\n\nFür weitere Informationen besuchen Sie bitte https://github.com/Point85/OEE-Designer.",
   "homeSettings" : "Einstellungen",

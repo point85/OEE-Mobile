@@ -1,7 +1,6 @@
 {
   "@@locale": "es",
   "appName" : "Aplicación OEE Point85",
-  "appVersion" : "2.1.0",
   "homePageTitle" : "Point85 OEE",
   "homeAboutText" : "Las aplicaciones de Eficiencia General de Equipos (OEE) de Point85 permiten la recopilación de datos de equipos de múltiples fuentes para apoyar los cálculos de OEE de rendimiento, disponibilidad y calidad.\n\nPara más información, visite https://github.com/Point85/OEE-Designer.",
   "homeSettings" : "Configuraciones",
